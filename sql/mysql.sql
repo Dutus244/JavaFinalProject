@@ -1,4 +1,9 @@
 BEGIN;
+CREATE DATABASE java_finalproject_chatapplication;
+
+BEGIN;
+USE java_finalproject_chatapplication;
+
 DROP TABLE IF EXISTS users;
 CREATE TABLE users (
 	UserID varchar(36) NOT NULL,
