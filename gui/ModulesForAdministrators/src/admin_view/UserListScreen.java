@@ -130,8 +130,9 @@ public class UserListScreen extends JFrame {
 		JMenuItem updateMenuItem = new JMenuItem("Cập nhật");
 		updateMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Cập nhật");
-				UpdateUserScreen.main();
+				int row = table.getSelectedRow();
+				String user = table.getValueAt(row, 0).toString();
+				UpdateUserScreen.main(user);
 			}
 		});
 		popupMenu.add(updateMenuItem);
@@ -139,16 +140,25 @@ public class UserListScreen extends JFrame {
 		JMenuItem deleteMenuItem = new JMenuItem("Xóa");
 		deleteMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Xóa");
 				int choice = JOptionPane.showConfirmDialog(frame,
 						"Bạn có chắc muốn xóa người dùng này",
 						"Cảnh báo",
 						JOptionPane.OK_CANCEL_OPTION,
                         JOptionPane.ERROR_MESSAGE);
 				if (choice == JOptionPane.OK_OPTION) {
-					System.out.println("OK");
-				} else if (choice == JOptionPane.CANCEL_OPTION) {
-					System.out.println("Cancel");
+					int row = table.getSelectedRow();
+					String user = table.getValueAt(row, 0).toString();
+					
+					try {
+						db.deleteUser(user);
+						JOptionPane.showMessageDialog(frame,
+				                "Xóa thành công",
+				                "Message",
+				                JOptionPane.INFORMATION_MESSAGE);
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 			}
 		});
@@ -157,17 +167,25 @@ public class UserListScreen extends JFrame {
 		JMenuItem banMenuItem = new JMenuItem("Khóa");
 		banMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Khóa");
-				System.out.println("Xóa");
 				int choice = JOptionPane.showConfirmDialog(frame,
 						"Bạn có chắc muốn khóa người dùng này",
 						"Cảnh báo",
 						JOptionPane.OK_CANCEL_OPTION,
                         JOptionPane.ERROR_MESSAGE);
 				if (choice == JOptionPane.OK_OPTION) {
-					System.out.println("OK");
-				} else if (choice == JOptionPane.CANCEL_OPTION) {
-					System.out.println("Cancel");
+					int row = table.getSelectedRow();
+					String user = table.getValueAt(row, 0).toString();
+					
+					try {
+						db.banUser(user);
+						JOptionPane.showMessageDialog(frame,
+				                "Khóa thành công",
+				                "Message",
+				                JOptionPane.INFORMATION_MESSAGE);
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 			}
 		});
@@ -295,7 +313,18 @@ public class UserListScreen extends JFrame {
 		btnRefresh = new JButton("Tải lại");
 		btnRefresh.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Tải lại");
+	        	data.clear();
+	        	tableModel.setRowCount(0);
+	        	
+		        try {
+					data = db.getAllUser(filter, order);
+			        for (int i = 0; i < data.size(); i++) {
+			        	tableModel.addRow(data.get(i));
+			        }
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 		btnRefresh.setFont(new Font("Tahoma", Font.BOLD, 12));
@@ -346,8 +375,6 @@ public class UserListScreen extends JFrame {
 			public void mouseReleased(MouseEvent e) {
 				int row = table.getSelectedRow();
 				if (e.isPopupTrigger() && row != -1) {
-					for (int i = 0; i < table.getColumnCount(); i++)
-						System.out.println(table.getValueAt(row, i));
 					showMenu(e);
 				}
 			}
