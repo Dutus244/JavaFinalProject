@@ -5,6 +5,9 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import db.Connect_DB;
+
 import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.JButton;
@@ -38,6 +41,8 @@ public class MenuScreen extends JFrame {
 	 * Create the frame.
 	 */
 	public MenuScreen() {
+		Connect_DB db = Connect_DB.getInstance();
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1000, 600);
 		contentPane = new JPanel();
@@ -90,10 +95,19 @@ public class MenuScreen extends JFrame {
 		exitButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frame.dispose();
+				db.close();
 			}
 		});
 		exitButton.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		exitButton.setBounds(325, 444, 325, 74);
 		contentPane.add(exitButton);
+		
+		// Close db when close window by X
+		addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
+		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+		    	db.close();
+		    }
+		});
 	}
 }

@@ -9,6 +9,9 @@ import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
+
+import db.Connect_DB;
+
 import javax.swing.JScrollPane;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
@@ -19,6 +22,8 @@ import javax.swing.JPopupMenu;
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.SQLException;
+import java.util.Vector;
 import java.awt.Dimension;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -39,6 +44,10 @@ public class UserListScreen extends JFrame {
 	private JTextField searchTextField;
 	private JButton btnSearch;
 	private JButton btnRefresh;
+	
+	Vector<Vector<Object>> data;
+	String filter = "CreateTime";
+	String order = "asc";
 
 	/**
 	 * Launch the application.
@@ -61,6 +70,8 @@ public class UserListScreen extends JFrame {
 	 * Create the frame.
 	 */
 	public UserListScreen() {
+		Connect_DB db = Connect_DB.getInstance();
+		
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 1000, 600);
 		contentPane = new JPanel();
@@ -73,29 +84,44 @@ public class UserListScreen extends JFrame {
 		scrollPane.setBounds(10, 100, 964, 450);
 		contentPane.add(scrollPane);
 		
+		// Data to be displayed in the JTable
+        try {
+			data = db.getAllUser(filter, order);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		table = new JTable();
 		scrollPane.setViewportView(table);
         String[] columnNames = { "Username", "Fullname", "Address", "Date of Birth", "Sex", "Email", "Date created" };
-         tableModel = new DefaultTableModel(columnNames, 0);
-		table.setModel(new DefaultTableModel(
-			new Object[][] {
-				{"admin", "Admin", "123 TH\u0110", "2002-04-01", "M", "admin@gmail.com", "2002-04-01"},
-				{null, null, null, null, null, null, null},
-			},
-			new String[] {
-				"Username", "Fullname", "Address", "Date of Birth", "Sex", "Email", "Date created"
-			}
-		) {
-			boolean[] columnEditables = new boolean[] {
-				false, false, false, false, false, false, false
-			};
-			public boolean isCellEditable(int row, int column) {
-				return columnEditables[column];
-			}
-		});
+        tableModel = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+               //all cells false
+               return false;
+            }
+        };
+        for (int i = 0; i < data.size(); i++) {
+        	tableModel.addRow(data.get(i));
+        }
+        table.setModel(tableModel);
+//		table.setModel(new DefaultTableModel(
+//			new Object[][] {
+//			},
+//			new String[] {
+//				"Username", "Fullname", "Address", "Date of Birth", "Sex", "Email", "Date created"
+//			}
+//		) {
+//			boolean[] columnEditables = new boolean[] {
+//				false, false, false, false, false, false, false
+//			};
+//			public boolean isCellEditable(int row, int column) {
+//				return columnEditables[column];
+//			}
+//		});
 		table.getColumnModel().getColumn(3).setPreferredWidth(15);
 		table.getColumnModel().getColumn(4).setPreferredWidth(15);
-		table.getColumnModel().getColumn(6).setPreferredWidth(15);
 		
 		JPopupMenu popupMenu = new JPopupMenu();
 		popupMenu.setPopupSize(new Dimension(120, 200));
@@ -192,7 +218,27 @@ public class UserListScreen extends JFrame {
 		    public void itemStateChanged(ItemEvent e) {
 		        if(e.getStateChange() == ItemEvent.SELECTED) {
 		        	// Cập nhật lại modelTable
-		            System.out.println(filterComboBox.getSelectedItem());
+		        	String filterSelect = filterComboBox.getSelectedItem().toString();
+		        	data.clear();
+		        	tableModel.setRowCount(0);
+		        	
+		        	if (filterSelect.equals("Sắp xếp theo Date created")) {
+		        		filter = "CreateTime";
+		        	} else if (filterSelect.equals("Sắp xếp theo Username")) {
+		        		filter = "UserName";
+		        	} else if (filterSelect.equals("Sắp xếp theo Fullname")) {
+		        		filter = "FullName";
+		        	}
+		        	
+		        	try {
+						data = db.getAllUser(filter, order);
+			            for (int i = 0; i < data.size(); i++) {
+			            	tableModel.addRow(data.get(i));
+			            }
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 		        }
 		    }
 		});
@@ -206,7 +252,26 @@ public class UserListScreen extends JFrame {
 		    public void itemStateChanged(ItemEvent e) {
 		        if(e.getStateChange() == ItemEvent.SELECTED) {
 		        	// Cập nhật lại modelTable
-		            System.out.println(orderComboBox.getSelectedItem());
+		        	// Cập nhật lại modelTable
+		        	String orderSelect = orderComboBox.getSelectedItem().toString();
+		        	data.clear();
+		        	tableModel.setRowCount(0);
+		        	
+		        	if (orderSelect.equals("Sắp xếp tăng dần")) {
+		        		order = "asc";
+		        	} else if (orderSelect.equals("Sắp xếp giảm dần")) {
+		        		order = "desc";
+		        	}
+		        	
+		        	try {
+						data = db.getAllUser(filter, order);
+			            for (int i = 0; i < data.size(); i++) {
+			            	tableModel.addRow(data.get(i));
+			            }
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 		        }
 		    }
 		});
@@ -219,11 +284,11 @@ public class UserListScreen extends JFrame {
 			}
 		});
 		btnSearch.setFont(new Font("Tahoma", Font.BOLD, 12));
-		btnSearch.setBounds(765, 50, 90, 30);
+		btnSearch.setBounds(884, 50, 90, 30);
 		contentPane.add(btnSearch);
 		
 		searchTextField = new JTextField();
-		searchTextField.setBounds(495, 50, 240, 30);
+		searchTextField.setBounds(615, 50, 240, 30);
 		contentPane.add(searchTextField);
 		searchTextField.setColumns(10);
 		
@@ -234,7 +299,7 @@ public class UserListScreen extends JFrame {
 			}
 		});
 		btnRefresh.setFont(new Font("Tahoma", Font.BOLD, 12));
-		btnRefresh.setBounds(884, 50, 90, 30);
+		btnRefresh.setBounds(884, 10, 90, 30);
 		contentPane.add(btnRefresh);
 		
 		JButton btnBack = new JButton("Quay lại");
@@ -247,7 +312,30 @@ public class UserListScreen extends JFrame {
 		btnBack.setFont(new Font("Tahoma", Font.BOLD, 12));
 		btnBack.setBounds(10, 10, 90, 30);
 		contentPane.add(btnBack);
+		
+		JComboBox<String> searchComboBox = new JComboBox<String>();
+		searchComboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"Username", "Fullname"}));
+		searchComboBox.setBounds(490, 50, 100, 30);
+		searchComboBox.addItemListener(new ItemListener() {
+		    @Override
+		    public void itemStateChanged(ItemEvent e) {
+		        if(e.getStateChange() == ItemEvent.SELECTED) {
+		        	// Cập nhật lại modelTable
+		            System.out.println(searchComboBox.getSelectedItem());
+		        }
+		    }
+		});
+		contentPane.add(searchComboBox);
+		
+		// Close db when close window by X
+		addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
+		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+		    	db.close();
+		    }
+		});
 	}
+	
 	private static void addPopup(Component component, final JPopupMenu popup) {
 		component.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
@@ -268,4 +356,5 @@ public class UserListScreen extends JFrame {
 			}
 		});
 	}
+	
 }
