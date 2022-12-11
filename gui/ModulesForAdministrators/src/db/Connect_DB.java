@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 public class Connect_DB {
 	private static Connect_DB instance = null;
-	private static Connection conn = null;
+	private Connection conn = null;
 	
 	// Database URL
 	static final String DB_URL = "jdbc:mysql://localhost/java_finalproject_chatapplication";
