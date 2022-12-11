@@ -48,6 +48,8 @@ public class UserListScreen extends JFrame {
 	Vector<Vector<Object>> data;
 	String filter = "CreateTime";
 	String order = "asc";
+	String criteria = "Username";
+	String keyword = "";
 
 	/**
 	 * Launch the application.
@@ -249,7 +251,7 @@ public class UserListScreen extends JFrame {
 		        	}
 		        	
 		        	try {
-						data = db.getAllUser(filter, order);
+						data = db.searchUser(keyword, criteria, filter, order);
 			            for (int i = 0; i < data.size(); i++) {
 			            	tableModel.addRow(data.get(i));
 			            }
@@ -282,7 +284,7 @@ public class UserListScreen extends JFrame {
 		        	}
 		        	
 		        	try {
-						data = db.getAllUser(filter, order);
+		        		data = db.searchUser(keyword, criteria, filter, order);
 			            for (int i = 0; i < data.size(); i++) {
 			            	tableModel.addRow(data.get(i));
 			            }
@@ -298,7 +300,19 @@ public class UserListScreen extends JFrame {
 		btnSearch = new JButton("Tìm");
 		btnSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Tìm: " + searchTextField.getText());
+	        	data.clear();
+	        	tableModel.setRowCount(0);
+	        	keyword = searchTextField.getText();
+	        	
+	        	try {
+					data = db.searchUser(keyword, criteria, filter, order);
+		            for (int i = 0; i < data.size(); i++) {
+		            	tableModel.addRow(data.get(i));
+		            }
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 		btnSearch.setFont(new Font("Tahoma", Font.BOLD, 12));
@@ -317,7 +331,7 @@ public class UserListScreen extends JFrame {
 	        	tableModel.setRowCount(0);
 	        	
 		        try {
-					data = db.getAllUser(filter, order);
+		        	data = db.searchUser(keyword, criteria, filter, order);
 			        for (int i = 0; i < data.size(); i++) {
 			        	tableModel.addRow(data.get(i));
 			        }
@@ -349,8 +363,7 @@ public class UserListScreen extends JFrame {
 		    @Override
 		    public void itemStateChanged(ItemEvent e) {
 		        if(e.getStateChange() == ItemEvent.SELECTED) {
-		        	// Cập nhật lại modelTable
-		            System.out.println(searchComboBox.getSelectedItem());
+		            criteria = searchComboBox.getSelectedItem().toString();
 		        }
 		    }
 		});
