@@ -130,8 +130,9 @@ public class UserListScreen extends JFrame {
 		JMenuItem updateMenuItem = new JMenuItem("Cập nhật");
 		updateMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Cập nhật");
-				UpdateUserScreen.main();
+				int row = table.getSelectedRow();
+				String user = table.getValueAt(row, 0).toString();
+				UpdateUserScreen.main(user);
 			}
 		});
 		popupMenu.add(updateMenuItem);
@@ -346,8 +347,6 @@ public class UserListScreen extends JFrame {
 			public void mouseReleased(MouseEvent e) {
 				int row = table.getSelectedRow();
 				if (e.isPopupTrigger() && row != -1) {
-					for (int i = 0; i < table.getColumnCount(); i++)
-						System.out.println(table.getValueAt(row, i));
 					showMenu(e);
 				}
 			}

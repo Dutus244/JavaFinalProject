@@ -4,21 +4,30 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
+import java.sql.SQLException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import com.toedter.calendar.JDateChooser;
+import com.toedter.calendar.JTextFieldDateEditor;
+
+import db.Connect_DB;
 
 @SuppressWarnings("serial")
 public class UpdateUserScreen extends JFrame {
@@ -26,7 +35,7 @@ public class UpdateUserScreen extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField usernameTextField;
-	private JTextField passTextField;
+	private JPasswordField passTextField;
 	private JTextField fullnameTextField;
 	private JTextField addrTextField;
 	private JDateChooser dateChooser;
@@ -36,11 +45,11 @@ public class UpdateUserScreen extends JFrame {
 	/**
 	 * Launch the application.
 	 */
-	public static void main() {
+	public static void main(String user) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					frame = new UpdateUserScreen();
+					frame = new UpdateUserScreen(user);
 					frame.setResizable(false);
 					frame.setLocationRelativeTo(null);
 					frame.setVisible(true);
@@ -54,7 +63,7 @@ public class UpdateUserScreen extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public UpdateUserScreen() {
+	public UpdateUserScreen(String user) {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 400, 450);
 		contentPane = new JPanel();
@@ -103,24 +112,66 @@ public class UpdateUserScreen extends JFrame {
 		passLabel.setBounds(30, 90, 84, 33);
 		contentPane.add(passLabel);
 		
-		JButton okButton = new JButton("OK");
+		JButton okButton = new JButton("Save");
 		okButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				Vector<String> col = new Vector<String>();
+				Vector<String> val = new Vector<String>();
+				
 				DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 				Date dob = dateChooser.getDate();
 				
-				System.out.println(usernameTextField.getText());
-				System.out.println(passTextField.getText());
-				System.out.println(fullnameTextField.getText());
-				System.out.println(addrTextField.getText());
-				if (dob != null)
-					System.out.println(dateFormat.format(dob));
-				System.out.println(sexComboBox.getSelectedItem());
-				System.out.println(emailTextField.getText());
+				String password = new String(passTextField.getPassword());
+				String fullname = fullnameTextField.getText();
+				String addr = addrTextField.getText();
+				String sex = sexComboBox.getSelectedItem().toString();
+				String email = emailTextField.getText();
+				
+				if (!password.equals("")) {
+					String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt(12));
+					col.add("Pass");
+					val.add(passwordHash);
+				}
+				if (!fullname.equals("")) {
+					col.add("FullName");
+					val.add(fullname);
+				}
+				if (!addr.equals("")) {
+					col.add("Address");
+					val.add(addr);
+				}
+				if (dob != null) {
+					String dobString = dateFormat.format(dob);
+					col.add("DOB");
+					val.add(dobString);
+				}
+				if (!sex.equals("")) {
+					col.add("Sex");
+					val.add(sex);
+				}
+				if (!email.equals("")) {
+					col.add("Email");
+					val.add(email);
+				}
+				
+				if (col.size() == 0)
+					return;
+				
+				Connect_DB db = Connect_DB.getInstance();
+				try {
+					db.updateUser(user, col, val);
+					JOptionPane.showMessageDialog(frame,
+			                "Cập nhật thành công",
+			                "Message",
+			                JOptionPane.INFORMATION_MESSAGE);
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 		okButton.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		okButton.setBounds(73, 350, 90, 35);
+		okButton.setBounds(73, 360, 90, 35);
 		contentPane.add(okButton);
 		
 		JButton cancelButton = new JButton("Cancel");
@@ -130,15 +181,17 @@ public class UpdateUserScreen extends JFrame {
 			}
 		});
 		cancelButton.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		cancelButton.setBounds(236, 350, 90, 35);
+		cancelButton.setBounds(236, 360, 90, 35);
 		contentPane.add(cancelButton);
 		
 		usernameTextField = new JTextField();
 		usernameTextField.setBounds(130, 55, 220, 25);
-		contentPane.add(usernameTextField);
 		usernameTextField.setColumns(10);
+		usernameTextField.setText(user);
+		usernameTextField.setEditable(false);
+		contentPane.add(usernameTextField);
 		
-		passTextField = new JTextField();
+		passTextField = new JPasswordField();
 		passTextField.setColumns(10);
 		passTextField.setBounds(130, 95, 220, 25);
 		contentPane.add(passTextField);
@@ -146,28 +199,47 @@ public class UpdateUserScreen extends JFrame {
 		fullnameTextField = new JTextField();
 		fullnameTextField.setColumns(10);
 		fullnameTextField.setBounds(130, 135, 220, 25);
+//		fullnameTextField.setText(fullname);
 		contentPane.add(fullnameTextField);
 		
 		addrTextField = new JTextField();
 		addrTextField.setColumns(10);
 		addrTextField.setBounds(130, 175, 220, 25);
+//		addrTextField.setText(addr);
 		contentPane.add(addrTextField);
 		
 		emailTextField = new JTextField();
 		emailTextField.setColumns(10);
 		emailTextField.setBounds(130, 295, 220, 25);
+//		emailTextField.setText(email);
 		contentPane.add(emailTextField);
 		
 		sexComboBox = new JComboBox<String>();
 		sexComboBox.setToolTipText("");
 		sexComboBox.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		sexComboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"Male", "Female"}));
+		sexComboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"", "Nam", "Nữ"}));
 		sexComboBox.setBounds(130, 255, 220, 25);
+//		sexComboBox.getModel().setSelectedItem(sex);
 		contentPane.add(sexComboBox);
 		
 		dateChooser = new JDateChooser();
+		JTextFieldDateEditor editor = (JTextFieldDateEditor) dateChooser.getDateEditor();
+		editor.setEditable(false);
 		dateChooser.setDateFormatString("yyyy/MM/dd");
 		dateChooser.setBounds(130, 215, 220, 25);
+//		Date date;
+//		try {
+//			date = new SimpleDateFormat("yyyy-MM-dd").parse(dob);
+//			dateChooser.setDate(date);
+//		} catch (ParseException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
 		contentPane.add(dateChooser);
+		
+		JLabel lblNewLabel = new JLabel("Chỉ cập nhật những dòng được điền hoặc chọn");
+		lblNewLabel.setFont(new Font("Tahoma", Font.ITALIC, 12));
+		lblNewLabel.setBounds(60, 335, 265, 14);
+		contentPane.add(lblNewLabel);
 	}
 }

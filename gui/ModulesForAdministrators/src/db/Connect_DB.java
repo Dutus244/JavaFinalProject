@@ -82,12 +82,35 @@ public class Connect_DB {
 		return data;
 	} 
 
-	public void addUser(String username, String password, String fullname, String addr, String dob, String sex, String email, String dateCreated) throws SQLException {
+	public void addUser(String username, String password, String fullname, String addr, 
+			String dob, String sex, String email, String dateCreated) throws SQLException {
 		Statement stmt = conn.createStatement();
 		String sql = MessageFormat.format("insert into users values "
 				+ "(uuid(), \"{0}\", \"{1}\", \"{2}\", \"{3}\", \"{4}\", \"{5}\", \"{6}\", \"{7}\", false, \"\")", 
 				username, fullname, addr, dob, sex, email, password, dateCreated);
 
+		stmt.executeUpdate(sql);
+		
+		try {
+			stmt.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void updateUser(String username, Vector<String> col, Vector<String> val) throws SQLException {
+		int n = col.size();
+		Statement stmt = conn.createStatement();
+		String sql = "update users set ";
+		for (int i = 0; i < n; i++) {
+			sql = sql + col.get(i) + "=\"" + val.get(i) + "\"";
+			if (i != n - 1)
+				sql += ",";
+		}
+		sql += " where UserName=\"" + username + "\"";
+		
+		System.out.println(sql);
 		stmt.executeUpdate(sql);
 		
 		try {

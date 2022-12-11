@@ -4,6 +4,7 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.border.EmptyBorder;
 
 import org.mindrot.jbcrypt.BCrypt;
@@ -34,7 +35,7 @@ public class AddUserScreen extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField usernameTextField;
-	private JTextField passTextField;
+	private JPasswordField passTextField;
 	private JTextField fullnameTextField;
 	private JTextField addrTextField;
 	private JDateChooser dateChooser;
@@ -119,7 +120,7 @@ public class AddUserScreen extends JFrame {
 				Date dob = dateChooser.getDate();
 				
 				String username = usernameTextField.getText();
-				String password = passTextField.getText();
+				String password = passTextField.getPassword().toString();
 				String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt(12));
 				String fullname = fullnameTextField.getText();
 				String addr = addrTextField.getText();
@@ -177,7 +178,7 @@ public class AddUserScreen extends JFrame {
 		contentPane.add(usernameTextField);
 		usernameTextField.setColumns(10);
 		
-		passTextField = new JTextField();
+		passTextField = new JPasswordField();
 		passTextField.setColumns(10);
 		passTextField.setBounds(130, 95, 220, 25);
 		contentPane.add(passTextField);
