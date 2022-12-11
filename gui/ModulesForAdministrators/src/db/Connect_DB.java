@@ -110,7 +110,34 @@ public class Connect_DB {
 		}
 		sql += " where UserName=\"" + username + "\"";
 		
-		System.out.println(sql);
+		stmt.executeUpdate(sql);
+		
+		try {
+			stmt.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void deleteUser(String username) throws SQLException {
+		Statement stmt = conn.createStatement();
+		String sql = "delete from users where UserName=\"" + username + "\"";
+		
+		stmt.executeUpdate(sql);
+		
+		try {
+			stmt.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void banUser(String username) throws SQLException {
+		Statement stmt = conn.createStatement();
+		String sql = "update users set LockAccount=true where UserName=\"" + username + "\"";
+		
 		stmt.executeUpdate(sql);
 		
 		try {
