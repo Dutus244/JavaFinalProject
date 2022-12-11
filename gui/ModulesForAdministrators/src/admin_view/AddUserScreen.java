@@ -5,18 +5,28 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import org.mindrot.jbcrypt.BCrypt;
+
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.awt.event.ActionEvent;
 import com.toedter.calendar.JDateChooser;
+import com.toedter.calendar.JTextFieldDateEditor;
+
+import db.Connect_DB;
 
 @SuppressWarnings("serial")
 public class AddUserScreen extends JFrame {
@@ -108,14 +118,44 @@ public class AddUserScreen extends JFrame {
 				DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 				Date dob = dateChooser.getDate();
 				
-				System.out.println(usernameTextField.getText());
-				System.out.println(passTextField.getText());
-				System.out.println(fullnameTextField.getText());
-				System.out.println(addrTextField.getText());
-				if (dob != null)
-					System.out.println(dateFormat.format(dob));
-				System.out.println(sexComboBox.getSelectedItem());
-				System.out.println(emailTextField.getText());
+				String username = usernameTextField.getText();
+				String password = passTextField.getText();
+				String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt(12));
+				String fullname = fullnameTextField.getText();
+				String addr = addrTextField.getText();
+				String dobString = dob == null ? "" : dateFormat.format(dob);
+				String sex = sexComboBox.getSelectedItem().toString();
+				String email = emailTextField.getText();
+				String dateCreated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date());
+				
+				if (username.equals("") || password.equals("") || fullname.equals("") || addr.equals("") || dob == null ||
+						sex.equals("") || email.equals("")) {
+					JOptionPane.showMessageDialog(frame,
+			                "Vui lòng điền đầy đủ thông tin",
+			                "Error",
+			                JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				
+				Connect_DB db = Connect_DB.getInstance();
+				try {
+					db.addUser(username, passwordHash, fullname, addr, dobString, sex, email, dateCreated);
+					JOptionPane.showMessageDialog(frame,
+			                "Thêm user thành công",
+			                "Message",
+			                JOptionPane.INFORMATION_MESSAGE);
+				} catch (SQLIntegrityConstraintViolationException e1) {
+					// TODO: handle exception
+					e1.printStackTrace();
+//					System.out.println(e1.getMessage());
+					JOptionPane.showMessageDialog(frame,
+			                "Username đã tồn tại",
+			                "Error",
+			                JOptionPane.ERROR_MESSAGE);
+				} catch (SQLException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
 			}
 		});
 		okButton.setFont(new Font("Tahoma", Font.PLAIN, 15));
@@ -160,11 +200,13 @@ public class AddUserScreen extends JFrame {
 		sexComboBox = new JComboBox<String>();
 		sexComboBox.setToolTipText("");
 		sexComboBox.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		sexComboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"Male", "Female"}));
+		sexComboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"Nam", "Nữ"}));
 		sexComboBox.setBounds(130, 255, 220, 25);
 		contentPane.add(sexComboBox);
 		
 		dateChooser = new JDateChooser();
+		JTextFieldDateEditor editor = (JTextFieldDateEditor) dateChooser.getDateEditor();
+		editor.setEditable(false);
 		dateChooser.setDateFormatString("yyyy/MM/dd");
 		dateChooser.setBounds(130, 215, 220, 25);
 		contentPane.add(dateChooser);
