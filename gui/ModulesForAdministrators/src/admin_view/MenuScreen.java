@@ -95,5 +95,13 @@ public class MenuScreen extends JFrame {
 		exitButton.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		exitButton.setBounds(325, 444, 325, 74);
 		contentPane.add(exitButton);
+		
+		// Close db when close window by X
+		addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
+		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+		    	
+		    }
+		});
 	}
 }
