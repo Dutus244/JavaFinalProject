@@ -17,15 +17,13 @@ import javax.swing.*;
 
 import org.mindrot.jbcrypt.BCrypt;
 
-import student.Main;
-
 public class LoginScreen extends JFrame implements ActionListener {
 	JPanel panelLogin;
 	JLabel labelLogin;
 	JLabel pictureLogin;
 	
-	JLabel labelUsername;
-	JTextField textFieldUsername;
+	JLabel labelUserName;
+	JTextField textFieldUserName;
 	
 	JLabel labelPassword;
 	JPasswordField passwordFieldPassword;
@@ -83,13 +81,13 @@ public class LoginScreen extends JFrame implements ActionListener {
         labelLogin.setFont(Main.fontBiggestBold);
         labelLogin.setBounds(600,70,300,40);
         
-        labelUsername = new JLabel("USERNAME");
-        labelUsername.setFont(Main.fontSmallBoldItalic);
-        labelUsername.setBounds(600,170,300,40);
+        labelUserName = new JLabel("USERNAME");
+        labelUserName.setFont(Main.fontSmallBoldItalic);
+        labelUserName.setBounds(600,170,300,40);
         
-        textFieldUsername = new JTextField();
-        textFieldUsername.setFont(Main.fontSmall);
-        textFieldUsername.setBounds(600,210,300,40);
+        textFieldUserName = new JTextField();
+        textFieldUserName.setFont(Main.fontSmall);
+        textFieldUserName.setBounds(600,210,300,40);
         
         labelPassword = new JLabel("PASSWORD");
         labelPassword.setFont(Main.fontSmallBoldItalic);
@@ -144,8 +142,8 @@ public class LoginScreen extends JFrame implements ActionListener {
         
         panelLogin.add(pictureLogin);
         panelLogin.add(labelLogin);
-        panelLogin.add(labelUsername);
-        panelLogin.add(textFieldUsername);
+        panelLogin.add(labelUserName);
+        panelLogin.add(textFieldUserName);
         panelLogin.add(labelPassword);
         panelLogin.add(passwordFieldPassword);
         panelLogin.add(buttonHideShowPassword);
@@ -179,7 +177,7 @@ public class LoginScreen extends JFrame implements ActionListener {
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
 			}
-			String username = textFieldUsername.getText();
+			String username = textFieldUserName.getText();
 			String password = new String(passwordFieldPassword.getPassword());
 			ResultSet rs;
 			if (username.isEmpty()) {
@@ -219,7 +217,12 @@ public class LoginScreen extends JFrame implements ActionListener {
 			}
 		}
 		else if (e.getSource() == buttonSignup) {
-			
+			this.dispose();
+            try{
+                new SignupScreen(conn);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
 		}
 	}
 
