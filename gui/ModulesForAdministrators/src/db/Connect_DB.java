@@ -82,6 +82,43 @@ public class Connect_DB {
 		return data;
 	} 
 
+	public Vector<Vector<Object>> searchUser(String keyword, String criteria, String filter, String order) throws SQLException {
+		Statement stmt = conn.createStatement();
+		String sql = "select * from users "
+				+ "where " + criteria + " like '%" + keyword + "%' "
+				+ "order by " + filter + " " + order;
+
+		ResultSet rs = stmt.executeQuery(sql);
+		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
+		while (rs.next()) { 
+			Vector<Object> row = new Vector<Object>();
+			row.add(rs.getString("UserName"));
+			row.add(rs.getString("FullName"));
+			row.add(rs.getString("Address"));
+			row.add(rs.getDate("DOB"));
+			row.add(rs.getString("Sex"));
+			row.add(rs.getString("Email"));
+			row.add(rs.getTimestamp("CreateTime"));
+			
+			data.add(row);
+		}
+
+		try {
+			rs.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			stmt.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return data;
+	}
+	
 	public void addUser(String username, String password, String fullname, String addr, 
 			String dob, String sex, String email, String dateCreated) throws SQLException {
 		Statement stmt = conn.createStatement();
