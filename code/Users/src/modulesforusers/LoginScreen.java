@@ -168,7 +168,12 @@ public class LoginScreen extends JFrame implements ActionListener {
 			}
 		}
 		else if (e.getSource() == buttonForgotPassword) {
-			
+			this.dispose();
+            try{
+                new ForgotPasswordScreen1(conn);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
 		}
 		else if (e.getSource() == buttonLogin) {
 			try {

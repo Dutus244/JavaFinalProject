@@ -272,6 +272,17 @@ public class SignupScreen extends JFrame implements ActionListener {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+			try {
+				rs = ((java.sql.Statement)stmt).executeQuery("select count(*) as total from users where Email = '" + email + "'");
+				rs.next();
+				if (rs.getInt("total") == 1) {
+					JOptionPane.showMessageDialog(this,"This email already exist", "Attention",JOptionPane.ERROR_MESSAGE);
+	                return;
+				}
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			String userID = UUID.randomUUID().toString();
 			String password = generateRandomPassword(8);
 			String header = "YOUR PASSWORD OF CHAT APPLICATION";
@@ -286,10 +297,16 @@ public class SignupScreen extends JFrame implements ActionListener {
                 String sql = "insert into users values('" + userID + "','" + username + "','" + fullname + "','" + address + "','" + dateOfBirth + "','" + sex + "','" + email + "','" + hash + "','" + createTime + "',false,'')";
                 stmt.executeUpdate(sql);
                 conn.commit();
-                JOptionPane.showMessageDialog(null, "Added successfully");
+                JOptionPane.showMessageDialog(null, "Sign up successfully");
             }
             catch (SQLException ae){
             	JOptionPane.showMessageDialog(this,"Unable to insert", "Attention",JOptionPane.ERROR_MESSAGE);
+            }
+			this.dispose();
+            try{
+                new LoginScreen(conn);
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
 		}
 		else if (e.getSource() == buttonLogin) {
