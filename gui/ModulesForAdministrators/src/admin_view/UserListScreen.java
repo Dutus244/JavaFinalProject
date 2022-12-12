@@ -43,7 +43,6 @@ public class UserListScreen extends JFrame {
 	
 	private JTextField searchTextField;
 	private JButton btnSearch;
-	private JButton btnRefresh;
 	
 	Vector<Vector<Object>> data;
 	String filter = "CreateTime";
@@ -96,7 +95,7 @@ public class UserListScreen extends JFrame {
 		
 		table = new JTable();
 		scrollPane.setViewportView(table);
-        String[] columnNames = { "Username", "Fullname", "Address", "Date of Birth", "Sex", "Email", "Date created" };
+        String[] columnNames = { "Username", "Fullname", "Address", "Date of Birth", "Sex", "Email", "Date created", "Ban" };
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -124,27 +123,32 @@ public class UserListScreen extends JFrame {
 //		});
 		table.getColumnModel().getColumn(3).setPreferredWidth(15);
 		table.getColumnModel().getColumn(4).setPreferredWidth(15);
+		// Hide Ban column from UI
+		table.getColumnModel().removeColumn(table.getColumn("Ban"));
 		
 		JPopupMenu popupMenu = new JPopupMenu();
 		popupMenu.setPopupSize(new Dimension(120, 200));
 		addPopup(table, popupMenu);
 		
-		JMenuItem updateMenuItem = new JMenuItem("Cập nhật");
+		JMenuItem updateMenuItem = new JMenuItem("Update");
 		updateMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				Vector<String> info = new Vector<String>();
 				int row = table.getSelectedRow();
-				String user = table.getValueAt(row, 0).toString();
-				UpdateUserScreen.main(user);
+				for (int i = 0; i < 6; i++)
+					info.add(table.getValueAt(row, i).toString());
+				
+				UpdateUserScreen.main(info, frame);
 			}
 		});
 		popupMenu.add(updateMenuItem);
 		
-		JMenuItem deleteMenuItem = new JMenuItem("Xóa");
+		JMenuItem deleteMenuItem = new JMenuItem("Delete");
 		deleteMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int choice = JOptionPane.showConfirmDialog(frame,
-						"Bạn có chắc muốn xóa người dùng này",
-						"Cảnh báo",
+						"Do you want to delete this user?",
+						"Warning",
 						JOptionPane.OK_CANCEL_OPTION,
                         JOptionPane.ERROR_MESSAGE);
 				if (choice == JOptionPane.OK_OPTION) {
@@ -153,8 +157,9 @@ public class UserListScreen extends JFrame {
 					
 					try {
 						db.deleteUser(user);
+						frame.refresh();
 						JOptionPane.showMessageDialog(frame,
-				                "Xóa thành công",
+				                "Delete successfully",
 				                "Message",
 				                JOptionPane.INFORMATION_MESSAGE);
 					} catch (SQLException e1) {
@@ -165,13 +170,15 @@ public class UserListScreen extends JFrame {
 			}
 		});
 		popupMenu.add(deleteMenuItem);
-		
-		JMenuItem banMenuItem = new JMenuItem("Khóa");
+
+		JMenuItem banMenuItem = new JMenuItem("Ban/Unban");
 		banMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				String banStatus = table.getModel().getValueAt(table.getSelectedRow(),7).toString();
 				int choice = JOptionPane.showConfirmDialog(frame,
-						"Bạn có chắc muốn khóa người dùng này",
-						"Cảnh báo",
+						banStatus == "false" ? 
+								"Do you want to ban this user?" : "Do you want to unban this user?",
+						"Warning",
 						JOptionPane.OK_CANCEL_OPTION,
                         JOptionPane.ERROR_MESSAGE);
 				if (choice == JOptionPane.OK_OPTION) {
@@ -179,9 +186,11 @@ public class UserListScreen extends JFrame {
 					String user = table.getValueAt(row, 0).toString();
 					
 					try {
-						db.banUser(user);
+						db.updateBanStatus(user, banStatus == "false" ? "true" : "false");
+						frame.refresh();
 						JOptionPane.showMessageDialog(frame,
-				                "Khóa thành công",
+								banStatus == "false" ? 
+										"Ban successfully" : "Unban successfully",
 				                "Message",
 				                JOptionPane.INFORMATION_MESSAGE);
 					} catch (SQLException e1) {
@@ -193,37 +202,35 @@ public class UserListScreen extends JFrame {
 		});
 		popupMenu.add(banMenuItem);
 		
-		JMenuItem loginHistoryMenuItem = new JMenuItem("Lịch sử đăng nhập");
+		JMenuItem loginHistoryMenuItem = new JMenuItem("Login history");
 		loginHistoryMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Lịch sử đăng nhập");
 				frame.dispose();
 				LoginHistoryScreen.main();
 			}
 		});
 		popupMenu.add(loginHistoryMenuItem);
 		
-		JMenuItem friendListMenuItem = new JMenuItem("Danh sách bạn bè");
+		JMenuItem friendListMenuItem = new JMenuItem("Friend list");
 		friendListMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Danh sách bạn bè");
 				frame.dispose();
 				FriendListScreen.main();
 			}
 		});
 		popupMenu.add(friendListMenuItem);
 		
-		JLabel headerLabel = new JLabel("DANH SÁCH NGƯỜI DÙNG");
+		JLabel headerLabel = new JLabel("User list");
 		headerLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		headerLabel.setFont(new Font("Tahoma", Font.BOLD, 16));
 		headerLabel.setBounds(26, 11, 948, 25);
 		contentPane.add(headerLabel);
 		
-		JButton btnAdd = new JButton("Thêm");
+		JButton btnAdd = new JButton("Add");
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Tạo cửa sổ mới để thêm
-				AddUserScreen.main();
+				AddUserScreen.main(frame);
 			}
 		});
 		btnAdd.setFont(new Font("Tahoma", Font.BOLD, 12));
@@ -231,7 +238,7 @@ public class UserListScreen extends JFrame {
 		contentPane.add(btnAdd);
 		
 		JComboBox<String> filterComboBox = new JComboBox<String>();
-		filterComboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"Sắp xếp theo Date created", "Sắp xếp theo Username", "Sắp xếp theo Fullname"}));
+		filterComboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"Filter by Date created", "Filter by Username", "Filter by Fullname"}));
 		filterComboBox.setBounds(10, 50, 175, 30);
 		filterComboBox.addItemListener(new ItemListener() {
 		    @Override
@@ -242,11 +249,11 @@ public class UserListScreen extends JFrame {
 		        	data.clear();
 		        	tableModel.setRowCount(0);
 		        	
-		        	if (filterSelect.equals("Sắp xếp theo Date created")) {
+		        	if (filterSelect.equals("Filter by Date created")) {
 		        		filter = "CreateTime";
-		        	} else if (filterSelect.equals("Sắp xếp theo Username")) {
+		        	} else if (filterSelect.equals("Filter by Username")) {
 		        		filter = "UserName";
-		        	} else if (filterSelect.equals("Sắp xếp theo Fullname")) {
+		        	} else if (filterSelect.equals("Filter by Fullname")) {
 		        		filter = "FullName";
 		        	}
 		        	
@@ -265,7 +272,7 @@ public class UserListScreen extends JFrame {
 		contentPane.add(filterComboBox);
 		
 		JComboBox<String> orderComboBox = new JComboBox<String>();
-		orderComboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"Sắp xếp tăng dần", "Sắp xếp giảm dần"}));
+		orderComboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"Ascending", "Descending"}));
 		orderComboBox.setBounds(215, 50, 130, 30);
 		orderComboBox.addItemListener(new ItemListener() {
 		    @Override
@@ -277,9 +284,9 @@ public class UserListScreen extends JFrame {
 		        	data.clear();
 		        	tableModel.setRowCount(0);
 		        	
-		        	if (orderSelect.equals("Sắp xếp tăng dần")) {
+		        	if (orderSelect.equals("Ascending")) {
 		        		order = "asc";
-		        	} else if (orderSelect.equals("Sắp xếp giảm dần")) {
+		        	} else if (orderSelect.equals("Descending")) {
 		        		order = "desc";
 		        	}
 		        	
@@ -297,7 +304,7 @@ public class UserListScreen extends JFrame {
 		});
 		contentPane.add(orderComboBox);
 		
-		btnSearch = new JButton("Tìm");
+		btnSearch = new JButton("Search");
 		btnSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 	        	data.clear();
@@ -324,28 +331,7 @@ public class UserListScreen extends JFrame {
 		contentPane.add(searchTextField);
 		searchTextField.setColumns(10);
 		
-		btnRefresh = new JButton("Tải lại");
-		btnRefresh.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-	        	data.clear();
-	        	tableModel.setRowCount(0);
-	        	
-		        try {
-		        	data = db.searchUser(keyword, criteria, filter, order);
-			        for (int i = 0; i < data.size(); i++) {
-			        	tableModel.addRow(data.get(i));
-			        }
-				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			}
-		});
-		btnRefresh.setFont(new Font("Tahoma", Font.BOLD, 12));
-		btnRefresh.setBounds(884, 10, 90, 30);
-		contentPane.add(btnRefresh);
-		
-		JButton btnBack = new JButton("Quay lại");
+		JButton btnBack = new JButton("Back");
 		btnBack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frame.dispose();
@@ -397,4 +383,19 @@ public class UserListScreen extends JFrame {
 		});
 	}
 	
+	public void refresh() {
+		Connect_DB db = Connect_DB.getInstance();
+    	data.clear();
+    	tableModel.setRowCount(0);
+    	
+        try {
+        	data = db.searchUser(keyword, criteria, filter, order);
+	        for (int i = 0; i < data.size(); i++) {
+	        	tableModel.addRow(data.get(i));
+	        }
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
 }

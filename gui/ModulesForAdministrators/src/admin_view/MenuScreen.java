@@ -56,7 +56,7 @@ public class MenuScreen extends JFrame {
 		headerLabel.setBounds(450, 25, 74, 34);
 		contentPane.add(headerLabel);
 		
-		JButton userListButton = new JButton("Danh sách người dùng");
+		JButton userListButton = new JButton("User List");
 		userListButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frame.dispose();
@@ -67,10 +67,9 @@ public class MenuScreen extends JFrame {
 		userListButton.setBounds(325, 100, 325, 74);
 		contentPane.add(userListButton);
 		
-		JButton loginListButton = new JButton("Danh sách đăng nhập");
+		JButton loginListButton = new JButton("Login List");
 		loginListButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Danh sách đăng nhập");
 				frame.dispose();
 				LoginListScreen.main();
 			}
@@ -79,10 +78,9 @@ public class MenuScreen extends JFrame {
 		loginListButton.setBounds(325, 216, 325, 74);
 		contentPane.add(loginListButton);
 		
-		JButton groupChatListButton = new JButton("Danh sách nhóm chat");
+		JButton groupChatListButton = new JButton("Chat Group List");
 		groupChatListButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Danh sách nhóm chat");
 				frame.dispose();
 				GroupChatListScreen.main();
 			}
@@ -91,7 +89,7 @@ public class MenuScreen extends JFrame {
 		groupChatListButton.setBounds(325, 330, 325, 74);
 		contentPane.add(groupChatListButton);
 		
-		JButton exitButton = new JButton("Thoát");
+		JButton exitButton = new JButton("Exit");
 		exitButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frame.dispose();
