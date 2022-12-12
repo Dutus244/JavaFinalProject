@@ -9,6 +9,9 @@ import javax.swing.JMenuItem;
 import javax.swing.JTable;
 import java.awt.Font;
 import javax.swing.table.DefaultTableModel;
+
+import db.Connect_DB;
+
 import javax.swing.JScrollPane;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
@@ -18,7 +21,11 @@ import javax.swing.JPopupMenu;
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.SQLException;
+import java.util.Vector;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.ActionEvent;
 
 @SuppressWarnings("serial")
@@ -27,10 +34,16 @@ public class FriendListScreen extends JFrame {
 
 	private JPanel contentPane;
 	private JTable table;
-	private JTable table_2;
-	private JTable table_1;
-	private JTable table_3;
-	private JTextField textField_1;
+	private DefaultTableModel tableModel;
+	
+	private JTextField searchTextField;
+	private JButton btnSearch;
+	
+	Vector<Vector<Object>> data;
+	String filter = "UserName";
+	String order = "asc";
+	String criteria = "Username";
+	String keyword = "";
 
 	/**
 	 * Launch the application.
@@ -53,6 +66,8 @@ public class FriendListScreen extends JFrame {
 	 * Create the frame.
 	 */
 	public FriendListScreen() {
+		Connect_DB db = Connect_DB.getInstance();
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1000, 600);
 		contentPane = new JPanel();
@@ -65,53 +80,37 @@ public class FriendListScreen extends JFrame {
 		scrollPane.setBounds(100, 100, 800, 400);
 		contentPane.add(scrollPane);
 		
-		table_3 = new JTable();
-		scrollPane.setViewportView(table_3);
-		table_3.setModel(new DefaultTableModel(
-			new Object[][] {
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-				{null, null, null, null, null, null},
-			},
-			new String[] {
-				"T\u00EAn \u0111\u0103ng nh\u1EADp", "H\u1ECD t\u00EAn", "\u0110\u1ECBa ch\u1EC9", "Ng\u00E0y sinh", "Gi\u1EDBi t\u00EDnh ", "Email"
-			}
-		));
-		table_3.getColumnModel().getColumn(3).setPreferredWidth(40);
-		table_3.getColumnModel().getColumn(4).setPreferredWidth(20);
-		table_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		try {
+			data = db.getAllUser(filter, order);
+			//data = db.getUserFriendList(userid, filter, order);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
-		table_3.setEnabled(false);
+		table = new JTable();
+		scrollPane.setViewportView(table);
+		String[] columnNames = { "Username", "Fullname", "Address", "Date of Birth", "Sex", "Email", "Date created" };
+        tableModel = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+               //all cells false
+               return false;
+            }
+        };
+        for (int i = 0; i < data.size(); i++) {
+        	tableModel.addRow(data.get(i));
+        }
+        table.setModel(tableModel);
+        
+		table.getColumnModel().getColumn(3).setPreferredWidth(40);
+		table.getColumnModel().getColumn(4).setPreferredWidth(20);
+		table.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		
+		table.setEnabled(false);
 		
 		JPopupMenu popupMenu = new JPopupMenu();
-		addPopup(table_3, popupMenu);
+		addPopup(table, popupMenu);
 		
 		JMenuItem mntmNewMenuItem_7 = new JMenuItem("New menu item");
 		popupMenu.add(mntmNewMenuItem_7);
@@ -119,22 +118,69 @@ public class FriendListScreen extends JFrame {
 		JMenuItem mntmNewMenuItem_12 = new JMenuItem("New menu item");
 		popupMenu.add(mntmNewMenuItem_12);
 		
-		JComboBox<String> comboBox_1 = new JComboBox<String>();
-		comboBox_1.setModel(new DefaultComboBoxModel<String>(new String[] {"Theo tên đăng nhập", "Theo họ tên"}));
-		comboBox_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		comboBox_1.setBounds(115, 60, 176, 30);
-		contentPane.add(comboBox_1);
+		JComboBox<String> filterComboBox = new JComboBox<String>();
+		filterComboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"By Username", "By Fullname"}));
+		filterComboBox.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		filterComboBox.setBounds(115, 60, 176, 30);
+		filterComboBox.addItemListener(new ItemListener() {
+		    @Override
+		    public void itemStateChanged(ItemEvent e) {
+		        if(e.getStateChange() == ItemEvent.SELECTED) {
+		        	// Cập nhật lại modelTable
+		        	String filterSelect = filterComboBox.getSelectedItem().toString();
+		        	data.clear();
+		        	tableModel.setRowCount(0);
+		        	
+		        	if (filterSelect.equals("By Username")) {
+		        		filter = "UserName";
+		        	} else if (filterSelect.equals("By Fullname")) {
+		        		filter = "FullName";
+		        	}
+		        	
+		        	try {
+						data = db.searchUser(keyword, criteria, filter, order);
+						//data = db.getUserFriendList(userid, filter, order);
+						
+			            for (int i = 0; i < data.size(); i++) {
+			            	tableModel.addRow(data.get(i));
+			            }
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+		        }
+		    }
+		});
+		contentPane.add(filterComboBox);
 		
-		textField_1 = new JTextField();
-		textField_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		textField_1.setColumns(10);
-		textField_1.setBounds(301, 60, 447, 30);
-		contentPane.add(textField_1);
+		searchTextField = new JTextField();
+		searchTextField.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		searchTextField.setColumns(10);
+		searchTextField.setBounds(301, 60, 447, 30);
+		contentPane.add(searchTextField);
 		
-		JButton btnNewButton_1 = new JButton("Tìm");
-		btnNewButton_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		btnNewButton_1.setBounds(758, 60, 123, 30);
-		contentPane.add(btnNewButton_1);
+		btnSearch = new JButton("Tìm");
+		btnSearch.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+	        	data.clear();
+	        	tableModel.setRowCount(0);
+	        	keyword = searchTextField.getText();
+	        	
+	        	try {
+					data = db.searchUser(keyword, criteria, filter, order);
+					//data = db.searchUserInUserFriendList(userid, criteria, keyword, filter, order);
+		            for (int i = 0; i < data.size(); i++) {
+		            	tableModel.addRow(data.get(i));
+		            }
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+		btnSearch.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		btnSearch.setBounds(758, 60, 123, 30);
+		contentPane.add(btnSearch);
 		
 		JButton btnQuayLi = new JButton("Quay lại");
 		btnQuayLi.addActionListener(new ActionListener() {
