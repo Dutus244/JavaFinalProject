@@ -96,6 +96,15 @@ CREATE TABLE messageaccess (
     PRIMARY KEY(MessID,InboxID,SentUserID,UserID)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
+BEGIN;
+DROP TABLE IF EXISTS sendrequestfriendlist;
+CREATE TABLE sendrequestfriendlistfriendlist (
+	UserID varchar(36) NOT NULL,
+    AddFriendID varchar(36) NOT NULL,
+    FOREIGN KEY (UserID) REFERENCES users(UserID),
+    FOREIGN KEY (AddFriendID) REFERENCES users(UserID),
+    PRIMARY KEY(UserID,AddFriendID)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 
 
