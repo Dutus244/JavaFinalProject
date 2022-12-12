@@ -62,6 +62,7 @@ public class Connect_DB {
 			row.add(rs.getString("Sex"));
 			row.add(rs.getString("Email"));
 			row.add(rs.getTimestamp("CreateTime"));
+			row.add(rs.getBoolean("LockAccount"));
 			
 			data.add(row);
 		}
@@ -99,6 +100,7 @@ public class Connect_DB {
 			row.add(rs.getString("Sex"));
 			row.add(rs.getString("Email"));
 			row.add(rs.getTimestamp("CreateTime"));
+			row.add(rs.getBoolean("LockAccount"));
 			
 			data.add(row);
 		}
@@ -136,17 +138,13 @@ public class Connect_DB {
 		}
 	}
 	
-	public void updateUser(String username, Vector<String> col, Vector<String> val) throws SQLException {
-		int n = col.size();
+	public void updateUser(String username, Vector<String> val) throws SQLException {
 		Statement stmt = conn.createStatement();
-		String sql = "update users set ";
-		for (int i = 0; i < n; i++) {
-			sql = sql + col.get(i) + "=\"" + val.get(i) + "\"";
-			if (i != n - 1)
-				sql += ",";
-		}
-		sql += " where UserName=\"" + username + "\"";
-		
+		String sql = MessageFormat.format("update users "
+				+ "set fullname = \"{0}\", address = \"{1}\", dob = \"{2}\", sex = \"{3}\", email = \"{4}\" "
+				+ "where username = \"{5}\"", 
+				val.get(0), val.get(1), val.get(2), val.get(3), val.get(4), username);
+
 		stmt.executeUpdate(sql);
 		
 		try {
@@ -171,9 +169,9 @@ public class Connect_DB {
 		}
 	}
 	
-	public void banUser(String username) throws SQLException {
+	public void updateBanStatus(String username, String status) throws SQLException {
 		Statement stmt = conn.createStatement();
-		String sql = "update users set LockAccount=true where UserName=\"" + username + "\"";
+		String sql = "update users set LockAccount=" + status + " where UserName=\"" + username + "\"";
 		
 		stmt.executeUpdate(sql);
 		

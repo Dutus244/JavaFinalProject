@@ -46,11 +46,11 @@ public class AddUserScreen extends JFrame {
 	/**
 	 * Launch the application.
 	 */
-	public static void main() {
+	public static void main(UserListScreen ulFrame) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					frame = new AddUserScreen();
+					frame = new AddUserScreen(ulFrame);
 					frame.setResizable(false);
 					frame.setLocationRelativeTo(null);
 					frame.setVisible(true);
@@ -64,7 +64,7 @@ public class AddUserScreen extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public AddUserScreen() {
+	public AddUserScreen(UserListScreen ulFrame) {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 400, 450);
 		contentPane = new JPanel();
@@ -73,9 +73,9 @@ public class AddUserScreen extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
-		JLabel headerLabel = new JLabel("Thêm người dùng");
+		JLabel headerLabel = new JLabel("Add user");
 		headerLabel.setFont(new Font("Tahoma", Font.BOLD, 16));
-		headerLabel.setBounds(125, 10, 150, 39);
+		headerLabel.setBounds(155, 10, 74, 39);
 		contentPane.add(headerLabel);
 		
 		JLabel usernameLabel = new JLabel("Username");
@@ -132,7 +132,7 @@ public class AddUserScreen extends JFrame {
 				if (username.equals("") || password.equals("") || fullname.equals("") || addr.equals("") || dob == null ||
 						sex.equals("") || email.equals("")) {
 					JOptionPane.showMessageDialog(frame,
-			                "Vui lòng điền đầy đủ thông tin",
+			                "Please fill in user's information",
 			                "Error",
 			                JOptionPane.ERROR_MESSAGE);
 					return;
@@ -141,16 +141,19 @@ public class AddUserScreen extends JFrame {
 				Connect_DB db = Connect_DB.getInstance();
 				try {
 					db.addUser(username, passwordHash, fullname, addr, dobString, sex, email, dateCreated);
+					ulFrame.refresh();
 					JOptionPane.showMessageDialog(frame,
-			                "Thêm user thành công",
+			                "Add successfully",
 			                "Message",
 			                JOptionPane.INFORMATION_MESSAGE);
 				} catch (SQLIntegrityConstraintViolationException e1) {
 					// TODO: handle exception
-					e1.printStackTrace();
-//					System.out.println(e1.getMessage());
+//					e1.printStackTrace();
+					String msg = e1.getMessage();
+					String eMsg = msg.indexOf("users.UserName") != -1 ? "Username already exists" : (msg.indexOf("users.Email") != -1 ? "Email already exists" : "");
+					
 					JOptionPane.showMessageDialog(frame,
-			                "Username đã tồn tại",
+			                eMsg,
 			                "Error",
 			                JOptionPane.ERROR_MESSAGE);
 				} catch (SQLException e2) {
@@ -201,7 +204,7 @@ public class AddUserScreen extends JFrame {
 		sexComboBox = new JComboBox<String>();
 		sexComboBox.setToolTipText("");
 		sexComboBox.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		sexComboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"Nam", "Nữ"}));
+		sexComboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"Male", "Female"}));
 		sexComboBox.setBounds(130, 255, 220, 25);
 		contentPane.add(sexComboBox);
 		

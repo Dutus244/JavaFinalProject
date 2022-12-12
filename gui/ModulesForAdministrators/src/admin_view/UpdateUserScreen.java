@@ -18,11 +18,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
-
-import org.mindrot.jbcrypt.BCrypt;
 
 import com.toedter.calendar.JDateChooser;
 import com.toedter.calendar.JTextFieldDateEditor;
@@ -35,7 +32,6 @@ public class UpdateUserScreen extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField usernameTextField;
-	private JPasswordField passTextField;
 	private JTextField fullnameTextField;
 	private JTextField addrTextField;
 	private JDateChooser dateChooser;
@@ -45,11 +41,11 @@ public class UpdateUserScreen extends JFrame {
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String user) {
+	public static void main(Vector<String> info, UserListScreen ulFrame) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					frame = new UpdateUserScreen(user);
+					frame = new UpdateUserScreen(info, ulFrame);
 					frame.setResizable(false);
 					frame.setLocationRelativeTo(null);
 					frame.setVisible(true);
@@ -63,7 +59,7 @@ public class UpdateUserScreen extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public UpdateUserScreen(String user) {
+	public UpdateUserScreen(Vector<String> info, UserListScreen ulFrame) {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 400, 450);
 		contentPane = new JPanel();
@@ -72,9 +68,9 @@ public class UpdateUserScreen extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
-		JLabel headerLabel = new JLabel("Cập nhật thông tin người dùng");
+		JLabel headerLabel = new JLabel("Update user's information");
 		headerLabel.setFont(new Font("Tahoma", Font.BOLD, 16));
-		headerLabel.setBounds(75, 10, 250, 40);
+		headerLabel.setBounds(86, 10, 211, 40);
 		contentPane.add(headerLabel);
 		
 		JLabel usernameLabel = new JLabel("Username");
@@ -84,84 +80,49 @@ public class UpdateUserScreen extends JFrame {
 		
 		JLabel fullnameLabel = new JLabel("Fullname");
 		fullnameLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		fullnameLabel.setBounds(30, 130, 84, 33);
+		fullnameLabel.setBounds(30, 90, 84, 33);
 		contentPane.add(fullnameLabel);
 		
 		JLabel addrLabel = new JLabel("Address");
 		addrLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		addrLabel.setBounds(30, 170, 84, 33);
+		addrLabel.setBounds(30, 130, 84, 33);
 		contentPane.add(addrLabel);
 		
 		JLabel dobLabel = new JLabel("Date of Birth");
 		dobLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		dobLabel.setBounds(30, 210, 84, 33);
+		dobLabel.setBounds(30, 170, 84, 33);
 		contentPane.add(dobLabel);
 		
 		JLabel sexLabel = new JLabel("Sex");
 		sexLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		sexLabel.setBounds(30, 250, 84, 33);
+		sexLabel.setBounds(30, 210, 84, 33);
 		contentPane.add(sexLabel);
 		
 		JLabel emailLabel = new JLabel("Email");
 		emailLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		emailLabel.setBounds(30, 290, 84, 33);
+		emailLabel.setBounds(30, 250, 84, 33);
 		contentPane.add(emailLabel);
-		
-		JLabel passLabel = new JLabel("Password");
-		passLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		passLabel.setBounds(30, 90, 84, 33);
-		contentPane.add(passLabel);
 		
 		JButton okButton = new JButton("Save");
 		okButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Vector<String> col = new Vector<String>();
 				Vector<String> val = new Vector<String>();
 				
-				DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+				DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 				Date dob = dateChooser.getDate();
 				
-				String password = new String(passTextField.getPassword());
-				String fullname = fullnameTextField.getText();
-				String addr = addrTextField.getText();
-				String sex = sexComboBox.getSelectedItem().toString();
-				String email = emailTextField.getText();
-				
-				if (!password.equals("")) {
-					String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt(12));
-					col.add("Pass");
-					val.add(passwordHash);
-				}
-				if (!fullname.equals("")) {
-					col.add("FullName");
-					val.add(fullname);
-				}
-				if (!addr.equals("")) {
-					col.add("Address");
-					val.add(addr);
-				}
-				if (dob != null) {
-					String dobString = dateFormat.format(dob);
-					col.add("DOB");
-					val.add(dobString);
-				}
-				if (!sex.equals("")) {
-					col.add("Sex");
-					val.add(sex);
-				}
-				if (!email.equals("")) {
-					col.add("Email");
-					val.add(email);
-				}
-				
-				if (col.size() == 0)
-					return;
+				val.add(fullnameTextField.getText());
+				val.add(addrTextField.getText());
+				val.add(dateFormat.format(dob));
+				val.add(sexComboBox.getSelectedItem().toString());
+				val.add(emailTextField.getText());
 				
 				Connect_DB db = Connect_DB.getInstance();
 				try {
-					db.updateUser(user, col, val);
+					db.updateUser(info.get(0), val);
+					ulFrame.refresh();
 					JOptionPane.showMessageDialog(frame,
-			                "Cập nhật thành công",
+			                "Update successfully",
 			                "Message",
 			                JOptionPane.INFORMATION_MESSAGE);
 				} catch (SQLException e1) {
@@ -171,7 +132,7 @@ public class UpdateUserScreen extends JFrame {
 			}
 		});
 		okButton.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		okButton.setBounds(73, 360, 90, 35);
+		okButton.setBounds(73, 320, 90, 35);
 		contentPane.add(okButton);
 		
 		JButton cancelButton = new JButton("Cancel");
@@ -181,65 +142,55 @@ public class UpdateUserScreen extends JFrame {
 			}
 		});
 		cancelButton.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		cancelButton.setBounds(236, 360, 90, 35);
+		cancelButton.setBounds(236, 320, 90, 35);
 		contentPane.add(cancelButton);
 		
 		usernameTextField = new JTextField();
 		usernameTextField.setBounds(130, 55, 220, 25);
 		usernameTextField.setColumns(10);
-		usernameTextField.setText(user);
+		usernameTextField.setText(info.get(0));
 		usernameTextField.setEditable(false);
 		contentPane.add(usernameTextField);
 		
-		passTextField = new JPasswordField();
-		passTextField.setColumns(10);
-		passTextField.setBounds(130, 95, 220, 25);
-		contentPane.add(passTextField);
-		
 		fullnameTextField = new JTextField();
 		fullnameTextField.setColumns(10);
-		fullnameTextField.setBounds(130, 135, 220, 25);
-//		fullnameTextField.setText(fullname);
+		fullnameTextField.setBounds(130, 95, 220, 25);
+		fullnameTextField.setText(info.get(1));
 		contentPane.add(fullnameTextField);
 		
 		addrTextField = new JTextField();
 		addrTextField.setColumns(10);
-		addrTextField.setBounds(130, 175, 220, 25);
-//		addrTextField.setText(addr);
+		addrTextField.setBounds(130, 135, 220, 25);
+		addrTextField.setText(info.get(2));
 		contentPane.add(addrTextField);
 		
 		emailTextField = new JTextField();
 		emailTextField.setColumns(10);
-		emailTextField.setBounds(130, 295, 220, 25);
-//		emailTextField.setText(email);
+		emailTextField.setBounds(130, 255, 220, 25);
+		emailTextField.setText(info.get(5));
 		contentPane.add(emailTextField);
 		
 		sexComboBox = new JComboBox<String>();
 		sexComboBox.setToolTipText("");
 		sexComboBox.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		sexComboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"", "Nam", "Nữ"}));
-		sexComboBox.setBounds(130, 255, 220, 25);
-//		sexComboBox.getModel().setSelectedItem(sex);
+		sexComboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"Male", "Female"}));
+		sexComboBox.setBounds(130, 215, 220, 25);
+		sexComboBox.getModel().setSelectedItem(info.get(4));
 		contentPane.add(sexComboBox);
 		
 		dateChooser = new JDateChooser();
 		JTextFieldDateEditor editor = (JTextFieldDateEditor) dateChooser.getDateEditor();
 		editor.setEditable(false);
 		dateChooser.setDateFormatString("yyyy/MM/dd");
-		dateChooser.setBounds(130, 215, 220, 25);
-//		Date date;
-//		try {
-//			date = new SimpleDateFormat("yyyy-MM-dd").parse(dob);
-//			dateChooser.setDate(date);
-//		} catch (ParseException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
+		dateChooser.setBounds(130, 175, 220, 25);
+		Date date;
+		try {
+			date = new SimpleDateFormat("yyyy-MM-dd").parse(info.get(3));
+			dateChooser.setDate(date);
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		contentPane.add(dateChooser);
-		
-		JLabel lblNewLabel = new JLabel("Chỉ cập nhật những dòng được điền hoặc chọn");
-		lblNewLabel.setFont(new Font("Tahoma", Font.ITALIC, 12));
-		lblNewLabel.setBounds(60, 335, 265, 14);
-		contentPane.add(lblNewLabel);
 	}
 }
