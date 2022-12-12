@@ -40,7 +40,7 @@ public class FriendListScreen extends JFrame {
 	private JButton btnSearch;
 	
 	Vector<Vector<Object>> data;
-	String filter = "CreateTime";
+	String filter = "UserName";
 	String order = "asc";
 	String criteria = "Username";
 	String keyword = "";
@@ -119,7 +119,7 @@ public class FriendListScreen extends JFrame {
 		popupMenu.add(mntmNewMenuItem_12);
 		
 		JComboBox<String> filterComboBox = new JComboBox<String>();
-		filterComboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"Theo tên đăng nhập", "Theo họ tên"}));
+		filterComboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"By Username", "By Fullname"}));
 		filterComboBox.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		filterComboBox.setBounds(115, 60, 176, 30);
 		filterComboBox.addItemListener(new ItemListener() {
@@ -131,9 +131,9 @@ public class FriendListScreen extends JFrame {
 		        	data.clear();
 		        	tableModel.setRowCount(0);
 		        	
-		        	if (filterSelect.equals("Sắp xếp theo Username")) {
+		        	if (filterSelect.equals("By Username")) {
 		        		filter = "UserName";
-		        	} else if (filterSelect.equals("Sắp xếp theo Fullname")) {
+		        	} else if (filterSelect.equals("By Fullname")) {
 		        		filter = "FullName";
 		        	}
 		        	

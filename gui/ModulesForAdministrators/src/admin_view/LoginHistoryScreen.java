@@ -5,28 +5,33 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JTable;
-import javax.swing.JLabel;
 import java.awt.Font;
-import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
+
+import db.Connect_DB;
+
 import javax.swing.JScrollPane;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
+import java.util.Vector;
 import java.awt.event.ActionEvent;
 
 public class LoginHistoryScreen extends JFrame {
+	Connect_DB db = Connect_DB.getInstance();
+	
 	private static LoginHistoryScreen frame;
 
 	private JPanel contentPane;
 	private JTable table;
-	private JTable table_2;
-	private JTable table_1;
-	private JTable table_3;
+	private DefaultTableModel tableModel;
+	
+	private JButton btnRefresh;
 
+	Vector<Vector<Object>> data;
+	String filter = "datetime";
+	String order = "asc";
 	/**
 	 * Launch the application.
 	 */
@@ -48,6 +53,8 @@ public class LoginHistoryScreen extends JFrame {
 	 * Create the frame.
 	 */
 	public LoginHistoryScreen() {
+		Connect_DB db = Connect_DB.getInstance();
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1000, 600);
 		contentPane = new JPanel();
@@ -60,48 +67,32 @@ public class LoginHistoryScreen extends JFrame {
 		scrollPane.setBounds(100, 100, 800, 400);
 		contentPane.add(scrollPane);
 		
-		table_3 = new JTable();
-		scrollPane.setViewportView(table_3);
-		table_3.setModel(new DefaultTableModel(
-			new Object[][] {
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-			},
-			new String[] {
-				"Gi\u1EDD", "Ng\u00E0y", "T\u00ECnh tr\u1EA1ng"
-			}
-		));
-		table_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		try {
+			data = db.getAllUser(filter, order);
+			//data = db.getLoginHistory(userid, filter, order);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
-		table_3.setEnabled(false);
+		table = new JTable();
+		scrollPane.setViewportView(table);
+		String[] columnNames = { "Date", "Time" };
+        tableModel = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+               //all cells false
+               return false;
+            }
+        };
+        for (int i = 0; i < data.size(); i++) {
+        	tableModel.addRow(data.get(i));
+        }
+        table.setModel(tableModel);
+        
+		table.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		
+		table.setEnabled(false);
 		
 		JButton btnQuayLi = new JButton("Quay lại");
 		btnQuayLi.addActionListener(new ActionListener() {
@@ -114,10 +105,28 @@ public class LoginHistoryScreen extends JFrame {
 		btnQuayLi.setBounds(10, 10, 115, 37);
 		contentPane.add(btnQuayLi);
 		
-		JButton btnNewButton = new JButton("Làm mới");
-		btnNewButton.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		btnNewButton.setBounds(785, 53, 115, 37);
-		contentPane.add(btnNewButton);
+		btnRefresh = new JButton("Làm mới");
+		btnRefresh.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+	        	data.clear();
+	        	tableModel.setRowCount(0);
+	        	//get order
+	        	
+	        	try {
+	        		data = db.getAllUser(filter, order);
+	    			//data = db.getLoginHistory(userid, filter, order);
+		            for (int i = 0; i < data.size(); i++) {
+		            	tableModel.addRow(data.get(i));
+		            }
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+		btnRefresh.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		btnRefresh.setBounds(785, 53, 115, 37);
+		contentPane.add(btnRefresh);
 		
 		
 	}

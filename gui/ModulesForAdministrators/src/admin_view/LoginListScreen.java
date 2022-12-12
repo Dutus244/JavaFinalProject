@@ -8,12 +8,19 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.JTable;
 import java.awt.Font;
 import javax.swing.table.DefaultTableModel;
+
+import db.Connect_DB;
+
 import javax.swing.JScrollPane;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.sql.SQLException;
+import java.util.Vector;
 import java.awt.event.ActionEvent;
 
 @SuppressWarnings("serial")
@@ -22,10 +29,16 @@ public class LoginListScreen extends JFrame {
 
 	private JPanel contentPane;
 	private JTable table;
-	private JTable table_2;
-	private JTable table_1;
-	private JTable table_3;
-	private JTextField textField;
+	private DefaultTableModel tableModel;
+	
+	private JTextField searchTextField;
+	private JButton btnSearch;
+	
+	Vector<Vector<Object>> data;
+	String filter = "UserName";
+	String order = "asc";
+	String criteria = "Username";
+	String keyword = "";
 
 	/**
 	 * Launch the application.
@@ -48,6 +61,8 @@ public class LoginListScreen extends JFrame {
 	 * Create the frame.
 	 */
 	public LoginListScreen() {
+		Connect_DB db = Connect_DB.getInstance();
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1000, 600);
 		contentPane = new JPanel();
@@ -60,65 +75,84 @@ public class LoginListScreen extends JFrame {
 		scrollPane.setBounds(100, 100, 800, 400);
 		contentPane.add(scrollPane);
 		
-		table_3 = new JTable();
-		scrollPane.setViewportView(table_3);
-		table_3.setModel(new DefaultTableModel(
-			new Object[][] {
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-			},
-			new String[] {
-				"Th\u1EDDi gian", "T\u00EAn \u0111\u0103ng nh\u1EADp", "H\u1ECD t\u00EAn"
+		try {
+			data = db.getAllUser(filter, order);
+			//data = db.getLogInList(keyword, criteria, filter, order);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		table = new JTable();
+		scrollPane.setViewportView(table);
+		String[] columnNames = { "Time", "Username", "Full name" };
+        tableModel = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+               //all cells false
+               return false;
+            }
+        };
+        for (int i = 0; i < data.size(); i++) {
+        	tableModel.addRow(data.get(i));
+        }
+        table.setModel(tableModel);
+        
+		table.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		
+		table.setEnabled(false);
+		
+		JComboBox<String> criteriaComboBox = new JComboBox<String>();
+		criteriaComboBox.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		criteriaComboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"By Username", "By Fullname"}));
+		criteriaComboBox.setBounds(115, 60, 176, 30);
+		criteriaComboBox.addItemListener(new ItemListener() {
+		    @Override
+		    public void itemStateChanged(ItemEvent e) {
+		        if(e.getStateChange() == ItemEvent.SELECTED) {
+		        	// Cập nhật lại modelTable
+		        	String criteriaSelect = criteriaComboBox.getSelectedItem().toString();
+		        	data.clear();
+		        	tableModel.setRowCount(0);
+		        	
+		        	if (criteriaSelect.equals("By Username")) {
+		        		criteria = "UserName";
+		        	} else if (criteriaSelect.equals("By Fullname")) {
+		        		criteria = "FullName";
+		        	}
+		        }
+		    }
+		});
+		contentPane.add(criteriaComboBox);
+		
+		searchTextField = new JTextField();
+		searchTextField.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		searchTextField.setBounds(301, 60, 447, 30);
+		contentPane.add(searchTextField);
+		searchTextField.setColumns(10);
+		
+		btnSearch = new JButton("Tìm");
+		btnSearch.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		btnSearch.setBounds(758, 60, 123, 30);
+		btnSearch.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+	        	data.clear();
+	        	tableModel.setRowCount(0);
+	        	keyword = searchTextField.getText();
+	        	
+	        	try {
+					data = db.searchUser(keyword, criteria, filter, order);
+					//data = db.searchUserInLogInList(criteria, keyword, filter, order);
+		            for (int i = 0; i < data.size(); i++) {
+		            	tableModel.addRow(data.get(i));
+		            }
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
-		));
-		table_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		
-		table_3.setEnabled(false);
-		
-		JComboBox<String> comboBox = new JComboBox<String>();
-		comboBox.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		comboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"Theo tên đăng nhập", "Theo họ tên"}));
-		comboBox.setBounds(115, 60, 176, 30);
-		contentPane.add(comboBox);
-		
-		textField = new JTextField();
-		textField.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		textField.setBounds(301, 60, 447, 30);
-		contentPane.add(textField);
-		textField.setColumns(10);
-		
-		JButton btnNewButton = new JButton("Tìm");
-		btnNewButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		btnNewButton.setBounds(758, 60, 123, 30);
-		contentPane.add(btnNewButton);
+		});
+		contentPane.add(btnSearch);
 		
 		JButton btnQuayLi = new JButton("Quay lại");
 		btnQuayLi.addActionListener(new ActionListener() {

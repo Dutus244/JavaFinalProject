@@ -4,6 +4,7 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
@@ -15,8 +16,15 @@ import javax.swing.SwingConstants;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.table.DefaultTableModel;
+
+import db.Connect_DB;
+
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.sql.SQLException;
+import java.util.Vector;
 import java.awt.event.ActionEvent;
 
 @SuppressWarnings("serial")
@@ -24,9 +32,25 @@ public class GroupChatListScreen extends JFrame {
 	private static GroupChatListScreen frame;
 
 	private JPanel contentPane;
+	
 	private JTable table;
-	private JTable table_2;
+	private DefaultTableModel tableModel;
+	
 	private JTable table_1;
+	private DefaultTableModel tableModel_1;
+	
+	private JTable table_2;
+	private DefaultTableModel tableModel_2;
+	
+	String groupid = "";
+	
+	Vector<Vector<Object>> data;
+	String filter = "Name";
+	String order = "asc";
+	
+	Vector<Vector<Object>> data_1;
+	
+	Vector<Vector<Object>> data_2;
 
 	/**
 	 * Launch the application.
@@ -49,6 +73,8 @@ public class GroupChatListScreen extends JFrame {
 	 * Create the frame.
 	 */
 	public GroupChatListScreen() {
+		Connect_DB db = Connect_DB.getInstance();
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1000, 600);
 		contentPane = new JPanel();
@@ -57,88 +83,127 @@ public class GroupChatListScreen extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(10, 144, 483, 387);
+		contentPane.add(scrollPane);
+		
+		try {
+			data = db.getAllUser(filter, order);
+			//data = db.getAllGroupChat(filter, order);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		table = new JTable();
-		table.setModel(new DefaultTableModel(
-			new Object[][] {
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-				{null},
-			},
-			new String[] {
-				"T\u00EAn nh\u00F3m"
-			}
-		));
-		table.setBounds(10, 144, 483, 387);
-		contentPane.add(table);
+		scrollPane.setViewportView(table);
+		String[] columnNames = { "Nhóm ID", "Tên nhóm", "Ngày lập" };
+        tableModel = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+               //all cells false
+               return false;
+            }
+        };
+        for (int i = 0; i < data.size(); i++) {
+        	tableModel.addRow(data.get(i));
+        }
+        table.setModel(tableModel);
+        
+		table.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		
+		table.addMouseListener(new MouseListener() {
+	        @Override
+	        public void mouseReleased(MouseEvent e) {
+	        }
+	        @Override
+	        public void mousePressed(MouseEvent e) {
+	            groupid = (String) table.getValueAt(table.getSelectedRow() , 0);
+	            System.out.println(groupid);
+	            
+	            data_1.clear();
+	        	tableModel_1.setRowCount(0);
+	        	data_2.clear();
+	        	tableModel_2.setRowCount(0);
+	            
+	            //
+	        	
+	        	try {
+	        		data = db.getAllUser(filter, order);
+					//data_1 = db.getGroupChatAdmin(groupid, filter, order);
+		            //data_2 = db.getGroupChatMember(groupid, filter, order);
+					
+		            for (int i = 0; i < data_1.size(); i++) {
+		            	tableModel_1.addRow(data_1.get(i));
+		            }
+		            for (int i = 0; i < data_2.size(); i++) {
+		            	tableModel_2.addRow(data_2.get(i));
+		            }
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+	            
+	        }
+	        @Override
+	        public void mouseExited(MouseEvent e) {
+	        }
+	        @Override
+	        public void mouseEntered(MouseEvent e) {
+	        }
+	        @Override
+	        public void mouseClicked(MouseEvent e) {
+	        }
+	    });
+		table.setEnabled(false);
+		
+		//
+		JScrollPane scrollPane_1 = new JScrollPane();
+		scrollPane_1.setBounds(503, 144, 473, 165);
+		contentPane.add(scrollPane_1);
+		
+		table_1 = new JTable();
+		scrollPane_1.setViewportView(table_1);
+		String[] columnNames_1 = { "Username", "Fullname" };
+        tableModel_1 = new DefaultTableModel(columnNames_1, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+               //all cells false
+               return false;
+            }
+        };
+        for (int i = 0; i < data_1.size(); i++) {
+        	tableModel_1.addRow(data_1.get(i));
+        }
+        table_1.setModel(tableModel_1);
+        
+		table_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		
+		table_1.setEnabled(false);
+		
+		//
+		JScrollPane scrollPane_2 = new JScrollPane();
+		scrollPane_2.setBounds(503, 366, 473, 165);
+		contentPane.add(scrollPane_2);
 		
 		table_2 = new JTable();
-		table_2.setModel(new DefaultTableModel(
-			new Object[][] {
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-			},
-			new String[] {
-				"New column", "New column", "New column"
-			}
-		));
-		table_2.setBounds(503, 366, 473, 165);
-		contentPane.add(table_2);
+		scrollPane_2.setViewportView(table_2);
+		String[] columnNames_2 = { "Username", "Fullname" };
+        tableModel_2 = new DefaultTableModel(columnNames_2, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+               //all cells false
+               return false;
+            }
+        };
+        for (int i = 0; i < data_2.size(); i++) {
+        	tableModel_2.addRow(data_2.get(i));
+        }
+        table_2.setModel(tableModel_2);
+        
+		table_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		
+		table_2.setEnabled(false);
 		
 		JLabel lblNewLabel = new JLabel("Danh sách nhóm");
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 26));
@@ -155,37 +220,6 @@ public class GroupChatListScreen extends JFrame {
 		lblDanhSchMember.setBounds(503, 319, 212, 37);
 		contentPane.add(lblDanhSchMember);
 		
-		table_1 = new JTable();
-		table_1.setModel(new DefaultTableModel(
-			new Object[][] {
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-				{null, null, null},
-			},
-			new String[] {
-				"New column", "New column", "New column"
-			}
-		));
-		table_1.setBounds(503, 144, 473, 165);
-		contentPane.add(table_1);
-		
 		JComboBox<String> comboBox = new JComboBox<String>();
 		comboBox.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		comboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"Theo tên", "Theo thời gian lập"}));
@@ -195,17 +229,30 @@ public class GroupChatListScreen extends JFrame {
 		JButton btnNewButton = new JButton("Làm mới");
 		btnNewButton.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		btnNewButton.setBounds(378, 97, 115, 37);
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+	        	data.clear();
+	        	tableModel.setRowCount(0);
+	        	data_1.clear();
+	        	tableModel_1.setRowCount(0);
+	        	data_2.clear();
+	        	tableModel_2.setRowCount(0);
+	        	
+	        	try {
+	        		data = db.getAllUser(filter, order);
+	    			//data = db.getAllGroupChat(filter, order);
+		            for (int i = 0; i < data.size(); i++) {
+		            	tableModel.addRow(data.get(i));
+		            }
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
 		contentPane.add(btnNewButton);
 		
-		JButton btnNewButton_1 = new JButton("Làm mới");
-		btnNewButton_1.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		btnNewButton_1.setBounds(861, 97, 115, 37);
-		contentPane.add(btnNewButton_1);
 		
-		JButton btnNewButton_2 = new JButton("Làm mới");
-		btnNewButton_2.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		btnNewButton_2.setBounds(861, 319, 115, 37);
-		contentPane.add(btnNewButton_2);
 		
 		JButton btnQuayLi = new JButton("Quay lại");
 		btnQuayLi.addActionListener(new ActionListener() {
