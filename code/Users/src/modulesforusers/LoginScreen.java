@@ -214,6 +214,14 @@ public class LoginScreen extends JFrame implements ActionListener {
 	                return;
 				}
 				else {
+					rs = ((java.sql.Statement)stmt).executeQuery("select LockAccount from users where UserName = '" + username + "'");
+					rs.next();
+					String checkLockAccount = rs.getString("LockAccount");
+					if (checkLockAccount.equals("1")) {
+						JOptionPane.showMessageDialog(this,"Your account has been locked", "Attention",JOptionPane.ERROR_MESSAGE);
+		                return;
+					}
+					System.out.print(checkLockAccount);
 					JOptionPane.showMessageDialog(null, "Login successfully");
 				}
 			} catch (SQLException e1) {
