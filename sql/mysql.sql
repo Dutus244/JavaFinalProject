@@ -11,8 +11,8 @@ CREATE TABLE users (
     FullName nvarchar(200) COLLATE utf8_general_ci,
     Address nvarchar(200) COLLATE utf8_general_ci,
     DOB date,
-    Sex nchar(3) COLLATE utf8_general_ci CHECK (Sex IN ('Nam','Nữ')),
-    Email varchar(100) COLLATE utf8_general_ci NOT NULL,
+    Sex varchar(6) COLLATE utf8_general_ci CHECK (Sex IN ('Male','Female')),
+    Email varchar(100) COLLATE utf8_general_ci NOT NULL UNIQUE,
     Pass binary(60) NOT NULL,
     CreateTime datetime,
     LockAccount bool default(false),
@@ -95,6 +95,8 @@ CREATE TABLE messageaccess (
     FOREIGN KEY (UserID) REFERENCES users(UserID),
     PRIMARY KEY(MessID,InboxID,SentUserID,UserID)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+
 
 
 
