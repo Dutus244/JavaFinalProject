@@ -6,13 +6,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JTable;
 import javax.swing.JLabel;
 import java.awt.Font;
-import javax.swing.SwingConstants;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.table.DefaultTableModel;
@@ -254,8 +250,8 @@ public class GroupChatListScreen extends JFrame {
 		JButton btnQuayLi = new JButton("Quay lại");
 		btnQuayLi.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frame.dispose();
 				MenuScreen.main();
+				frame.dispose();
 			}
 		});
 		btnQuayLi.setFont(new Font("Tahoma", Font.PLAIN, 20));

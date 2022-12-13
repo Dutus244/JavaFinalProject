@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.util.Vector;
 import java.awt.event.ActionEvent;
 
+@SuppressWarnings("serial")
 public class LoginHistoryScreen extends JFrame {
 	private String userName = "";
 	
@@ -97,8 +98,8 @@ public class LoginHistoryScreen extends JFrame {
 		JButton btnQuayLi = new JButton("Quay lại");
 		btnQuayLi.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frame.dispose();
 				UserListScreen.main();
+				frame.dispose();
 			}
 		});
 		btnQuayLi.setFont(new Font("Tahoma", Font.PLAIN, 20));

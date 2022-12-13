@@ -205,10 +205,10 @@ public class UserListScreen extends JFrame {
 		JMenuItem loginHistoryMenuItem = new JMenuItem("Login history");
 		loginHistoryMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frame.dispose();
 				int row = table.getSelectedRow();
 				String user = table.getValueAt(row, 0).toString();
 				LoginHistoryScreen.main(user);
+				frame.dispose();
 			}
 		});
 		popupMenu.add(loginHistoryMenuItem);
@@ -216,10 +216,10 @@ public class UserListScreen extends JFrame {
 		JMenuItem friendListMenuItem = new JMenuItem("Friend list");
 		friendListMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frame.dispose();
 				int row = table.getSelectedRow();
 				String user = table.getValueAt(row, 0).toString();
 				FriendListScreen.main(user);
+				frame.dispose();
 			}
 		});
 		popupMenu.add(friendListMenuItem);
@@ -338,8 +338,8 @@ public class UserListScreen extends JFrame {
 		JButton btnBack = new JButton("Back");
 		btnBack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frame.dispose();
 				MenuScreen.main();
+				frame.dispose();
 			}
 		});
 		btnBack.setFont(new Font("Tahoma", Font.BOLD, 12));

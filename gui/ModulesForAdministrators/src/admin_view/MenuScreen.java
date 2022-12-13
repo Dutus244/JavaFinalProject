@@ -59,8 +59,8 @@ public class MenuScreen extends JFrame {
 		JButton userListButton = new JButton("User List");
 		userListButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frame.dispose();
 				UserListScreen.main();
+				frame.dispose();
 			}
 		});
 		userListButton.setFont(new Font("Tahoma", Font.PLAIN, 20));
@@ -70,8 +70,8 @@ public class MenuScreen extends JFrame {
 		JButton loginListButton = new JButton("Login List");
 		loginListButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frame.dispose();
 				LoginListScreen.main();
+				frame.dispose();
 			}
 		});
 		loginListButton.setFont(new Font("Tahoma", Font.PLAIN, 20));
@@ -81,8 +81,8 @@ public class MenuScreen extends JFrame {
 		JButton groupChatListButton = new JButton("Chat Group List");
 		groupChatListButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frame.dispose();
 				GroupChatListScreen.main();
+				frame.dispose();
 			}
 		});
 		groupChatListButton.setFont(new Font("Tahoma", Font.PLAIN, 20));
@@ -92,8 +92,8 @@ public class MenuScreen extends JFrame {
 		JButton exitButton = new JButton("Exit");
 		exitButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frame.dispose();
 				db.close();
+				System.exit(0);
 			}
 		});
 		exitButton.setFont(new Font("Tahoma", Font.PLAIN, 20));

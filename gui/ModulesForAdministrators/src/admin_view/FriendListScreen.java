@@ -174,8 +174,8 @@ public class FriendListScreen extends JFrame {
 		JButton btnQuayLi = new JButton("Quay lại");
 		btnQuayLi.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frame.dispose();
 				UserListScreen.main();
+				frame.dispose();
 			}
 		});
 		btnQuayLi.setFont(new Font("Tahoma", Font.PLAIN, 20));

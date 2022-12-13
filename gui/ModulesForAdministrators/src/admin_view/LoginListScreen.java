@@ -155,8 +155,8 @@ public class LoginListScreen extends JFrame {
 		JButton btnQuayLi = new JButton("Quay lại");
 		btnQuayLi.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frame.dispose();
 				MenuScreen.main();
+				frame.dispose();
 			}
 		});
 		btnQuayLi.setFont(new Font("Tahoma", Font.PLAIN, 20));
