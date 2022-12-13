@@ -169,6 +169,9 @@ public class UserListScreen extends JFrame {
 				}
 			}
 		});
+		
+		JMenuItem updatePassMenuItem = new JMenuItem("Update password");
+		popupMenu.add(updatePassMenuItem);
 		popupMenu.add(deleteMenuItem);
 
 		JMenuItem banMenuItem = new JMenuItem("Ban/Unban");
@@ -205,8 +208,10 @@ public class UserListScreen extends JFrame {
 		JMenuItem loginHistoryMenuItem = new JMenuItem("Login history");
 		loginHistoryMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				int row = table.getSelectedRow();
+				String user = table.getValueAt(row, 0).toString();
+				LoginHistoryScreen.main(user);
 				frame.dispose();
-				LoginHistoryScreen.main();
 			}
 		});
 		popupMenu.add(loginHistoryMenuItem);
@@ -214,8 +219,10 @@ public class UserListScreen extends JFrame {
 		JMenuItem friendListMenuItem = new JMenuItem("Friend list");
 		friendListMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				int row = table.getSelectedRow();
+				String user = table.getValueAt(row, 0).toString();
+				FriendListScreen.main(user);
 				frame.dispose();
-				FriendListScreen.main();
 			}
 		});
 		popupMenu.add(friendListMenuItem);
@@ -334,8 +341,8 @@ public class UserListScreen extends JFrame {
 		JButton btnBack = new JButton("Back");
 		btnBack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frame.dispose();
 				MenuScreen.main();
+				frame.dispose();
 			}
 		});
 		btnBack.setFont(new Font("Tahoma", Font.BOLD, 12));

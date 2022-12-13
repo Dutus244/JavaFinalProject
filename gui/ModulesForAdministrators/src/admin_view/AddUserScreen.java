@@ -150,7 +150,8 @@ public class AddUserScreen extends JFrame {
 					// TODO: handle exception
 //					e1.printStackTrace();
 					String msg = e1.getMessage();
-					String eMsg = msg.indexOf("users.UserName") != -1 ? "Username already exists" : (msg.indexOf("users.Email") != -1 ? "Email already exists" : "");
+//					String eMsg = msg.indexOf("users.UserName") != -1 ? "Username already exists" : (msg.indexOf("users.Email") != -1 ? "Email already exists" : "");
+					String eMsg = msg.indexOf("UserName") != -1 ? "Username already exists" : (msg.indexOf("Email") != -1 ? "Email already exists" : "");
 					
 					JOptionPane.showMessageDialog(frame,
 			                eMsg,

@@ -6,13 +6,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JTable;
 import javax.swing.JLabel;
 import java.awt.Font;
-import javax.swing.SwingConstants;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.table.DefaultTableModel;
@@ -45,12 +41,12 @@ public class GroupChatListScreen extends JFrame {
 	String groupid = "";
 	
 	Vector<Vector<Object>> data;
-	String filter = "Name";
+	String filter = "CreateTime";
 	String order = "asc";
 	
-	Vector<Vector<Object>> data_1;
+	Vector<Vector<Object>> data_1 = new Vector<Vector<Object>>();
 	
-	Vector<Vector<Object>> data_2;
+	Vector<Vector<Object>> data_2 = new Vector<Vector<Object>>();
 
 	/**
 	 * Launch the application.
@@ -88,8 +84,7 @@ public class GroupChatListScreen extends JFrame {
 		contentPane.add(scrollPane);
 		
 		try {
-			data = db.getAllUser(filter, order);
-			//data = db.getAllGroupChat(filter, order);
+			data = db.getAllGroupChat(filter, order);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -129,9 +124,8 @@ public class GroupChatListScreen extends JFrame {
 	            //
 	        	
 	        	try {
-	        		data = db.getAllUser(filter, order);
-					//data_1 = db.getGroupChatAdmin(groupid, filter, order);
-		            //data_2 = db.getGroupChatMember(groupid, filter, order);
+					data_1 = db.getGroupChatAdmin(groupid, filter, order);
+		            data_2 = db.getGroupChatMember(groupid, filter, order);
 					
 		            for (int i = 0; i < data_1.size(); i++) {
 		            	tableModel_1.addRow(data_1.get(i));
@@ -239,8 +233,7 @@ public class GroupChatListScreen extends JFrame {
 	        	tableModel_2.setRowCount(0);
 	        	
 	        	try {
-	        		data = db.getAllUser(filter, order);
-	    			//data = db.getAllGroupChat(filter, order);
+	    			data = db.getAllGroupChat(filter, order);
 		            for (int i = 0; i < data.size(); i++) {
 		            	tableModel.addRow(data.get(i));
 		            }
@@ -257,12 +250,20 @@ public class GroupChatListScreen extends JFrame {
 		JButton btnQuayLi = new JButton("Quay lại");
 		btnQuayLi.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frame.dispose();
 				MenuScreen.main();
+				frame.dispose();
 			}
 		});
 		btnQuayLi.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		btnQuayLi.setBounds(10, 10, 115, 37);
 		contentPane.add(btnQuayLi);
+		
+		// Close db when close window by X
+		addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
+		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+		    	db.close();
+		    }
+		});
 	}
 }

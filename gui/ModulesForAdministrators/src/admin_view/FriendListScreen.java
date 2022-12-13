@@ -30,6 +30,8 @@ import java.awt.event.ActionEvent;
 
 @SuppressWarnings("serial")
 public class FriendListScreen extends JFrame {
+	private String userName = "";
+	
 	private static FriendListScreen frame;
 
 	private JPanel contentPane;
@@ -48,11 +50,11 @@ public class FriendListScreen extends JFrame {
 	/**
 	 * Launch the application.
 	 */
-	public static void main() {
+	public static void main(String user) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					frame = new FriendListScreen();
+					frame = new FriendListScreen(user);
 					frame.setLocationRelativeTo(null);
 					frame.setVisible(true);
 				} catch (Exception e) {
@@ -65,8 +67,9 @@ public class FriendListScreen extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public FriendListScreen() {
+	public FriendListScreen(String user) {
 		Connect_DB db = Connect_DB.getInstance();
+		userName = user;
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1000, 600);
@@ -81,8 +84,7 @@ public class FriendListScreen extends JFrame {
 		contentPane.add(scrollPane);
 		
 		try {
-			data = db.getAllUser(filter, order);
-			//data = db.getUserFriendList(userid, filter, order);
+			data = db.getUserFriendList(userName, filter, order);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -118,40 +120,28 @@ public class FriendListScreen extends JFrame {
 		JMenuItem mntmNewMenuItem_12 = new JMenuItem("New menu item");
 		popupMenu.add(mntmNewMenuItem_12);
 		
-		JComboBox<String> filterComboBox = new JComboBox<String>();
-		filterComboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"By Username", "By Fullname"}));
-		filterComboBox.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		filterComboBox.setBounds(115, 60, 176, 30);
-		filterComboBox.addItemListener(new ItemListener() {
+		JComboBox<String> criteriaComboBox = new JComboBox<String>();
+		criteriaComboBox.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		criteriaComboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"By Username", "By Fullname"}));
+		criteriaComboBox.setBounds(115, 60, 176, 30);
+		criteriaComboBox.addItemListener(new ItemListener() {
 		    @Override
 		    public void itemStateChanged(ItemEvent e) {
 		        if(e.getStateChange() == ItemEvent.SELECTED) {
 		        	// Cập nhật lại modelTable
-		        	String filterSelect = filterComboBox.getSelectedItem().toString();
+		        	String criteriaSelect = criteriaComboBox.getSelectedItem().toString();
 		        	data.clear();
 		        	tableModel.setRowCount(0);
 		        	
-		        	if (filterSelect.equals("By Username")) {
-		        		filter = "UserName";
-		        	} else if (filterSelect.equals("By Fullname")) {
-		        		filter = "FullName";
+		        	if (criteriaSelect.equals("By Username")) {
+		        		criteria = "UserName";
+		        	} else if (criteriaSelect.equals("By Fullname")) {
+		        		criteria = "FullName";
 		        	}
-		        	
-		        	try {
-						data = db.searchUser(keyword, criteria, filter, order);
-						//data = db.getUserFriendList(userid, filter, order);
-						
-			            for (int i = 0; i < data.size(); i++) {
-			            	tableModel.addRow(data.get(i));
-			            }
-					} catch (SQLException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
 		        }
 		    }
 		});
-		contentPane.add(filterComboBox);
+		contentPane.add(criteriaComboBox);
 		
 		searchTextField = new JTextField();
 		searchTextField.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -167,8 +157,7 @@ public class FriendListScreen extends JFrame {
 	        	keyword = searchTextField.getText();
 	        	
 	        	try {
-					data = db.searchUser(keyword, criteria, filter, order);
-					//data = db.searchUserInUserFriendList(userid, criteria, keyword, filter, order);
+					data = db.searchUserInUserFriendList(userName, criteria, keyword, filter, order);
 		            for (int i = 0; i < data.size(); i++) {
 		            	tableModel.addRow(data.get(i));
 		            }
@@ -185,15 +174,21 @@ public class FriendListScreen extends JFrame {
 		JButton btnQuayLi = new JButton("Quay lại");
 		btnQuayLi.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frame.dispose();
 				UserListScreen.main();
+				frame.dispose();
 			}
 		});
 		btnQuayLi.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		btnQuayLi.setBounds(10, 10, 115, 37);
 		contentPane.add(btnQuayLi);
 		
-		
+		// Close db when close window by X
+		addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
+		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+		    	db.close();
+		    }
+		});
 	}
 	private static void addPopup(Component component, final JPopupMenu popup) {
 		component.addMouseListener(new MouseAdapter() {

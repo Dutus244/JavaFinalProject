@@ -18,8 +18,9 @@ import java.sql.SQLException;
 import java.util.Vector;
 import java.awt.event.ActionEvent;
 
+@SuppressWarnings("serial")
 public class LoginHistoryScreen extends JFrame {
-	Connect_DB db = Connect_DB.getInstance();
+	private String userName = "";
 	
 	private static LoginHistoryScreen frame;
 
@@ -30,16 +31,16 @@ public class LoginHistoryScreen extends JFrame {
 	private JButton btnRefresh;
 
 	Vector<Vector<Object>> data;
-	String filter = "datetime";
+	String filter = "LoginTime";
 	String order = "asc";
 	/**
 	 * Launch the application.
 	 */
-	public static void main() {
+	public static void main(String user) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					frame = new LoginHistoryScreen();
+					frame = new LoginHistoryScreen(user);
 					frame.setLocationRelativeTo(null);
 					frame.setVisible(true);
 				} catch (Exception e) {
@@ -52,8 +53,9 @@ public class LoginHistoryScreen extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public LoginHistoryScreen() {
+	public LoginHistoryScreen(String user) {
 		Connect_DB db = Connect_DB.getInstance();
+		userName = user;
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1000, 600);
@@ -68,8 +70,7 @@ public class LoginHistoryScreen extends JFrame {
 		contentPane.add(scrollPane);
 		
 		try {
-			data = db.getAllUser(filter, order);
-			//data = db.getLoginHistory(userid, filter, order);
+			data = db.getLoginHistory(userName, filter, order);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -97,8 +98,8 @@ public class LoginHistoryScreen extends JFrame {
 		JButton btnQuayLi = new JButton("Quay lại");
 		btnQuayLi.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frame.dispose();
 				UserListScreen.main();
+				frame.dispose();
 			}
 		});
 		btnQuayLi.setFont(new Font("Tahoma", Font.PLAIN, 20));
@@ -113,8 +114,7 @@ public class LoginHistoryScreen extends JFrame {
 	        	//get order
 	        	
 	        	try {
-	        		data = db.getAllUser(filter, order);
-	    			//data = db.getLoginHistory(userid, filter, order);
+	    			data = db.getLoginHistory(userName, filter, order);
 		            for (int i = 0; i < data.size(); i++) {
 		            	tableModel.addRow(data.get(i));
 		            }
@@ -128,6 +128,12 @@ public class LoginHistoryScreen extends JFrame {
 		btnRefresh.setBounds(785, 53, 115, 37);
 		contentPane.add(btnRefresh);
 		
-		
+		// Close db when close window by X
+		addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
+		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+		    	db.close();
+		    }
+		});		
 	}
 }
