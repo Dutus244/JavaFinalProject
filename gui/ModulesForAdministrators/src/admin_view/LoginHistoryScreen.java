@@ -127,6 +127,12 @@ public class LoginHistoryScreen extends JFrame {
 		btnRefresh.setBounds(785, 53, 115, 37);
 		contentPane.add(btnRefresh);
 		
-		
+		// Close db when close window by X
+		addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
+		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+		    	db.close();
+		    }
+		});		
 	}
 }

@@ -261,5 +261,13 @@ public class GroupChatListScreen extends JFrame {
 		btnQuayLi.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		btnQuayLi.setBounds(10, 10, 115, 37);
 		contentPane.add(btnQuayLi);
+		
+		// Close db when close window by X
+		addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
+		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+		    	db.close();
+		    }
+		});
 	}
 }

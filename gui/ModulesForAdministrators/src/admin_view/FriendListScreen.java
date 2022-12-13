@@ -182,7 +182,13 @@ public class FriendListScreen extends JFrame {
 		btnQuayLi.setBounds(10, 10, 115, 37);
 		contentPane.add(btnQuayLi);
 		
-		
+		// Close db when close window by X
+		addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
+		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+		    	db.close();
+		    }
+		});
 	}
 	private static void addPopup(Component component, final JPopupMenu popup) {
 		component.addMouseListener(new MouseAdapter() {
