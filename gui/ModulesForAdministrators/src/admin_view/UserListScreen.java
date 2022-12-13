@@ -206,7 +206,9 @@ public class UserListScreen extends JFrame {
 		loginHistoryMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frame.dispose();
-				LoginHistoryScreen.main();
+				int row = table.getSelectedRow();
+				String user = table.getValueAt(row, 0).toString();
+				LoginHistoryScreen.main(user);
 			}
 		});
 		popupMenu.add(loginHistoryMenuItem);
@@ -215,7 +217,9 @@ public class UserListScreen extends JFrame {
 		friendListMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frame.dispose();
-				FriendListScreen.main();
+				int row = table.getSelectedRow();
+				String user = table.getValueAt(row, 0).toString();
+				FriendListScreen.main(user);
 			}
 		});
 		popupMenu.add(friendListMenuItem);

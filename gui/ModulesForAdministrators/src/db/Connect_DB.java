@@ -182,11 +182,16 @@ public class Connect_DB {
 			e.printStackTrace();
 		}
 	}
-	public Vector<Vector<Object>> getUserFriendList(String id, String filter, String order) throws SQLException {
+	public Vector<Vector<Object>> getUserFriendList(String user, String filter, String order) throws SQLException {
 		Statement stmt = conn.createStatement();
+		
+		String sqlID = "select UserID from users where users.UserName = '" + user + "'";
+		ResultSet rsid = stmt.executeQuery(sqlID); rsid.next();
+		String id = rsid.getString("UserID");
+				
 		String sql = "select * from users "
-				+ "join friendlist on users.UserID = friendlist.UserID "
-				+ "where " + id + " = users.UserID "
+				+ "join friendlist on users.UserID = friendlist.FriendID "
+				+ "where users.UserID = '" + id + "' "
 				+ "order by " + filter + " " + order;
 		
 		ResultSet rs = stmt.executeQuery(sql);
@@ -213,11 +218,16 @@ public class Connect_DB {
 		return data;
 	}
 	
-	public Vector<Vector<Object>> searchUserInUserFriendList(String id, String criteria, String keyword, String filter, String order) throws SQLException{
+	public Vector<Vector<Object>> searchUserInUserFriendList(String user, String criteria, String keyword, String filter, String order) throws SQLException{
 		Statement stmt = conn.createStatement();
+
+		String sqlID = "select UserID from users where users.UserName = '" + user + "'";
+		ResultSet rsid = stmt.executeQuery(sqlID); rsid.next();
+		String id = rsid.getString("UserID");
+		
 		String sql = "select * from users "
-				+ "join friendlist on users.UserID = friendlist.UserID "
-				+ "where " + id + " = users.UserID "
+				+ "join friendlist on users.UserID = friendlist.FriendID "
+				+ "where users.UserID = '" + id + "' "
 				+ "and " + criteria + " like '%" + keyword + "%' "
 				+ "order by " + filter + " " + order;
 		
@@ -245,10 +255,15 @@ public class Connect_DB {
 		return data;
 	}
 	
-	public Vector<Vector<Object>> getLoginHistory(String id, String filter, String order) throws SQLException {
+	public Vector<Vector<Object>> getLoginHistory(String user, String filter, String order) throws SQLException {
 		Statement stmt = conn.createStatement();
+		
+		String sqlID = "select UserID from users where users.UserName = '" + user + "'";
+		ResultSet rsid = stmt.executeQuery(sqlID); rsid.next();
+		String id = rsid.getString("UserID");
+		
 		String sql = "select loginhistory.LoginTime from loginhistory "
-				+ "where id = loginhistory.UserID "
+				+ "where loginhistory.UserID = '" + id + "' "
 				+ "order by " + filter + " " + order;
 		
 		ResultSet rs = stmt.executeQuery(sql);
@@ -352,7 +367,7 @@ public class Connect_DB {
 				+ "join admingroup on users.UserID = admingroup.UserID "
 				+ "join inbox on admingroup.InboxID = inbox.InboxID "
 				+ "and inbox.TypeInbox = 'group' "
-				+ "and + " + id + " = inbox.InboxID"
+				+ "and inbox.InboxID ='" + id + "' "
 				+ "order by " + filter + " " + order;
 		
 		ResultSet rs = stmt.executeQuery(sql);
