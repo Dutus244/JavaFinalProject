@@ -53,9 +53,11 @@ BEGIN;
 DROP TABLE IF EXISTS inbox;
 CREATE TABLE inbox (
 	InboxID varchar(36) NOT NULL,
-    TypeInbox char(10) default('individual') CHECK (TypeInbox IN ('individual','group')),
+    InboxName varchar(100) COLLATE utf8_general_ci NOT NULL,
+    TypeInbox char(10) CHECK (TypeInbox IN ('individual','group')),
     LastMessage text COLLATE utf8_general_ci,
     LastSentUserID varchar(36),
+    CreateTime datetime,
     FOREIGN KEY (LastSentUserID) REFERENCES users(UserID),
     PRIMARY KEY(InboxID)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
@@ -107,6 +109,15 @@ CREATE TABLE sendrequestfriendlistfriendlist (
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 
+BEGIN;
+DROP TABLE IF EXISTS admingroup;
+CREATE TABLE admingroup (
+	InboxID varchar(36) NOT NULL,
+    UserID varchar(36) NOT NULL,
+    FOREIGN KEY (InboxID) REFERENCES inbox(InboxID),
+    FOREIGN KEY (UserID) REFERENCES users(UserID),
+    PRIMARY KEY(InboxID,UserID)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 
 

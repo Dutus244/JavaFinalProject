@@ -221,7 +221,6 @@ public class LoginScreen extends JFrame implements ActionListener {
 						JOptionPane.showMessageDialog(this,"Your account has been locked", "Attention",JOptionPane.ERROR_MESSAGE);
 		                return;
 					}
-					System.out.print(checkLockAccount);
 					JOptionPane.showMessageDialog(null, "Login successfully");
 				}
 			} catch (SQLException e1) {
