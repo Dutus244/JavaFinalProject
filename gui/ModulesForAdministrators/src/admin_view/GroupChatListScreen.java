@@ -88,8 +88,7 @@ public class GroupChatListScreen extends JFrame {
 		contentPane.add(scrollPane);
 		
 		try {
-			data = db.getAllUser(filter, order);
-			//data = db.getAllGroupChat(filter, order);
+			data = db.getAllGroupChat(filter, order);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -129,9 +128,8 @@ public class GroupChatListScreen extends JFrame {
 	            //
 	        	
 	        	try {
-	        		data = db.getAllUser(filter, order);
-					//data_1 = db.getGroupChatAdmin(groupid, filter, order);
-		            //data_2 = db.getGroupChatMember(groupid, filter, order);
+					data_1 = db.getGroupChatAdmin(groupid, filter, order);
+		            data_2 = db.getGroupChatMember(groupid, filter, order);
 					
 		            for (int i = 0; i < data_1.size(); i++) {
 		            	tableModel_1.addRow(data_1.get(i));
@@ -239,8 +237,7 @@ public class GroupChatListScreen extends JFrame {
 	        	tableModel_2.setRowCount(0);
 	        	
 	        	try {
-	        		data = db.getAllUser(filter, order);
-	    			//data = db.getAllGroupChat(filter, order);
+	    			data = db.getAllGroupChat(filter, order);
 		            for (int i = 0; i < data.size(); i++) {
 		            	tableModel.addRow(data.get(i));
 		            }

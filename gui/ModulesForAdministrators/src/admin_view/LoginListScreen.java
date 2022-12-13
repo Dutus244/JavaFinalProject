@@ -76,8 +76,7 @@ public class LoginListScreen extends JFrame {
 		contentPane.add(scrollPane);
 		
 		try {
-			data = db.getAllUser(filter, order);
-			//data = db.getLogInList(keyword, criteria, filter, order);
+			data = db.getLogInList(filter, order);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -141,8 +140,7 @@ public class LoginListScreen extends JFrame {
 	        	keyword = searchTextField.getText();
 	        	
 	        	try {
-					data = db.searchUser(keyword, criteria, filter, order);
-					//data = db.searchUserInLogInList(criteria, keyword, filter, order);
+					data = db.searchUserInLogInList(criteria, keyword, filter, order);
 		            for (int i = 0; i < data.size(); i++) {
 		            	tableModel.addRow(data.get(i));
 		            }
