@@ -184,7 +184,7 @@ public class SignupScreen extends JFrame implements ActionListener {
 	
 	public static String generateRandomPassword(int len)
     {
-        final String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        final String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
  
         SecureRandom random = new SecureRandom();
         StringBuilder sb = new StringBuilder();

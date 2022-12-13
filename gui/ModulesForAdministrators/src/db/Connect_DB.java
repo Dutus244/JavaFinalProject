@@ -13,10 +13,10 @@ public class Connect_DB {
 	private Connection conn = null;
 	
 	// Database URL
-	static final String DB_URL = "jdbc:mysql://localhost/java_finalproject_chatapplication";
+	static final String DB_URL = "jdbc:mysql://javachatapplication.mysql.database.azure.com:3306/java_finalproject_chatapplication";
 	// Database credentials
-	static final String USER = "root";
-	static final String PASS = "123456";
+	static final String USER = "java";
+	static final String PASS = "Duy24042002";
 	
 	private Connect_DB() {
 		try {
