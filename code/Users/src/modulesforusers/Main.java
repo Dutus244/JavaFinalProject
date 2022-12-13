@@ -11,7 +11,7 @@ public class Main {
 	// You can change the variables here to match your database
 	static final String DB_URL = "jdbc:mysql://javachatapplication.mysql.database.azure.com:3306/java_finalproject_chatapplication";
 	static final String USER = "java";
-	static final String PASS = "Duy24042002";
+	static final String PASS = "20Ktpm2022";
 	
 	static final Font fontBigBold = new Font("Times New Roman", Font.BOLD,30);
 	static final Font fontBiggestBold = new Font("Times New Roman", Font.BOLD,40);
