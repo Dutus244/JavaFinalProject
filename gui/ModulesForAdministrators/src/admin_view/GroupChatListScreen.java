@@ -45,12 +45,12 @@ public class GroupChatListScreen extends JFrame {
 	String groupid = "";
 	
 	Vector<Vector<Object>> data;
-	String filter = "Name";
+	String filter = "CreateTime";
 	String order = "asc";
 	
-	Vector<Vector<Object>> data_1;
+	Vector<Vector<Object>> data_1 = new Vector<Vector<Object>>();
 	
-	Vector<Vector<Object>> data_2;
+	Vector<Vector<Object>> data_2 = new Vector<Vector<Object>>();
 
 	/**
 	 * Launch the application.

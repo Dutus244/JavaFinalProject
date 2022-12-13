@@ -35,7 +35,7 @@ public class LoginListScreen extends JFrame {
 	private JButton btnSearch;
 	
 	Vector<Vector<Object>> data;
-	String filter = "UserName";
+	String filter = "LoginTime";
 	String order = "asc";
 	String criteria = "Username";
 	String keyword = "";

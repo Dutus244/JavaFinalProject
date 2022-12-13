@@ -273,7 +273,6 @@ public class Connect_DB {
 		Statement stmt = conn.createStatement();
 		String sql = "select * from users "
 				+ "join loginhistory on users.UserID = loginhistory.UserID "
-				+ "where id = loginhistory.UserID "
 				+ "order by " + filter + " " + order;
 		
 		ResultSet rs = stmt.executeQuery(sql);
@@ -296,11 +295,11 @@ public class Connect_DB {
 		return data;
 	}
 	
-	public Vector<Vector<Object>> searchUserInLogInList(String keyword, String criteria, String filter, String order) throws SQLException {
+	public Vector<Vector<Object>> searchUserInLogInList(String criteria, String keyword, String filter, String order) throws SQLException {
 		Statement stmt = conn.createStatement();
+		System.out.println(criteria + " " + keyword);
 		String sql = "select * from users "
 				+ "join loginhistory on users.UserID = loginhistory.UserID "
-				+ "where id = loginhistory.UserID "
 				+ "and " + criteria + " like '%" + keyword + "%' "
 				+ "order by " + filter + " " + order;
 		
