@@ -169,6 +169,9 @@ public class UserListScreen extends JFrame {
 				}
 			}
 		});
+		
+		JMenuItem updatePassMenuItem = new JMenuItem("Update password");
+		popupMenu.add(updatePassMenuItem);
 		popupMenu.add(deleteMenuItem);
 
 		JMenuItem banMenuItem = new JMenuItem("Ban/Unban");

@@ -12,11 +12,15 @@ public class Connect_DB {
 	private static Connect_DB instance = null;
 	private Connection conn = null;
 	
-	// Database URL
-	static final String DB_URL = "jdbc:mysql://localhost/java_finalproject_chatapplication";
-	// Database credentials
-	static final String USER = "root";
-	static final String PASS = "123456";
+//	// Database URL
+//	static final String DB_URL = "jdbc:mysql://localhost/java_finalproject_chatapplication";
+//	// Database credentials
+//	static final String USER = "root";
+//	static final String PASS = "123456";
+	
+	static final String DB_URL = "jdbc:mysql://sql6.freesqldatabase.com:3306/sql6584393";
+	static final String USER = "sql6584393";
+	static final String PASS = "7VLHIbGgIm";
 	
 	private Connect_DB() {
 		try {
