@@ -34,12 +34,10 @@ public class Main {
 	static final Font fontSmallestBoldItalic = new Font("Times New Roman", Font.BOLD | Font.ITALIC,15);
 		
 	public static void main(String[] args) throws ClassNotFoundException, SQLException {
-		// TODO Auto-generated method stub
-		Class.forName("com.mysql.cj.jdbc.Driver");
-		Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);  
+		// TODO Auto-generated method stub 
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				new LoginScreen(conn);
+				new LoginScreen();
 			}
 		});
 	}

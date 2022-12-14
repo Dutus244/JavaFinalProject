@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -33,9 +34,109 @@ public class ForgotPasswordScreen1 extends JFrame implements ActionListener {
 	String OTP = null;
 	String email = "";
 	
-	public ForgotPasswordScreen1(Connection connection) {
-		conn = connection;
-		
+	public ForgotPasswordScreen1() {
+		initialize();
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		if (e.getSource() == buttonSendEmail) {
+			ResultSet rs;
+			email = textFieldEmail.getText();
+			if (email.isEmpty()) {
+				JOptionPane.showMessageDialog(this,"Please input email to send OTP", "Attention",JOptionPane.ERROR_MESSAGE);
+                return;
+			}
+			if (!SignupScreen.isValidEmailAddress(email)) {
+				JOptionPane.showMessageDialog(this,"Invalid email", "Attention",JOptionPane.ERROR_MESSAGE);
+                return;
+			}
+			try {
+				Class.forName("com.mysql.cj.jdbc.Driver");
+			} catch (ClassNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			try {
+				conn = DriverManager.getConnection(Main.DB_URL, Main.USER, Main.PASS);
+			} catch (SQLException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			try {
+				stmt = conn.createStatement();
+			} catch (SQLException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			try {
+				rs = ((java.sql.Statement)stmt).executeQuery("select count(*) as total from users where Email = '" + email + "'");
+				rs.next();
+				if (rs.getInt("total") == 0) {
+					JOptionPane.showMessageDialog(this,"This enmail does not exist", "Attention",JOptionPane.ERROR_MESSAGE);
+	                return;
+				}
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			OTP = SignupScreen.generateRandomPassword(6);
+			String header = "YOUR PASSWORD OF CHAT APPLICATION";
+			String message = "Your OTP to reset password is " + OTP;
+			new SendEmail(email,header,message);
+			JOptionPane.showMessageDialog(null, "Send email successful");
+		}
+		else if (e.getSource() == buttonForgotPassword) {
+			if (OTP == null) {
+				JOptionPane.showMessageDialog(this,"Please send email to receive OTP", "Attention",JOptionPane.ERROR_MESSAGE);
+                return;
+			}
+			String inputOTP = textFieldOTP.getText();
+			if (inputOTP.isEmpty()) {
+				JOptionPane.showMessageDialog(this,"Please input OTP", "Attention",JOptionPane.ERROR_MESSAGE);
+                return;
+			}
+			if (!inputOTP.equals(OTP)) {
+				JOptionPane.showMessageDialog(this,"Incorrect OTP", "Attention",JOptionPane.ERROR_MESSAGE);
+                return;
+			}
+			if (conn != null) {
+				try {
+					stmt.close();
+					conn.close();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+			this.dispose();
+            try{
+                new ForgotPasswordScreen2(email);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+		}
+		else if (e.getSource() == buttonLogin) {
+			if (conn != null) {
+				try {
+					stmt.close();
+					conn.close();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+			this.dispose();
+            try{
+                new LoginScreen();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+		}
+	}
+
+	private void initialize() {
 		this.setTitle("FORGOT PASSWORD");
         this.setSize(500,500);
         this.setLayout(new BorderLayout());
@@ -48,6 +149,7 @@ public class ForgotPasswordScreen1 extends JFrame implements ActionListener {
         	public void windowClosing(WindowEvent e) {
         		if(conn != null) {
         			try {
+        				stmt.close();
 						conn.close();
 						System.exit(0);
 					} catch (SQLException e1) {
@@ -119,73 +221,4 @@ public class ForgotPasswordScreen1 extends JFrame implements ActionListener {
         
         add(panelForgotPassword);
 	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		if (e.getSource() == buttonSendEmail) {
-			try {
-				stmt = conn.createStatement();
-			} catch (SQLException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}
-			ResultSet rs;
-			email = textFieldEmail.getText();
-			if (email.isEmpty()) {
-				JOptionPane.showMessageDialog(this,"Please input email to send OTP", "Attention",JOptionPane.ERROR_MESSAGE);
-                return;
-			}
-			if (!SignupScreen.isValidEmailAddress(email)) {
-				JOptionPane.showMessageDialog(this,"Invalid email", "Attention",JOptionPane.ERROR_MESSAGE);
-                return;
-			}
-			try {
-				rs = ((java.sql.Statement)stmt).executeQuery("select count(*) as total from users where Email = '" + email + "'");
-				rs.next();
-				if (rs.getInt("total") == 0) {
-					JOptionPane.showMessageDialog(this,"This enmail does not exist", "Attention",JOptionPane.ERROR_MESSAGE);
-	                return;
-				}
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			OTP = SignupScreen.generateRandomPassword(6);
-			String header = "YOUR PASSWORD OF CHAT APPLICATION";
-			String message = "Your OTP to reset password is " + OTP;
-			new SendEmail(email,header,message);
-			JOptionPane.showMessageDialog(null, "Send email successful");
-		}
-		else if (e.getSource() == buttonForgotPassword) {
-			if (OTP == null) {
-				JOptionPane.showMessageDialog(this,"Please send email to receive OTP", "Attention",JOptionPane.ERROR_MESSAGE);
-                return;
-			}
-			String inputOTP = textFieldOTP.getText();
-			if (inputOTP.isEmpty()) {
-				JOptionPane.showMessageDialog(this,"Please input OTP", "Attention",JOptionPane.ERROR_MESSAGE);
-                return;
-			}
-			if (!inputOTP.equals(OTP)) {
-				JOptionPane.showMessageDialog(this,"Incorrect OTP", "Attention",JOptionPane.ERROR_MESSAGE);
-                return;
-			}
-			this.dispose();
-            try{
-                new ForgotPasswordScreen2(conn,email);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-		}
-		else if (e.getSource() == buttonLogin) {
-			this.dispose();
-            try{
-                new LoginScreen(conn);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-		}
-	}
-
 }

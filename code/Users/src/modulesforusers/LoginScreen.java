@@ -9,7 +9,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.net.Socket;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -36,10 +38,151 @@ public class LoginScreen extends JFrame implements ActionListener {
 	
 	Connection conn = null;
 	java.sql.Statement stmt;
+	static Socket client = null;
 	
-	public LoginScreen(Connection connection) {
-		conn = connection;
-		
+	public LoginScreen() {
+        initialize();
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		if (e.getSource() == buttonHideShowPassword) {
+			if (hidePassword) {
+				passwordFieldPassword.setEchoChar((char)0);
+				hidePassword = false;
+			}
+			else {
+				passwordFieldPassword.setEchoChar('*');
+				hidePassword = true;
+			}
+		}
+		else if (e.getSource() == buttonForgotPassword) {
+			if (conn != null) {
+				try {
+					stmt.close();
+					conn.close();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+			this.dispose();
+            try{
+                new ForgotPasswordScreen1();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+		}
+		else if (e.getSource() == buttonLogin) {
+			String username = textFieldUserName.getText();
+			String password = new String(passwordFieldPassword.getPassword());
+			ResultSet rs;
+			if (username.isEmpty()) {
+				JOptionPane.showMessageDialog(this,"Please input username", "Attention",JOptionPane.ERROR_MESSAGE);
+                return;
+			}
+			if (password.isEmpty()) {
+				JOptionPane.showMessageDialog(this,"Please input password", "Attention",JOptionPane.ERROR_MESSAGE);
+                return;
+			}
+			try {
+				Class.forName("com.mysql.cj.jdbc.Driver");
+			} catch (ClassNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			try {
+				conn = DriverManager.getConnection(Main.DB_URL, Main.USER, Main.PASS);
+			} catch (SQLException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			try {
+				stmt = conn.createStatement();
+			} catch (SQLException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			try {
+				rs = ((java.sql.Statement)stmt).executeQuery("select count(*) as total from users where UserName = '" + username + "'");
+				rs.next();
+				if (rs.getInt("total") == 0) {
+					JOptionPane.showMessageDialog(this,"This username does not exist", "Attention",JOptionPane.ERROR_MESSAGE);
+	                return;
+				}
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			try {
+				rs = ((java.sql.Statement)stmt).executeQuery("select Pass from users where UserName = '" + username + "'");
+				rs.next();
+				String checkPassword = rs.getString("Pass");
+				boolean valuate = BCrypt.checkpw(password, checkPassword);
+				if (!valuate) {
+					JOptionPane.showMessageDialog(this,"Incorrect password", "Attention",JOptionPane.ERROR_MESSAGE);
+	                return;
+				}
+				else {
+					rs = ((java.sql.Statement)stmt).executeQuery("select LockAccount from users where UserName = '" + username + "'");
+					rs.next();
+					String checkLockAccount = rs.getString("LockAccount");
+					if (checkLockAccount.equals("1")) {
+						JOptionPane.showMessageDialog(this,"Your account has been locked", "Attention",JOptionPane.ERROR_MESSAGE);
+		                return;
+					}
+					try {
+		                conn.setAutoCommit(false);
+		                String sql = "update activestatus set OnlineStatus = true where UserID = (select UserID from users where UserName = '"+ username + "')";
+		                stmt.executeUpdate(sql);
+		                conn.commit();
+		            }
+		            catch (SQLException ae){
+		            	JOptionPane.showMessageDialog(this,"Unable to insert", "Attention",JOptionPane.ERROR_MESSAGE);
+		            }
+					JOptionPane.showMessageDialog(null, "Login successfully");
+					if (conn != null) {
+						try {
+							stmt.close();
+							conn.close();
+						} catch (SQLException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}
+					this.dispose();
+		            try{
+		                new HomeScreen(username);
+		            } catch (Exception ex) {
+		                ex.printStackTrace();
+		            }
+				}
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+		else if (e.getSource() == buttonSignup) {
+			if (conn != null) {
+				try {
+					stmt.close();
+					conn.close();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+			this.dispose();
+            try{
+                new SignupScreen();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+		}
+	}
+
+	private void initialize() {
 		this.setTitle("LOGIN");
         this.setSize(1000,600);
         this.setLayout(new BorderLayout());
@@ -52,6 +195,7 @@ public class LoginScreen extends JFrame implements ActionListener {
         	public void windowClosing(WindowEvent e) {
         		if(conn != null) {
         			try {
+        				stmt.close();
 						conn.close();
 						System.exit(0);
 					} catch (SQLException e1) {
@@ -65,7 +209,7 @@ public class LoginScreen extends JFrame implements ActionListener {
         	}
         });
         
-        panelLogin = new JPanel();
+		panelLogin = new JPanel();
         panelLogin.setPreferredSize(new Dimension(1000,600));
         panelLogin.setLayout(null);
         
@@ -153,89 +297,4 @@ public class LoginScreen extends JFrame implements ActionListener {
         
         add(panelLogin);
 	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		if (e.getSource() == buttonHideShowPassword) {
-			if (hidePassword) {
-				passwordFieldPassword.setEchoChar((char)0);
-				hidePassword = false;
-			}
-			else {
-				passwordFieldPassword.setEchoChar('*');
-				hidePassword = true;
-			}
-		}
-		else if (e.getSource() == buttonForgotPassword) {
-			this.dispose();
-            try{
-                new ForgotPasswordScreen1(conn);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-		}
-		else if (e.getSource() == buttonLogin) {
-			try {
-				stmt = conn.createStatement();
-			} catch (SQLException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}
-			String username = textFieldUserName.getText();
-			String password = new String(passwordFieldPassword.getPassword());
-			ResultSet rs;
-			if (username.isEmpty()) {
-				JOptionPane.showMessageDialog(this,"Please input username", "Attention",JOptionPane.ERROR_MESSAGE);
-                return;
-			}
-			if (password.isEmpty()) {
-				JOptionPane.showMessageDialog(this,"Please input password", "Attention",JOptionPane.ERROR_MESSAGE);
-                return;
-			}
-			try {
-				rs = ((java.sql.Statement)stmt).executeQuery("select count(*) as total from users where UserName = '" + username + "'");
-				rs.next();
-				if (rs.getInt("total") == 0) {
-					JOptionPane.showMessageDialog(this,"This username does not exist", "Attention",JOptionPane.ERROR_MESSAGE);
-	                return;
-				}
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			try {
-				rs = ((java.sql.Statement)stmt).executeQuery("select Pass from users where UserName = '" + username + "'");
-				rs.next();
-				String checkPassword = rs.getString("Pass");
-				boolean valuate = BCrypt.checkpw(password, checkPassword);
-				if (!valuate) {
-					JOptionPane.showMessageDialog(this,"Incorrect password", "Attention",JOptionPane.ERROR_MESSAGE);
-	                return;
-				}
-				else {
-					rs = ((java.sql.Statement)stmt).executeQuery("select LockAccount from users where UserName = '" + username + "'");
-					rs.next();
-					String checkLockAccount = rs.getString("LockAccount");
-					if (checkLockAccount.equals("1")) {
-						JOptionPane.showMessageDialog(this,"Your account has been locked", "Attention",JOptionPane.ERROR_MESSAGE);
-		                return;
-					}
-					JOptionPane.showMessageDialog(null, "Login successfully");
-				}
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		}
-		else if (e.getSource() == buttonSignup) {
-			this.dispose();
-            try{
-                new SignupScreen(conn);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-		}
-	}
-
 }

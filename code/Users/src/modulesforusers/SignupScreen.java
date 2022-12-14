@@ -8,12 +8,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.security.SecureRandom;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -57,9 +56,185 @@ public class SignupScreen extends JFrame implements ActionListener {
 	Date date;
 	SimpleDateFormat sdf;
 	
-	public SignupScreen(Connection connection) {
-		conn = connection;
-		
+	public SignupScreen() {
+        initialize();
+	}
+	
+	public static String generateRandomPassword(int len)
+    {
+        final String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+ 
+        SecureRandom random = new SecureRandom();
+        StringBuilder sb = new StringBuilder();
+ 
+        for (int i = 0; i < len; i++)
+        {
+            int randomIndex = random.nextInt(chars.length());
+            sb.append(chars.charAt(randomIndex));
+        }
+        
+        return sb.toString();
+    }
+	
+	public static boolean isValidEmailAddress(String email) {
+		   boolean result = true;
+		   try {
+		      InternetAddress emailAddr = new InternetAddress(email);
+		      emailAddr.validate();
+		   } catch (AddressException ex) {
+		      result = false;
+		   }
+		   return result;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		if (e.getSource() == buttonSignup) {
+			String username = textFieldUserName.getText();
+			String fullname = textFieldFullName.getText();
+			String address = textFieldAddress.getText();
+			String dateOfBirth = "";
+			date =  dateChooserDateOfBirth.getDate();
+			sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+			if (date != null) {
+				dateOfBirth = sdf.format(date);
+			}
+			String sex = comboBoxSex.getSelectedItem().toString();
+			String email = textFieldEmail.getText();
+			ResultSet rs;
+			
+			if (username.isEmpty()) {
+				JOptionPane.showMessageDialog(this,"Please input username", "Attention",JOptionPane.ERROR_MESSAGE);
+                return;
+			}
+			if (fullname.isEmpty()) {
+				JOptionPane.showMessageDialog(this,"Please input fullname", "Attention",JOptionPane.ERROR_MESSAGE);
+                return;
+			}
+			if (address.isEmpty()) {
+				JOptionPane.showMessageDialog(this,"Please input address", "Attention",JOptionPane.ERROR_MESSAGE);
+                return;
+			}
+			if (dateOfBirth.isEmpty()) {
+				JOptionPane.showMessageDialog(this,"Please choose date of birth", "Attention",JOptionPane.ERROR_MESSAGE);
+                return;
+			}
+			if (sex.isEmpty()) {
+				JOptionPane.showMessageDialog(this,"Please choose sex", "Attention",JOptionPane.ERROR_MESSAGE);
+                return;
+			}
+			if (email.isEmpty()) {
+				JOptionPane.showMessageDialog(this,"Please input email", "Attention",JOptionPane.ERROR_MESSAGE);
+                return;
+			}
+			if (!isValidEmailAddress(email)) {
+				JOptionPane.showMessageDialog(this,"Invalid email", "Attention",JOptionPane.ERROR_MESSAGE);
+                return;
+			}
+			try {
+				Class.forName("com.mysql.cj.jdbc.Driver");
+			} catch (ClassNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			try {
+				conn = DriverManager.getConnection(Main.DB_URL, Main.USER, Main.PASS);
+			} catch (SQLException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			try {
+				stmt = conn.createStatement();
+			} catch (SQLException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			try {
+				rs = ((java.sql.Statement)stmt).executeQuery("select count(*) as total from users where UserName = '" + username + "'");
+				rs.next();
+				if (rs.getInt("total") == 1) {
+					JOptionPane.showMessageDialog(this,"This username already exist", "Attention",JOptionPane.ERROR_MESSAGE);
+	                return;
+				}
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			try {
+				rs = ((java.sql.Statement)stmt).executeQuery("select count(*) as total from users where Email = '" + email + "'");
+				rs.next();
+				if (rs.getInt("total") == 1) {
+					JOptionPane.showMessageDialog(this,"This email already exist", "Attention",JOptionPane.ERROR_MESSAGE);
+	                return;
+				}
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			Pattern special = Pattern.compile ("[!@#$%&*()_+=|<>?{}\\[\\]~-]");
+			Matcher hasSpecial = special.matcher(username);
+			if (hasSpecial.find()) {
+				JOptionPane.showMessageDialog(this,"Username does not contain special characters", "Attention",JOptionPane.ERROR_MESSAGE);
+                return;
+			}
+			
+			String userID = UUID.randomUUID().toString();
+			String password = generateRandomPassword(8);
+			String header = "YOUR PASSWORD OF CHAT APPLICATION";
+			String message = "Hello " + username + ", your password is " + password;
+			new SendEmail(email,header,message);
+			String hash = BCrypt.hashpw(password, BCrypt.gensalt(12));
+			
+			String createTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date());
+			try {
+                conn.setAutoCommit(false);
+                String sql = "insert into users values('" + userID + "','" + username + "','" + fullname + "','" + address + "','" + dateOfBirth + "','" + sex + "','" + email + "','" + hash + "','" + createTime + "',false,'')";
+                stmt.executeUpdate(sql);
+                sql = "insert into activestatus(UserID,OnlineStatus) values('"  + userID + "',false)";
+                stmt.executeUpdate(sql);
+                conn.commit();
+                JOptionPane.showMessageDialog(null, "Sign up successfully");
+            }
+            catch (SQLException ae){
+            	JOptionPane.showMessageDialog(this,"Unable to insert", "Attention",JOptionPane.ERROR_MESSAGE);
+            }
+			if (conn != null) {
+				try {
+					stmt.close();
+					conn.close();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+			this.dispose();
+            try{
+                new LoginScreen();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+		}
+		else if (e.getSource() == buttonLogin) {
+			if (conn != null) {
+				try {
+					stmt.close();
+					conn.close();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+			this.dispose();
+            try{
+                new LoginScreen();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+		}
+	}
+	
+	private void initialize() {
 		this.setTitle("SIGN UP");
         this.setSize(1000,600);
         this.setLayout(new BorderLayout());
@@ -72,6 +247,7 @@ public class SignupScreen extends JFrame implements ActionListener {
         	public void windowClosing(WindowEvent e) {
         		if(conn != null) {
         			try {
+        				stmt.close();
 						conn.close();
 						System.exit(0);
 					} catch (SQLException e1) {
@@ -180,142 +356,5 @@ public class SignupScreen extends JFrame implements ActionListener {
         panelSignup.add(buttonSignup);
         
         add(panelSignup);
-	}
-	
-	public static String generateRandomPassword(int len)
-    {
-        final String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
- 
-        SecureRandom random = new SecureRandom();
-        StringBuilder sb = new StringBuilder();
- 
-        for (int i = 0; i < len; i++)
-        {
-            int randomIndex = random.nextInt(chars.length());
-            sb.append(chars.charAt(randomIndex));
-        }
-        
-        return sb.toString();
-    }
-	
-	public static boolean isValidEmailAddress(String email) {
-		   boolean result = true;
-		   try {
-		      InternetAddress emailAddr = new InternetAddress(email);
-		      emailAddr.validate();
-		   } catch (AddressException ex) {
-		      result = false;
-		   }
-		   return result;
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		if (e.getSource() == buttonSignup) {
-			try {
-				stmt = conn.createStatement();
-			} catch (SQLException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}
-			String username = textFieldUserName.getText();
-			String fullname = textFieldFullName.getText();
-			String address = textFieldAddress.getText();
-			String dateOfBirth = "";
-			date =  dateChooserDateOfBirth.getDate();
-			sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
-			if (date != null) {
-				dateOfBirth = sdf.format(date);
-			}
-			String sex = comboBoxSex.getSelectedItem().toString();
-			String email = textFieldEmail.getText();
-			ResultSet rs;
-			
-			if (username.isEmpty()) {
-				JOptionPane.showMessageDialog(this,"Please input username", "Attention",JOptionPane.ERROR_MESSAGE);
-                return;
-			}
-			if (fullname.isEmpty()) {
-				JOptionPane.showMessageDialog(this,"Please input fullname", "Attention",JOptionPane.ERROR_MESSAGE);
-                return;
-			}
-			if (address.isEmpty()) {
-				JOptionPane.showMessageDialog(this,"Please input address", "Attention",JOptionPane.ERROR_MESSAGE);
-                return;
-			}
-			if (dateOfBirth.isEmpty()) {
-				JOptionPane.showMessageDialog(this,"Please choose date of birth", "Attention",JOptionPane.ERROR_MESSAGE);
-                return;
-			}
-			if (sex.isEmpty()) {
-				JOptionPane.showMessageDialog(this,"Please choose sex", "Attention",JOptionPane.ERROR_MESSAGE);
-                return;
-			}
-			if (email.isEmpty()) {
-				JOptionPane.showMessageDialog(this,"Please input email", "Attention",JOptionPane.ERROR_MESSAGE);
-                return;
-			}
-			if (!isValidEmailAddress(email)) {
-				JOptionPane.showMessageDialog(this,"Invalid email", "Attention",JOptionPane.ERROR_MESSAGE);
-                return;
-			}
-			
-			try {
-				rs = ((java.sql.Statement)stmt).executeQuery("select count(*) as total from users where UserName = '" + username + "'");
-				rs.next();
-				if (rs.getInt("total") == 1) {
-					JOptionPane.showMessageDialog(this,"This username already exist", "Attention",JOptionPane.ERROR_MESSAGE);
-	                return;
-				}
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			try {
-				rs = ((java.sql.Statement)stmt).executeQuery("select count(*) as total from users where Email = '" + email + "'");
-				rs.next();
-				if (rs.getInt("total") == 1) {
-					JOptionPane.showMessageDialog(this,"This email already exist", "Attention",JOptionPane.ERROR_MESSAGE);
-	                return;
-				}
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			String userID = UUID.randomUUID().toString();
-			String password = generateRandomPassword(8);
-			String header = "YOUR PASSWORD OF CHAT APPLICATION";
-			String message = "Hello " + username + ", your password is " + password;
-			new SendEmail(email,header,message);
-			String hash = BCrypt.hashpw(password, BCrypt.gensalt(12));
-			
-			String createTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date());
-			try {
-                conn.setAutoCommit(false);
-                stmt = conn.createStatement();
-                String sql = "insert into users values('" + userID + "','" + username + "','" + fullname + "','" + address + "','" + dateOfBirth + "','" + sex + "','" + email + "','" + hash + "','" + createTime + "',false,'')";
-                stmt.executeUpdate(sql);
-                conn.commit();
-                JOptionPane.showMessageDialog(null, "Sign up successfully");
-            }
-            catch (SQLException ae){
-            	JOptionPane.showMessageDialog(this,"Unable to insert", "Attention",JOptionPane.ERROR_MESSAGE);
-            }
-			this.dispose();
-            try{
-                new LoginScreen(conn);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-		}
-		else if (e.getSource() == buttonLogin) {
-			this.dispose();
-            try{
-                new LoginScreen(conn);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-		}
 	}
 }

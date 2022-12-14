@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import javax.swing.Icon;
@@ -45,10 +46,115 @@ public class ForgotPasswordScreen2  extends JFrame implements ActionListener {
 	
 	String email = "";
 	
-	public ForgotPasswordScreen2(Connection connection, String Email) {
-		conn = connection;
+	public ForgotPasswordScreen2(String Email) {
 		email = Email;
-		
+		initialize();
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		if (e.getSource() == buttonHideShowPassword) {
+			if (hidePassword) {
+				passwordFieldPassword.setEchoChar((char)0);
+				hidePassword = false;
+			}
+			else {
+				passwordFieldPassword.setEchoChar('*');
+				hidePassword = true;
+			}
+		}
+		else if (e.getSource() == buttonHideShowRePassword) {
+			if (hideRePassword) {
+				passwordFieldRePassword.setEchoChar((char)0);
+				hideRePassword = false;
+			}
+			else {
+				passwordFieldRePassword.setEchoChar('*');
+				hideRePassword = true;
+			}
+		}
+		else if (e.getSource() == buttonForgotPassword) {
+			String password = new String(passwordFieldPassword.getPassword());
+			String repassword = new String(passwordFieldRePassword.getPassword());
+			if (password.isEmpty()) {
+				JOptionPane.showMessageDialog(this,"Please input new password", "Attention",JOptionPane.ERROR_MESSAGE);
+                return;
+			}
+			if (repassword.isEmpty()) {
+				JOptionPane.showMessageDialog(this,"Please input new password again", "Attention",JOptionPane.ERROR_MESSAGE);
+                return;
+			}
+			if (!password.equals(repassword)) {
+				JOptionPane.showMessageDialog(this,"The re-entered password is different from the first password ", "Attention",JOptionPane.ERROR_MESSAGE);
+                return;
+			}
+			try {
+				Class.forName("com.mysql.cj.jdbc.Driver");
+			} catch (ClassNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			try {
+				conn = DriverManager.getConnection(Main.DB_URL, Main.USER, Main.PASS);
+			} catch (SQLException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			try {
+				stmt = conn.createStatement();
+			} catch (SQLException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			String hash = BCrypt.hashpw(password, BCrypt.gensalt(12));
+			try {
+                conn.setAutoCommit(false);
+                stmt = conn.createStatement();
+                String sql = "update users set Pass = '" + hash + "' where Email = '" + email + "'";
+                stmt.executeUpdate(sql);
+                conn.commit();
+                JOptionPane.showMessageDialog(null, "Change password successful");
+            }
+            catch (SQLException ae){
+            	JOptionPane.showMessageDialog(this,"Unable to insert", "Attention",JOptionPane.ERROR_MESSAGE);
+            }
+			if (conn != null) {
+				try {
+					stmt.close();
+					conn.close();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+			this.dispose();
+            try{
+                new LoginScreen();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+		}
+		else if (e.getSource() == buttonLogin) {
+			if (conn != null) {
+				try {
+					stmt.close();
+					conn.close();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+			this.dispose();
+            try{
+                new LoginScreen();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+		}
+	}
+	
+	private void initialize() {
 		this.setTitle("FORGOT PASSWORD");
         this.setSize(500,500);
         this.setLayout(new BorderLayout());
@@ -61,6 +167,7 @@ public class ForgotPasswordScreen2  extends JFrame implements ActionListener {
         	public void windowClosing(WindowEvent e) {
         		if(conn != null) {
         			try {
+        				stmt.close();
 						conn.close();
 						System.exit(0);
 					} catch (SQLException e1) {
@@ -143,79 +250,4 @@ public class ForgotPasswordScreen2  extends JFrame implements ActionListener {
         
         add(panelForgotPassword);
 	}
-	
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		if (e.getSource() == buttonHideShowPassword) {
-			if (hidePassword) {
-				passwordFieldPassword.setEchoChar((char)0);
-				hidePassword = false;
-			}
-			else {
-				passwordFieldPassword.setEchoChar('*');
-				hidePassword = true;
-			}
-		}
-		else if (e.getSource() == buttonHideShowRePassword) {
-			if (hideRePassword) {
-				passwordFieldRePassword.setEchoChar((char)0);
-				hideRePassword = false;
-			}
-			else {
-				passwordFieldRePassword.setEchoChar('*');
-				hideRePassword = true;
-			}
-		}
-		else if (e.getSource() == buttonForgotPassword) {
-			try {
-				stmt = conn.createStatement();
-			} catch (SQLException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}
-			String password = new String(passwordFieldPassword.getPassword());
-			String repassword = new String(passwordFieldRePassword.getPassword());
-			if (password.isEmpty()) {
-				JOptionPane.showMessageDialog(this,"Please input new password", "Attention",JOptionPane.ERROR_MESSAGE);
-                return;
-			}
-			if (repassword.isEmpty()) {
-				JOptionPane.showMessageDialog(this,"Please input new password again", "Attention",JOptionPane.ERROR_MESSAGE);
-                return;
-			}
-			if (!password.equals(repassword)) {
-				JOptionPane.showMessageDialog(this,"The re-entered password is different from the first password ", "Attention",JOptionPane.ERROR_MESSAGE);
-                return;
-			}
-			String hash = BCrypt.hashpw(password, BCrypt.gensalt(12));
-			try {
-                conn.setAutoCommit(false);
-                stmt = conn.createStatement();
-                String sql = "update users set Pass = '" + hash + "' where Email = '" + email + "'";
-                stmt.executeUpdate(sql);
-                conn.commit();
-                JOptionPane.showMessageDialog(null, "Change password successful");
-            }
-            catch (SQLException ae){
-            	JOptionPane.showMessageDialog(this,"Unable to insert", "Attention",JOptionPane.ERROR_MESSAGE);
-            }
-			this.dispose();
-            try{
-                new LoginScreen(conn);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-		}
-		else if (e.getSource() == buttonLogin) {
-			this.dispose();
-            try{
-                new LoginScreen(conn);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-		}
-	}
-	
-	
 }
