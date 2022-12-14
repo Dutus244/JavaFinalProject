@@ -9,7 +9,7 @@ public class Client {
 	private BufferedReader bufferedReader;
 	private BufferedWriter bufferedWriter;
 	private String username;
-	
+	private String receiver;
 	public Client(Socket socket, String username) {
 		try {
 			this.socket = socket;
@@ -23,14 +23,17 @@ public class Client {
 	}
 	public void sendMessage() {
 		try {
-			bufferedWriter.write(username + " chating you");//send user name (to constructor in server)
+			bufferedWriter.write(username);//send user name (to constructor in server)
 			bufferedWriter.newLine();
 			bufferedWriter.flush();
 			
 			try (Scanner scanner = new Scanner(System.in)) {
 				while(socket.isConnected()) {
+					System.out.print("Message to: ");
+					receiver = scanner.nextLine();
+					System.out.print("Message: ");
 					String message = scanner.nextLine();
-					bufferedWriter.write(username + ':'+ message);
+					bufferedWriter.write(receiver+"$"+username + ":"+ message);
 					bufferedWriter.newLine();
 					bufferedWriter.flush();
 				}
