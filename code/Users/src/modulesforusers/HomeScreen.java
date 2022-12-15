@@ -113,7 +113,7 @@ public class HomeScreen  extends JFrame implements ActionListener{
 		        buttonNewChat.setOpaque(false);
 		        buttonNewChat.setContentAreaFilled(false);
 		        
-		        labelListFriendsOnline = new JLabel("ONLINE USER");
+		        labelListFriendsOnline = new JLabel("ONLINE USERS");
 		        labelListFriendsOnline.setBounds(10,55,200,40);
 		        labelListFriendsOnline.setFont(Main.fontSmallestBold);
 		        userOnlineList.clear();
@@ -123,7 +123,6 @@ public class HomeScreen  extends JFrame implements ActionListener{
 					rs = ((java.sql.Statement)stmt).executeQuery("select users.UserName from activestatus left join users on users.userID = activestatus.userID where OnlineStatus = true and activestatus.UserID in (Select FriendID as UserID from friendlist where UserID = (select UserID from users where UserName = '"+ username + "'))");
 					while (rs.next()) {
 						userOnlineList.add(rs.getString("UserName"));
-						System.out.println(rs.getString("UserName"));
 						count++;
 					}
 					n = count;
@@ -146,10 +145,24 @@ public class HomeScreen  extends JFrame implements ActionListener{
 		        	panelListFriendsOnline.add(onlineUser);
 		        }
 		        
-		        scrollPaneListFriendOnline = new JScrollPane();
-		        scrollPaneListFriendOnline.setPreferredSize(new Dimension(350,80));
-		        scrollPaneListFriendOnline.setViewportView(panelListFriendsOnline);
-		        scrollPaneListFriendOnline.setBounds(0,90,350,80);
+		        if (n == 0) {
+		        	scrollPaneListFriendOnline = new JScrollPane();
+		            scrollPaneListFriendOnline.setPreferredSize(new Dimension(0,0));
+		            scrollPaneListFriendOnline.setViewportView(panelListFriendsOnline);
+		            scrollPaneListFriendOnline.setBounds(0,90,0,0);
+		        }
+		        else if (n < 6) {
+		        	 scrollPaneListFriendOnline = new JScrollPane();
+		             scrollPaneListFriendOnline.setPreferredSize(new Dimension(60*n+10,80));
+		             scrollPaneListFriendOnline.setViewportView(panelListFriendsOnline);
+		             scrollPaneListFriendOnline.setBounds(0,90,60*n+10,80);
+		        }
+		        else {
+		        	scrollPaneListFriendOnline = new JScrollPane();
+		            scrollPaneListFriendOnline.setPreferredSize(new Dimension(350,80));
+		            scrollPaneListFriendOnline.setViewportView(panelListFriendsOnline);
+		            scrollPaneListFriendOnline.setBounds(0,90,350,80);
+		        }
 		        
 		        panelList.add(labelList);
 		        panelList.add(buttonNewChat);
@@ -283,7 +296,7 @@ public class HomeScreen  extends JFrame implements ActionListener{
         buttonNewChat.setOpaque(false);
         buttonNewChat.setContentAreaFilled(false);
         
-        labelListFriendsOnline = new JLabel("ONLINE USER");
+        labelListFriendsOnline = new JLabel("ONLINE USERS");
         labelListFriendsOnline.setBounds(10,55,200,40);
         labelListFriendsOnline.setFont(Main.fontSmallestBold);
         
@@ -316,10 +329,24 @@ public class HomeScreen  extends JFrame implements ActionListener{
         	panelListFriendsOnline.add(onlineUser);
         }
         
-        scrollPaneListFriendOnline = new JScrollPane();
-        scrollPaneListFriendOnline.setPreferredSize(new Dimension(350,80));
-        scrollPaneListFriendOnline.setViewportView(panelListFriendsOnline);
-        scrollPaneListFriendOnline.setBounds(0,90,350,80);
+        if (n == 0) {
+        	scrollPaneListFriendOnline = new JScrollPane();
+            scrollPaneListFriendOnline.setPreferredSize(new Dimension(0,0));
+            scrollPaneListFriendOnline.setViewportView(panelListFriendsOnline);
+            scrollPaneListFriendOnline.setBounds(0,90,0,0);
+        }
+        else if (n < 6) {
+       	 scrollPaneListFriendOnline = new JScrollPane();
+         scrollPaneListFriendOnline.setPreferredSize(new Dimension(60*n+10,80));
+         scrollPaneListFriendOnline.setViewportView(panelListFriendsOnline);
+         scrollPaneListFriendOnline.setBounds(0,90,60*n+10,80);
+        }
+        else {
+        	scrollPaneListFriendOnline = new JScrollPane();
+            scrollPaneListFriendOnline.setPreferredSize(new Dimension(350,80));
+            scrollPaneListFriendOnline.setViewportView(panelListFriendsOnline);
+            scrollPaneListFriendOnline.setBounds(0,90,350,80);
+        }
         
         panelList.add(labelList);
         panelList.add(buttonNewChat);
