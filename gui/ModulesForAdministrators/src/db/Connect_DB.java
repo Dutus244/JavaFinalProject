@@ -182,6 +182,21 @@ public class Connect_DB {
 			e.printStackTrace();
 		}
 	}
+	
+	public void updatePassword(String username, String hash) throws SQLException {
+		Statement stmt = conn.createStatement();
+		String sql = "update users set pass=\"" + hash + "\" where username=\"" + username + "\"";
+
+		stmt.executeUpdate(sql);
+		
+		try {
+			stmt.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public Vector<Vector<Object>> getUserFriendList(String user, String filter, String order) throws SQLException {
 		Statement stmt = conn.createStatement();
 		
