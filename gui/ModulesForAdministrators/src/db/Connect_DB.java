@@ -182,4 +182,238 @@ public class Connect_DB {
 			e.printStackTrace();
 		}
 	}
+	public Vector<Vector<Object>> getUserFriendList(String user, String filter, String order) throws SQLException {
+		Statement stmt = conn.createStatement();
+		
+		String sqlID = "select UserID from users where users.UserName = '" + user + "'";
+		ResultSet rsid = stmt.executeQuery(sqlID); rsid.next();
+		String id = rsid.getString("UserID");
+				
+		String sql = "select * from users "
+				+ "join friendlist on users.UserID = friendlist.FriendID "
+				+ "where users.UserID = '" + id + "' "
+				+ "order by " + filter + " " + order;
+		
+		ResultSet rs = stmt.executeQuery(sql);
+		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
+		while (rs.next()) { 
+			Vector<Object> row = new Vector<Object>();
+			row.add(rs.getString("UserName"));
+			row.add(rs.getString("FullName"));
+			row.add(rs.getString("Address"));
+			row.add(rs.getDate("DOB"));
+			row.add(rs.getString("Sex"));
+			row.add(rs.getString("Email"));
+			row.add(rs.getTimestamp("CreateTime"));
+			
+			data.add(row);
+		}
+		
+		try {
+			stmt.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return data;
+	}
+	
+	public Vector<Vector<Object>> searchUserInUserFriendList(String user, String criteria, String keyword, String filter, String order) throws SQLException{
+		Statement stmt = conn.createStatement();
+
+		String sqlID = "select UserID from users where users.UserName = '" + user + "'";
+		ResultSet rsid = stmt.executeQuery(sqlID); rsid.next();
+		String id = rsid.getString("UserID");
+		
+		String sql = "select * from users "
+				+ "join friendlist on users.UserID = friendlist.FriendID "
+				+ "where users.UserID = '" + id + "' "
+				+ "and " + criteria + " like '%" + keyword + "%' "
+				+ "order by " + filter + " " + order;
+		
+		ResultSet rs = stmt.executeQuery(sql);
+		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
+		while (rs.next()) { 
+			Vector<Object> row = new Vector<Object>();
+			row.add(rs.getString("UserName"));
+			row.add(rs.getString("FullName"));
+			row.add(rs.getString("Address"));
+			row.add(rs.getDate("DOB"));
+			row.add(rs.getString("Sex"));
+			row.add(rs.getString("Email"));
+			row.add(rs.getTimestamp("CreateTime"));
+			
+			data.add(row);
+		}
+		
+		try {
+			stmt.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return data;
+	}
+	
+	public Vector<Vector<Object>> getLoginHistory(String user, String filter, String order) throws SQLException {
+		Statement stmt = conn.createStatement();
+		
+		String sqlID = "select UserID from users where users.UserName = '" + user + "'";
+		ResultSet rsid = stmt.executeQuery(sqlID); rsid.next();
+		String id = rsid.getString("UserID");
+		
+		String sql = "select loginhistory.LoginTime from loginhistory "
+				+ "where loginhistory.UserID = '" + id + "' "
+				+ "order by " + filter + " " + order;
+		
+		ResultSet rs = stmt.executeQuery(sql);
+		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
+		while (rs.next()) { 
+			Vector<Object> row = new Vector<Object>();
+			row.add(rs.getDate("LoginTime"));
+			
+			data.add(row);
+		}
+		
+		try {
+			stmt.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return data;
+	}
+	
+	public Vector<Vector<Object>> getLogInList(String filter, String order) throws SQLException {
+		Statement stmt = conn.createStatement();
+		String sql = "select * from users "
+				+ "join loginhistory on users.UserID = loginhistory.UserID "
+				+ "order by " + filter + " " + order;
+		
+		ResultSet rs = stmt.executeQuery(sql);
+		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
+		while (rs.next()) { 
+			Vector<Object> row = new Vector<Object>();
+			row.add(rs.getDate("LoginTime"));
+			row.add(rs.getString("UserName"));
+			row.add(rs.getString("FullName"));
+			
+			data.add(row);
+		}
+		
+		try {
+			stmt.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return data;
+	}
+	
+	public Vector<Vector<Object>> searchUserInLogInList(String criteria, String keyword, String filter, String order) throws SQLException {
+		Statement stmt = conn.createStatement();
+		System.out.println(criteria + " " + keyword);
+		String sql = "select * from users "
+				+ "join loginhistory on users.UserID = loginhistory.UserID "
+				+ "and " + criteria + " like '%" + keyword + "%' "
+				+ "order by " + filter + " " + order;
+		
+		ResultSet rs = stmt.executeQuery(sql);
+		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
+		while (rs.next()) { 
+			Vector<Object> row = new Vector<Object>();
+			row.add(rs.getDate("LoginTime"));
+			row.add(rs.getString("UserName"));
+			row.add(rs.getString("FullName"));
+			
+			data.add(row);
+		}
+		
+		try {
+			stmt.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return data;
+	}
+	
+	public Vector<Vector<Object>> getAllGroupChat(String filter, String order) throws SQLException {
+		Statement stmt = conn.createStatement();
+		String sql = "select * from inbox "
+				+ "where inbox.TypeInbox = 'group' "
+				+ "order by " + filter + " " + order;
+		
+		ResultSet rs = stmt.executeQuery(sql);
+		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
+		while (rs.next()) { 
+			Vector<Object> row = new Vector<Object>();
+			row.add(rs.getString("UserName"));
+			
+			data.add(row);
+		}
+		
+		try {
+			stmt.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return data;
+	}
+	public Vector<Vector<Object>> getGroupChatAdmin(String id, String filter, String order) throws SQLException {
+		Statement stmt = conn.createStatement();
+		String sql = "select * from users "
+				+ "join admingroup on users.UserID = admingroup.UserID "
+				+ "join inbox on admingroup.InboxID = inbox.InboxID "
+				+ "and inbox.TypeInbox = 'group' "
+				+ "and inbox.InboxID ='" + id + "' "
+				+ "order by " + filter + " " + order;
+		
+		ResultSet rs = stmt.executeQuery(sql);
+		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
+		while (rs.next()) { 
+			Vector<Object> row = new Vector<Object>();
+			row.add(rs.getString("UserName"));
+			row.add(rs.getString("FullName"));
+			
+			data.add(row);
+		}
+		
+		try {
+			stmt.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return data;
+	}	
+	
+	public Vector<Vector<Object>> getGroupChatMember(String id, String filter, String order) throws SQLException {
+		Statement stmt = conn.createStatement();
+		String sql = "select * from users "
+				+ "join inboxparticipants on users.UserID = inboxparticipants.UserID "
+				+ "join inbox on inboxparticipants.InboxID = inbox.InboxID "
+				+ "and inbox.TypeInbox = 'group' "
+				+ "and + " + id + " = inbox.InboxID"
+				+ "order by " + filter + " " + order;
+		
+		ResultSet rs = stmt.executeQuery(sql);
+		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
+		while (rs.next()) { 
+			Vector<Object> row = new Vector<Object>();
+			row.add(rs.getString("UserName"));
+			row.add(rs.getString("FullName"));
+			
+			data.add(row);
+		}
+		
+		try {
+			stmt.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return data;
+	}
 }
