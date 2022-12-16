@@ -9,7 +9,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -18,6 +26,8 @@ import java.sql.SQLException;
 import javax.swing.*;
 
 import org.mindrot.jbcrypt.BCrypt;
+
+import client.ClientScreen;
 
 public class LoginScreen extends JFrame implements ActionListener {
 	JPanel panelLogin;
@@ -38,6 +48,9 @@ public class LoginScreen extends JFrame implements ActionListener {
 	
 	Connection conn = null;
 	java.sql.Statement stmt;
+
+	int portnumber = 1234;
+	static String IP = "";
 	static Socket client = null;
 	
 	public LoginScreen() {
@@ -132,6 +145,29 @@ public class LoginScreen extends JFrame implements ActionListener {
 						JOptionPane.showMessageDialog(this,"Your account has been locked", "Attention",JOptionPane.ERROR_MESSAGE);
 		                return;
 					}
+					
+					try {
+						client = new Socket(InetAddress.getLocalHost(), portnumber);
+						Thread.sleep(100);
+						OutputStream clientOut = client.getOutputStream();
+		                PrintWriter pw = new PrintWriter(clientOut, true);
+		                
+		                InputStream clientIn = client.getInputStream();
+						BufferedReader br = new BufferedReader(new
+								InputStreamReader(clientIn));
+		    
+						pw.println(username);
+						String msg = br.readLine();
+			            
+			            if(msg.equals("Username already taken")) {//if server sent this message then prompt user to enter other username
+							JOptionPane.showMessageDialog(this,  "This account is already logged in on another device"); // show message in other dialog box
+							return;
+						}
+					} 
+					catch(Exception ex) {
+						ex.printStackTrace();
+					}
+					
 					try {
 		                conn.setAutoCommit(false);
 		                String sql = "update activestatus set OnlineStatus = true where UserID = (select UserID from users where UserName = '"+ username + "')";
@@ -153,7 +189,7 @@ public class LoginScreen extends JFrame implements ActionListener {
 					}
 					this.dispose();
 		            try{
-		                new HomeScreen(username);
+		                new HomeScreen(username, client);
 		            } catch (Exception ex) {
 		                ex.printStackTrace();
 		            }
