@@ -10,7 +10,11 @@ import java.awt.Font;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
+import org.apache.commons.lang3.RandomStringUtils;
+import org.mindrot.jbcrypt.BCrypt;
+
 import db.Connect_DB;
+import utils.SendEmail;
 
 import javax.swing.JScrollPane;
 import javax.swing.JButton;
@@ -170,7 +174,31 @@ public class UserListScreen extends JFrame {
 			}
 		});
 		
-		JMenuItem updatePassMenuItem = new JMenuItem("Update password");
+		JMenuItem updatePassMenuItem = new JMenuItem("Reset password");
+		updatePassMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int choice = JOptionPane.showConfirmDialog(frame,
+						"Send new password to this user via email",
+						"Information",
+						JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.INFORMATION_MESSAGE);
+				if (choice == JOptionPane.OK_OPTION) {
+					String newPassword = RandomStringUtils.randomAscii(16);
+					int row = table.getSelectedRow();
+					String username = table.getValueAt(row, 0).toString();
+					String email = table.getValueAt(row, 5).toString();
+					String hash = BCrypt.hashpw(newPassword, BCrypt.gensalt(12));
+					try {
+						db.updatePassword(username, hash);
+						SendEmail.resetPassword(email, "Reset password", "Your new password:\n" + newPassword);
+						JOptionPane.showMessageDialog(updatePassMenuItem, "Send email successfully");
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+			}
+		});
 		popupMenu.add(updatePassMenuItem);
 		popupMenu.add(deleteMenuItem);
 
