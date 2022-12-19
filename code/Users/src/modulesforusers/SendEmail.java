@@ -25,11 +25,11 @@ public class SendEmail {
                 });
 
         try {
-            Message message = new MimeMessage(session);
+            javax.mail.Message message = new MimeMessage(session);
             
             message.setFrom(new InternetAddress("duynguyen24th@gmail.com"));
             message.setRecipients(
-                    Message.RecipientType.TO,
+            		javax.mail.Message.RecipientType.TO,
                     InternetAddress.parse(to)
             );
             message.setSubject(header);

@@ -27,8 +27,6 @@ import javax.swing.*;
 
 import org.mindrot.jbcrypt.BCrypt;
 
-import client.ClientScreen;
-
 public class LoginScreen extends JFrame implements ActionListener {
 	JPanel panelLogin;
 	JLabel labelLogin;
