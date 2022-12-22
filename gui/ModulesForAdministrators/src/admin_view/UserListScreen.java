@@ -179,7 +179,7 @@ public class UserListScreen extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				int choice = JOptionPane.showConfirmDialog(frame,
 						"Send new password to this user via email",
-						"Information",
+						"Message",
 						JOptionPane.OK_CANCEL_OPTION,
                         JOptionPane.INFORMATION_MESSAGE);
 				if (choice == JOptionPane.OK_OPTION) {
