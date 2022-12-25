@@ -1127,7 +1127,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 			
 		}
 		else if (e.getSource() == buttonFriendMenu) {
-			
+			new FriendRequest();
 		}
 		else if (e.getSource() == buttonSettingMenu) {
 			
