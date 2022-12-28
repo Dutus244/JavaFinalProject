@@ -107,7 +107,7 @@ public class FriendRequest2 extends JFrame implements ActionListener {
 		
 		JLabel lblNewJgoodiesLabel_4 = DefaultComponentFactory.getInstance().createLabel("    FRIENDS");
 		lblNewJgoodiesLabel_4.setFont(new Font("Times New Roman", Font.BOLD, 26));
-		lblNewJgoodiesLabel_4.setBounds(0, 0, 340, 81);
+		lblNewJgoodiesLabel_4.setBounds(0, 0, 330, 81);
 		panel_3.add(lblNewJgoodiesLabel_4);
 		
 		JPanel panel_2 = new JPanel();
@@ -189,7 +189,7 @@ public class FriendRequest2 extends JFrame implements ActionListener {
 		
 		JLabel lblNewJgoodiesLabel_14 = DefaultComponentFactory.getInstance().createLabel("");
 		lblNewJgoodiesLabel_14.setIcon(new ImageIcon("D:\\eclipse-workspace\\ui\\Source\\Image\\iconUserMenu.png"));
-		lblNewJgoodiesLabel_14.setBounds(10, 11, 96, 72);
+		lblNewJgoodiesLabel_14.setBounds(10, 11, 57, 72);
 		panel_11.add(lblNewJgoodiesLabel_14);
 		
 		JLabel lblNewJgoodiesLabel_15 = DefaultComponentFactory.getInstance().createLabel("User's Name");
@@ -215,7 +215,7 @@ public class FriendRequest2 extends JFrame implements ActionListener {
 		
 		JLabel lblNewJgoodiesLabel_16 = DefaultComponentFactory.getInstance().createLabel("");
 		lblNewJgoodiesLabel_16.setIcon(new ImageIcon("D:\\eclipse-workspace\\ui\\Source\\Image\\iconUserMenu.png"));
-		lblNewJgoodiesLabel_16.setBounds(10, 11, 96, 72);
+		lblNewJgoodiesLabel_16.setBounds(10, 11, 48, 72);
 		panel_12.add(lblNewJgoodiesLabel_16);
 		
 		JLabel lblNewJgoodiesLabel_17 = DefaultComponentFactory.getInstance().createLabel("User's Name");
@@ -241,7 +241,7 @@ public class FriendRequest2 extends JFrame implements ActionListener {
 		
 		JLabel lblNewJgoodiesLabel_18 = DefaultComponentFactory.getInstance().createLabel("");
 		lblNewJgoodiesLabel_18.setIcon(new ImageIcon("D:\\eclipse-workspace\\ui\\Source\\Image\\iconUserMenu.png"));
-		lblNewJgoodiesLabel_18.setBounds(10, 11, 96, 72);
+		lblNewJgoodiesLabel_18.setBounds(10, 11, 48, 72);
 		panel_13.add(lblNewJgoodiesLabel_18);
 		
 		JLabel lblNewJgoodiesLabel_19 = DefaultComponentFactory.getInstance().createLabel("User's Name");
@@ -267,7 +267,7 @@ public class FriendRequest2 extends JFrame implements ActionListener {
 		
 		JLabel lblNewJgoodiesLabel_20 = DefaultComponentFactory.getInstance().createLabel("");
 		lblNewJgoodiesLabel_20.setIcon(new ImageIcon("D:\\eclipse-workspace\\ui\\Source\\Image\\iconUserMenu.png"));
-		lblNewJgoodiesLabel_20.setBounds(10, 11, 96, 79);
+		lblNewJgoodiesLabel_20.setBounds(10, 11, 48, 79);
 		panel_14.add(lblNewJgoodiesLabel_20);
 		
 		JLabel lblNewJgoodiesLabel_21 = DefaultComponentFactory.getInstance().createLabel("User's Name");

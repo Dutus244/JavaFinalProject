@@ -8,6 +8,9 @@ import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import javax.swing.JTextField;
 import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.Image;
+
 import javax.swing.JButton;
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -16,29 +19,24 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.border.LineBorder;
 import javax.swing.ImageIcon;
 
-public class FriendRequest extends JFrame implements ActionListener {
+public class FriendList extends JFrame implements ActionListener {
 	JPanel panel_6;
-	JLabel lblNewJgoodiesLabel_numberInvitation;
+	JLabel lblNewJgoodiesLabel_numberFriend;
 	private JPanel contentPane;
 	private JTextField textField;
 //	boolean ThreadContinue = true;
-	JPanel panelRequest;
+	JPanel panelList;
 	JButton buttonChatMenu;
 	JButton buttonFriendMenu;
 	JButton buttonSettingMenu;
@@ -48,13 +46,14 @@ public class FriendRequest extends JFrame implements ActionListener {
 	JButton btnGroup;
 	String username;
 	Socket client;
-	List<String> usernameRequest = new ArrayList<>();
-	public FriendRequest(String Username, Socket s) {
+	JPanel panel_10;
+	List<String> usernameList = new ArrayList<>();
+	public FriendList(String Username, Socket s) {
 		this.username = Username;
 		this.client = s;
 		
 		initialize(Username);
-		new ReadFriendRequest().start();
+		new ReadFriendList().start();
 	}
 //	class ReadDatabase extends Thread{
 //		public void run() {
@@ -66,8 +65,11 @@ public class FriendRequest extends JFrame implements ActionListener {
 	Connection conn = null;
 	java.sql.Statement stmt;
 	ResultSet rs;
+	Connection connd = null;
+	java.sql.Statement stmtd;
+	ResultSet rsd;
 	boolean isOpen = true;
-	class ReadFriendRequest extends Thread{
+	class ReadFriendList extends Thread{
 		public void run() {
 			while(isOpen) {
 				try {
@@ -91,24 +93,60 @@ public class FriendRequest extends JFrame implements ActionListener {
 				
 
 				try {
-					usernameRequest.clear();
-					rs = ((java.sql.Statement)stmt).executeQuery("SELECT UserName FROM users where UserID in (select UserID FROM sendrequestfriendlistfriendlist where AddFriendID =  '"+ username +"')");
+					
+					usernameList.clear();
+					rs = ((java.sql.Statement)stmt).executeQuery("SELECT UserName FROM users where UserID in (SELECT FriendID from friendlist where UserID in (Select UserID FROM users where UserName = '"+ username +"'))");
 				
 					while(rs.next()) {
-						usernameRequest.add(rs.getString("UserName"));
+						usernameList.add(rs.getString("UserName"));
 					}
-					System.out.println(usernameRequest.size());
+					System.out.println("list" +usernameList.size());
 					
 					JPanel panel_9 = new JPanel();
 					panel_9.setBounds(10, 94, 586, 41);
 					panel_6.add(panel_9);
-					JLabel lblNewJgoodiesLabel_13 = DefaultComponentFactory.getInstance().createLabel("Invitation("+usernameRequest.size()+")");
+					JLabel lblNewJgoodiesLabel_13 = DefaultComponentFactory.getInstance().createLabel("Friend("+usernameList.size()+")");
 					lblNewJgoodiesLabel_13.setFont(new Font("Times New Roman", Font.PLAIN, 18));
 					panel_9.add(lblNewJgoodiesLabel_13);
+//					
+					panel_10 = new JPanel();
+					panel_10.setBounds(0, 134, 596, 438);
+					panel_6.add(panel_10);
+					panel_10.setLayout(null);
 					
-//					for(int i =0; i<usernameRequest.size();i++ ) {
-//						
-//					}
+					for(int i =0; i<usernameList.size();i++ ) {
+						
+						String friendusername = usernameList.get(i);
+						JPanel panel_11 = new JPanel();
+						panel_11.setBorder(new LineBorder(new Color(0, 0, 0)));
+						panel_11.setBounds(10, 11 + i*105 , 576, 94);
+						panel_10.add(panel_11);
+						panel_11.setLayout(null);
+						
+						JLabel lblNewJgoodiesLabel_14 = DefaultComponentFactory.getInstance().createLabel("");
+						lblNewJgoodiesLabel_14.setIcon(new ImageIcon("D:\\eclipse-workspace\\ui\\Source\\Image\\iconUserMenu.png"));
+						lblNewJgoodiesLabel_14.setBounds(10, 11, 96, 72);
+						panel_11.add(lblNewJgoodiesLabel_14);
+						
+						JLabel lblNewJgoodiesLabel_15 = DefaultComponentFactory.getInstance().createLabel(usernameList.get(i));
+						lblNewJgoodiesLabel_15.setFont(new Font("Times New Roman", Font.PLAIN, 20));
+						lblNewJgoodiesLabel_15.setBounds(77, 22, 177, 49);
+						panel_11.add(lblNewJgoodiesLabel_15);
+						
+						JButton btnNewButton_1 = new JButton("UNFRIEND");
+						btnNewButton_1.setFont(new Font("Tahoma", Font.BOLD, 16));
+						btnNewButton_1.setBounds(430, 11, 136, 29);
+						panel_11.add(btnNewButton_1);
+						
+//						btnNewButton_1.addActionListener(event -> UnfriendHandle(event,friendusername));
+						JButton btnNewButton_2 = new JButton("CHAT");
+						btnNewButton_2.setFont(new Font("Tahoma", Font.BOLD, 16));
+						btnNewButton_2.setBounds(430, 51, 136, 32);
+						panel_11.add(btnNewButton_2);
+					}
+					
+					
+					
 					validate();
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
@@ -122,8 +160,42 @@ public class FriendRequest extends JFrame implements ActionListener {
 				}
 
 			}
-			
 		}
+	}
+	private void UnfriendHandle(ActionEvent e, String unfriendUser) {
+		System.out.println("UnfriendHandle, " + unfriendUser);
+		
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			connd = DriverManager.getConnection(Main.DB_URL, Main.USER, Main.PASS);
+		} catch (SQLException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		try {
+			stmtd = conn.createStatement();
+		} catch (SQLException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		try {
+			((java.sql.Statement)stmt).executeUpdate("delete from friendlist where UserID in (select UserID from Users where Username ='"+username+"') and FriendID in (select UserID from Users where Username ='"+unfriendUser+"')");
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			((java.sql.Statement)stmt).executeUpdate("delete from friendlist where UserID in (select UserID from Users where Username ='"+unfriendUser+"') and FriendID in (select UserID from Users where Username ='"+username+"')");
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		panel_10.removeAll();
 	}
 	public void initialize(String Username) {
 		this.setTitle("FRIEND OPTION -" + Username);
@@ -222,12 +294,12 @@ public class FriendRequest extends JFrame implements ActionListener {
 		
 		btnFriendRequest.setBounds(0, 153, 327, 75);
 		panel_1.add(btnFriendRequest);
-		
+		btnFriendRequest.addActionListener(this);
 		btnFriendList = new JButton("Friend List");
 		btnFriendList.setIcon(new ImageIcon("D:\\eclipse-workspace\\ui\\Source\\Image\\friends.png"));
 		btnFriendList.setFont(new Font("Times New Roman", Font.PLAIN, 24));
 		btnFriendList.setBounds(0, 257, 327, 75);
-		btnFriendList.addActionListener(this);
+		
 		panel_1.add(btnFriendList);
 		
 		btnGroup = new JButton("Group");
@@ -251,7 +323,7 @@ public class FriendRequest extends JFrame implements ActionListener {
 		lblNewJgoodiesLabel_11.setIcon(new ImageIcon("D:\\eclipse-workspace\\ui\\Source\\Image\\friends.png"));
 		lblNewJgoodiesLabel_11.setBounds(24, 0, 89, 82);
 		panel_8.add(lblNewJgoodiesLabel_11);
-		JLabel lblNewJgoodiesLabel_12 = DefaultComponentFactory.getInstance().createLabel("Friend's Request");
+		JLabel lblNewJgoodiesLabel_12 = DefaultComponentFactory.getInstance().createLabel("Friend's List");
 		lblNewJgoodiesLabel_12.setFont(new Font("Times New Roman", Font.BOLD, 30));
 		lblNewJgoodiesLabel_12.setBounds(101, 11, 260, 60);
 		panel_8.add(lblNewJgoodiesLabel_12);
@@ -259,18 +331,11 @@ public class FriendRequest extends JFrame implements ActionListener {
 		
 		
 		getContentPane().add(contentPane);
-		
-		
-		
-		
-		
 	}
-	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		if (e.getSource() == buttonChatMenu) {
-			isOpen = false;
 			this.dispose();
             try{
                 new HomeScreen(username, client);
@@ -279,11 +344,10 @@ public class FriendRequest extends JFrame implements ActionListener {
             }
 		}
 		else if (e.getSource() == buttonFriendMenu) {
-			isOpen = false;
+			
 		}
 		else if (e.getSource() == buttonSettingMenu) {
 			try{
-				isOpen = false;
 //                new SettingScreen();
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -291,16 +355,14 @@ public class FriendRequest extends JFrame implements ActionListener {
 		}
 		else if (e.getSource() == buttonUserMenu) {
             try{
-            	isOpen = false;
 //                new UserSettingScreen();
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
 		}
-		else if (e.getSource() == btnFriendList) {
+		else if (e.getSource() == btnFriendRequest) {
             try{
-            	isOpen = false;
-                new FriendList(username, client);
+                new FriendRequest(username, client);
                 this.dispose();
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -308,7 +370,7 @@ public class FriendRequest extends JFrame implements ActionListener {
 		}
 		
 		else if (e.getSource() == btnGroup) {
-			isOpen = false;
+            
 		}
 		
 	}
