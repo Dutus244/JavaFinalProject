@@ -1142,7 +1142,11 @@ public class HomeScreen  extends JFrame implements ActionListener {
 			
 		}
 		else if (e.getSource() == buttonUserMenu) {
-            
+            try{
+                new UserSettingScreen(username);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
 		}
 		else if (e.getSource() == buttonNewChat) {
 			inboxCurrentlyOpen = "";
