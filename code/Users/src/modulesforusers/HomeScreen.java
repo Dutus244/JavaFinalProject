@@ -1124,22 +1124,19 @@ public class HomeScreen  extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		if (e.getSource() == buttonChatMenu) {
-			
+
 		}
 		else if (e.getSource() == buttonFriendMenu) {
-			new FriendRequest(username, client );
-			try {
-				this.stmt.close();
-				this.conn.close();
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			
+
 			this.dispose();
+			try{
+				new FriendRequest(username, client );
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
 		}
 		else if (e.getSource() == buttonSettingMenu) {
-			
+
 		}
 		else if (e.getSource() == buttonUserMenu) {
             try{
