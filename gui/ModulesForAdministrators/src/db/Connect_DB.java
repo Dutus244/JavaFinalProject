@@ -363,7 +363,7 @@ public class Connect_DB {
 		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
 		while (rs.next()) { 
 			Vector<Object> row = new Vector<Object>();
-			row.add(rs.getString("UserName"));
+			row.add(rs.getString("InboxName"));
 			
 			data.add(row);
 		}
