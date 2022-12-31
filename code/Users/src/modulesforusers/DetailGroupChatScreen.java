@@ -9,8 +9,11 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.JScrollPane;
 import javax.swing.JButton;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
+
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -23,7 +26,7 @@ import java.awt.event.ActionEvent;
 
 public class DetailGroupChatScreen extends JFrame {
 
-	JPanel contentPane;
+	JLayeredPane contentPane;
 
 	private JTable adminTable;
 	private DefaultTableModel adminTableModel;
@@ -59,28 +62,75 @@ public class DetailGroupChatScreen extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(400,530);
 		
-		contentPane = new JPanel();
+		contentPane = new JLayeredPane();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLocation(0, 0);
 		contentPane.setLayout(null);
 		
 		setContentPane(contentPane);
 		
+		//group image
 		JButton btnNewButton = new JButton("New button");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			}
 		});
 		btnNewButton.setBounds(175, 25, 50, 50);
-		contentPane.add(btnNewButton);
+		contentPane.add(btnNewButton, JLayeredPane.DEFAULT_LAYER);
 		
+		//group name
 		JLabel lbl_1 = new JLabel("bucubucubucubucubucu", SwingConstants.CENTER);
 		lbl_1.setBounds(50, 85, 300, 15);
-		contentPane.add(lbl_1);
+		contentPane.add(lbl_1, JLayeredPane.DEFAULT_LAYER);
 		
+		JTextField tf = new JTextField(15);
+		tf.setBounds(125, 85, 150, 15);
+		
+		JButton btnConfirm = new JButton("New button");
+		btnConfirm.setBounds(280, 85, 15, 15);
+		
+		JButton btnCancel = new JButton("New button");
+		btnCancel.setBounds(300, 85, 15, 15);
+		
+		btnConfirm.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				tf.setVisible(false);
+				btnConfirm.setVisible(false);
+				btnCancel.setVisible(false);
+			}
+		});
+		btnCancel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				tf.setVisible(false);
+				btnConfirm.setVisible(false);
+				btnCancel.setVisible(false);
+			}
+		});
+		
+		
+		contentPane.add(tf, JLayeredPane.PALETTE_LAYER);
+		contentPane.add(btnConfirm, JLayeredPane.PALETTE_LAYER);
+		contentPane.add(btnCancel, JLayeredPane.PALETTE_LAYER);
+		
+		tf.setVisible(false);
+		btnConfirm.setVisible(false);
+		btnCancel.setVisible(false);
+		
+		JButton btnChangeName = new JButton("Change name");
+		btnChangeName.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				tf.setVisible(true);
+				btnConfirm.setVisible(true);
+				btnCancel.setVisible(true);
+			}
+		});
+		btnChangeName.setBounds(135, 105, 120, 20);
+		contentPane.add(btnChangeName, JLayeredPane.DEFAULT_LAYER);
+		
+		//admin
 		JLabel lbl_2 = new JLabel("Admin list:");
 		lbl_2.setBounds(100, 130, 100, 15);
-		contentPane.add(lbl_2);
+		contentPane.add(lbl_2, JLayeredPane.DEFAULT_LAYER);
 		
 		JScrollPane scrollPane_1 = new JScrollPane();
 		scrollPane_1.setBounds(100, 150, 200, 100);
@@ -97,8 +147,9 @@ public class DetailGroupChatScreen extends JFrame {
 		adminTable = new JTable();
 		adminTable.setModel(adminTableModel);
 		
-		contentPane.add(scrollPane_1);
+		contentPane.add(scrollPane_1, JLayeredPane.DEFAULT_LAYER);
 		
+		//member
 		JLabel lbl_3 = new JLabel("Member list:");
 		lbl_3.setBounds(100, 260, 100, 15);
 		contentPane.add(lbl_3);
@@ -118,15 +169,7 @@ public class DetailGroupChatScreen extends JFrame {
         memberTable = new JTable();
         memberTable.setModel(memberTableModel);
 		
-		contentPane.add(scrollPane_2);
-		
-		JButton btnNewButton_1 = new JButton("Change name");
-		btnNewButton_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
-		btnNewButton_1.setBounds(135, 105, 120, 20);
-		contentPane.add(btnNewButton_1);
+		contentPane.add(scrollPane_2, JLayeredPane.DEFAULT_LAYER);
 	}
 	private static Object getGroupName(String groupID) throws SQLException{
 		// Connect DB
