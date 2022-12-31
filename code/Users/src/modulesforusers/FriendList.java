@@ -14,8 +14,8 @@ import java.awt.Image;
 import javax.swing.JButton;
 import javax.swing.Icon;
 import javax.swing.JLabel;
-import com.jgoodies.forms.factories.DefaultComponentFactory;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -31,12 +31,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.ImageIcon;
 
 public class FriendList extends JFrame implements ActionListener {
-	JPanel panel_6;
-	JLabel lblNewJgoodiesLabel_numberFriend;
-	private JPanel contentPane;
-	private JTextField textField;
-//	boolean ThreadContinue = true;
-	JPanel panelList;
+	Container container;
 	JButton buttonChatMenu;
 	JButton buttonFriendMenu;
 	JButton buttonSettingMenu;
@@ -46,7 +41,7 @@ public class FriendList extends JFrame implements ActionListener {
 	JButton btnGroup;
 	String username;
 	Socket client;
-	JPanel panel_10;
+	JPanel panelView;
 	List<String> usernameList = new ArrayList<>();
 	public FriendList(String Username, Socket s) {
 		this.username = Username;
@@ -93,7 +88,7 @@ public class FriendList extends JFrame implements ActionListener {
 				
 
 				try {
-					
+					remove(panelView);
 					usernameList.clear();
 					rs = ((java.sql.Statement)stmt).executeQuery("SELECT UserName FROM users where UserID in (SELECT FriendID from friendlist where UserID in (Select UserID FROM users where UserName = '"+ username +"'))");
 				
@@ -102,51 +97,62 @@ public class FriendList extends JFrame implements ActionListener {
 					}
 					System.out.println("list" +usernameList.size());
 					
-					JPanel panel_9 = new JPanel();
-					panel_9.setBounds(10, 94, 586, 41);
-					panel_6.add(panel_9);
-					JLabel lblNewJgoodiesLabel_13 = DefaultComponentFactory.getInstance().createLabel("Friend("+usernameList.size()+")");
-					lblNewJgoodiesLabel_13.setFont(new Font("Times New Roman", Font.PLAIN, 18));
-					panel_9.add(lblNewJgoodiesLabel_13);
-//					
-					panel_10 = new JPanel();
-					panel_10.setBounds(0, 134, 596, 438);
-					panel_6.add(panel_10);
-					panel_10.setLayout(null);
+					panelView = new JPanel();
+			        panelView.setLayout(null);
+			      
+			        panelView.setPreferredSize(new Dimension(596,600));
+			        
+			        JPanel panelOptionTitle = new JPanel();
+			        panelOptionTitle.setLayout(null);
+			        panelOptionTitle.setBorder(new LineBorder(new Color(0, 0, 0)));
+			        panelOptionTitle.setBounds(0, 0, 596, 80);
+			        panelView.add(panelOptionTitle);
+			        
+			        JLabel lbOptionTitle = new JLabel("Friend's List");
+			        lbOptionTitle.setFont(new Font("Times New Roman", Font.BOLD, 30));
+			        lbOptionTitle.setBounds(10, 11, 351, 60);
+			        panelOptionTitle.add(lbOptionTitle);
+			        
+			        JPanel panelViewAdvance = new JPanel();
+			        panelViewAdvance.setBounds(10, 94, 586, 41);
+			        panelView.add(panelViewAdvance);
+			        
+			        
+			        JLabel lbInvitation = new JLabel("Friend("+usernameList.size()+")");
+			        lbInvitation.setFont(new Font("Times New Roman", Font.PLAIN, 18));
+			        panelViewAdvance.add(lbInvitation);
+			        
+			        JPanel panelListUser = new JPanel();
+			        panelListUser.setLayout(null);
+			        panelListUser.setBounds(0, 134, 582, 429);
+			        panelView.add(panelListUser);
 					
-					for(int i =0; i<usernameList.size();i++ ) {
-						
-						String friendusername = usernameList.get(i);
-						JPanel panel_11 = new JPanel();
-						panel_11.setBorder(new LineBorder(new Color(0, 0, 0)));
-						panel_11.setBounds(10, 11 + i*105 , 576, 94);
-						panel_10.add(panel_11);
-						panel_11.setLayout(null);
-						
-						JLabel lblNewJgoodiesLabel_14 = DefaultComponentFactory.getInstance().createLabel("");
-						lblNewJgoodiesLabel_14.setIcon(new ImageIcon("D:\\eclipse-workspace\\ui\\Source\\Image\\iconUserMenu.png"));
-						lblNewJgoodiesLabel_14.setBounds(10, 11, 96, 72);
-						panel_11.add(lblNewJgoodiesLabel_14);
-						
-						JLabel lblNewJgoodiesLabel_15 = DefaultComponentFactory.getInstance().createLabel(usernameList.get(i));
-						lblNewJgoodiesLabel_15.setFont(new Font("Times New Roman", Font.PLAIN, 20));
-						lblNewJgoodiesLabel_15.setBounds(77, 22, 177, 49);
-						panel_11.add(lblNewJgoodiesLabel_15);
-						
-						JButton btnNewButton_1 = new JButton("UNFRIEND");
-						btnNewButton_1.setFont(new Font("Tahoma", Font.BOLD, 16));
-						btnNewButton_1.setBounds(430, 11, 136, 29);
-						panel_11.add(btnNewButton_1);
-						
-//						btnNewButton_1.addActionListener(event -> UnfriendHandle(event,friendusername));
-						JButton btnNewButton_2 = new JButton("CHAT");
-						btnNewButton_2.setFont(new Font("Tahoma", Font.BOLD, 16));
-						btnNewButton_2.setBounds(430, 51, 136, 32);
-						panel_11.add(btnNewButton_2);
-					}
-					
-					
-					
+			        for(int i =0; i<usernameList.size();i++ ) {
+			        	
+			        	JPanel panelFriendInfo = new JPanel();
+			            panelFriendInfo.setLayout(null);
+			            panelFriendInfo.setBorder(new LineBorder(new Color(0, 0, 0)));
+			            panelFriendInfo.setBounds(10, 11+ i*105, 576, 94);
+			            panelListUser.add(panelFriendInfo);
+			            
+			            JLabel lbFriendUsername = new JLabel(usernameList.get(i));
+			            lbFriendUsername.setFont(new Font("Times New Roman", Font.PLAIN, 20));
+			            lbFriendUsername.setBounds(10, 21, 177, 49);
+			            panelFriendInfo.add(lbFriendUsername);
+			            
+			            JButton btnUnfriend = new JButton("UNFRIEND");
+			            btnUnfriend.setFont(new Font("Tahoma", Font.BOLD, 16));
+			            btnUnfriend.setBounds(430, 11, 136, 32);
+			            panelFriendInfo.add(btnUnfriend);
+			            
+			            btnUnfriend.addActionListener(event -> UnfriendHandle(event,lbFriendUsername.getText()));
+			            JButton btnChat = new JButton("CHAT");
+			            btnChat.setFont(new Font("Tahoma", Font.BOLD, 16));
+			            btnChat.setBounds(430, 51, 136, 32);
+			            panelFriendInfo.add(btnChat);
+		
+			        }
+			        getContentPane().add(panelView, BorderLayout.EAST);
 					validate();
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
@@ -195,29 +201,28 @@ public class FriendList extends JFrame implements ActionListener {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		panel_10.removeAll();
+		
 	}
 	public void initialize(String Username) {
-		this.setTitle("FRIEND OPTION -" + Username);
+		this.setTitle("CHAT APPLICATION");
         this.setSize(1000,600);
         getContentPane().setLayout(new BorderLayout());
         this.setLocationRelativeTo(null);
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setResizable(false);
-        
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		//contentPane = new JPanel();
+		//contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
-		contentPane.setLayout(null);
+		//contentPane.setLayout(null);
 		
-		JPanel panel = new JPanel();
-		panel.setPreferredSize(new Dimension(54, 600));
-		panel.setBorder(new LineBorder(new Color(0, 0, 0)));
-		panel.setBounds(0, 0, 54, 600);
-		contentPane.add(panel);
-		panel.setLayout(null);
-		panel.setBackground(new Color(220, 220, 220));
+		JPanel panelMenu = new JPanel();
+		panelMenu.setPreferredSize(new Dimension(54,600 )); 
+		panelMenu.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panelMenu.setBounds(0, 0, 54, 563);
+		//contentPane.add(panelMenu);
+		panelMenu.setLayout(null);
+		panelMenu.setBackground(new Color(220, 220, 220));
 		
 		Icon iconChatMenu = new ImageIcon("source/image/iconChatMenu.png");
 	    buttonChatMenu = new JButton(iconChatMenu);
@@ -251,86 +256,86 @@ public class FriendList extends JFrame implements ActionListener {
 	    buttonUserMenu.setOpaque(false);
 	    buttonUserMenu.setContentAreaFilled(false);
 	    
-	    panel.add(buttonChatMenu);
-        panel.add(buttonFriendMenu);
-        panel.add(buttonSettingMenu);
-        panel.add(buttonUserMenu);
+	    panelMenu.add(buttonChatMenu);
+        panelMenu.add(buttonFriendMenu);
+        panelMenu.add(buttonSettingMenu);
+        panelMenu.add(buttonUserMenu);
 		
-		JPanel panel_1 = new JPanel();
-		panel_1.setBorder(new LineBorder(new Color(0, 0, 0)));
-		panel_1.setBounds(54, 0, 337, 708);
-		contentPane.add(panel_1);
-		panel_1.setLayout(null);
+		JPanel panelOption = new JPanel();
+		panelOption.setBorder(new LineBorder(new Color(0, 0, 0)));
+		 panelOption.setPreferredSize(new Dimension(350,600)); 
+		//contentPane.add(panelOption);
+		panelOption.setLayout(null);
 		
-		JPanel panel_3 = new JPanel();
-		panel_3.setBorder(new LineBorder(new Color(0, 0, 0)));
-		panel_3.setBounds(0, 0, 340, 81);
-		panel_1.add(panel_3);
-		panel_3.setLayout(null);
+		JPanel panelTitle = new JPanel();
+		panelTitle.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panelTitle.setBounds(0, 0,349, 81);
+		panelOption.add(panelTitle);
+		panelTitle.setLayout(null);
 		
-		JLabel lblNewJgoodiesLabel_4 = DefaultComponentFactory.getInstance().createLabel("    FRIENDS");
-		lblNewJgoodiesLabel_4.setFont(new Font("Times New Roman", Font.BOLD, 26));
-		lblNewJgoodiesLabel_4.setBounds(0, 0, 330, 81);
-		panel_3.add(lblNewJgoodiesLabel_4);
+		JLabel lbTitle = new JLabel("    FRIENDS");
+		lbTitle.setFont(new Font("Times New Roman", Font.BOLD, 26));
+		lbTitle.setBounds(0, 0, 330, 81);
+		panelTitle.add(lbTitle);
 		
-		JPanel panel_2 = new JPanel();
-		panel_2.setBounds(0, 79, 327, 63);
-		panel_1.add(panel_2);
-		panel_2.setLayout(null);
+		JPanel panelSearch = new JPanel();
+		panelSearch.setBounds(0, 79, 327, 63);
+		panelOption.add(panelSearch);
+		panelSearch.setLayout(null);
 		
-		textField = new JTextField();
-		textField.setBounds(10, 11, 202, 34);
-		panel_2.add(textField);
-		textField.setColumns(10);
+		JTextField txtSearch = new JTextField();
+		txtSearch.setBounds(10, 11, 202, 34);
+		panelSearch.add(txtSearch);
+		txtSearch.setColumns(10);
 		
-		JButton btnNewButton = new JButton("SEARCH");
-		btnNewButton.setBounds(222, 11, 108, 39);
-		panel_2.add(btnNewButton);
-		btnNewButton.setFont(new Font("Times New Roman", Font.BOLD, 18));
+		JButton btnSearch = new JButton("SEARCH");
+		btnSearch.setBounds(222, 11, 108, 39);
+		panelSearch.add(btnSearch);
+		btnSearch.setFont(new Font("Times New Roman", Font.BOLD, 18));
 		
-		btnFriendRequest = new JButton("Friend Request");
+		JButton btnFriendRequest = new JButton("Friend Request");
 		btnFriendRequest.setFont(new Font("Times New Roman", Font.PLAIN, 24));
-		btnFriendRequest.setIcon(new ImageIcon("D:\\eclipse-workspace\\ui\\Source\\Image\\add-user.png"));
-		
+		btnFriendRequest.setIcon(new ImageIcon("source/image/add-user.png"));
+		btnFriendRequest.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
 		btnFriendRequest.setBounds(0, 153, 327, 75);
-		panel_1.add(btnFriendRequest);
-		btnFriendRequest.addActionListener(this);
-		btnFriendList = new JButton("Friend List");
-		btnFriendList.setIcon(new ImageIcon("D:\\eclipse-workspace\\ui\\Source\\Image\\friends.png"));
+		panelOption.add(btnFriendRequest);
+		
+		JButton btnFriendList = new JButton("Friend List");
+		btnFriendList.setIcon(new ImageIcon("source/image/friends.png"));
 		btnFriendList.setFont(new Font("Times New Roman", Font.PLAIN, 24));
 		btnFriendList.setBounds(0, 257, 327, 75);
+		panelOption.add(btnFriendList);
 		
-		panel_1.add(btnFriendList);
-		
-		btnGroup = new JButton("Group");
-		btnGroup.setIcon(new ImageIcon("D:\\eclipse-workspace\\ui\\Source\\Image\\group.png"));
+		JButton btnGroup = new JButton("Group");
+		btnGroup.setIcon(new ImageIcon("source/image/group.png"));
 		btnGroup.setFont(new Font("Times New Roman", Font.PLAIN, 24));
 		btnGroup.setBounds(0, 362, 327, 75);
-		panel_1.add(btnGroup);
-		 
-		panel_6 = new JPanel();
-		panel_6.setBounds(391, 0, 596, 721);
-		contentPane.add(panel_6);
-		panel_6.setLayout(null);
+		panelOption.add(btnGroup);
 		
-		JPanel panel_8 = new JPanel();
-		panel_8.setBorder(new LineBorder(new Color(0, 0, 0)));
-		panel_8.setBounds(0, 0, 596, 80);
-		panel_6.add(panel_8);
-		panel_8.setLayout(null);
+		panelView = new JPanel();
+        panelView.setLayout(null);
+      
+        panelView.setPreferredSize(new Dimension(596,600));
+        
+        JPanel panelOptionTitle = new JPanel();
+        panelOptionTitle.setLayout(null);
+        panelOptionTitle.setBorder(new LineBorder(new Color(0, 0, 0)));
+        panelOptionTitle.setBounds(0, 0, 596, 80);
+        panelView.add(panelOptionTitle);
+        
+        JLabel lbOptionTitle = new JLabel("Friend's List");
+        lbOptionTitle.setFont(new Font("Times New Roman", Font.BOLD, 30));
+        lbOptionTitle.setBounds(10, 11, 351, 60);
+        panelOptionTitle.add(lbOptionTitle);
+        
+       
 		
-		JLabel lblNewJgoodiesLabel_11 = DefaultComponentFactory.getInstance().createLabel("");
-		lblNewJgoodiesLabel_11.setIcon(new ImageIcon("D:\\eclipse-workspace\\ui\\Source\\Image\\friends.png"));
-		lblNewJgoodiesLabel_11.setBounds(24, 0, 89, 82);
-		panel_8.add(lblNewJgoodiesLabel_11);
-		JLabel lblNewJgoodiesLabel_12 = DefaultComponentFactory.getInstance().createLabel("Friend's List");
-		lblNewJgoodiesLabel_12.setFont(new Font("Times New Roman", Font.BOLD, 30));
-		lblNewJgoodiesLabel_12.setBounds(101, 11, 260, 60);
-		panel_8.add(lblNewJgoodiesLabel_12);
-		
-		
-		
-		getContentPane().add(contentPane);
+		getContentPane().add(panelMenu, BorderLayout.WEST);
+        getContentPane().add(panelOption, BorderLayout.CENTER);
+        getContentPane().add(panelView, BorderLayout.EAST);
 	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -362,7 +367,7 @@ public class FriendList extends JFrame implements ActionListener {
 		}
 		else if (e.getSource() == btnFriendRequest) {
             try{
-                new FriendRequest(username, client);
+//                new FriendRequest(username, client);
                 this.dispose();
             } catch (Exception ex) {
                 ex.printStackTrace();
