@@ -95,7 +95,7 @@ public class FriendList extends JFrame implements ActionListener {
 				try {
 					
 					usernameList.clear();
-					rs = ((java.sql.Statement)stmt).executeQuery("SELECT UserName FROM users where UserID in (SELECT FriendID from friendlist where UserID in (Select UserID FROM users where UserName = '"+ username +"'))");
+					rs = ((java.sql.Statement)stmt).executeQuery("SELECT users.UserName from friendlist left join users on users.UserID = friendlist.UserID where UserID = (Select UserID FROM users where UserName = '"+ username +"')");
 				
 					while(rs.next()) {
 						usernameList.add(rs.getString("UserName"));
