@@ -112,7 +112,24 @@ public class HomeScreen  extends JFrame implements ActionListener {
         
         new UpdatePanelList().start();
 	}
-	
+	public HomeScreen(String Username, Socket s, String friendusername) {
+		username = Username;
+		client = s;
+        initialize(Username);
+        try {
+			clientIn = client.getInputStream();
+			br = new BufferedReader(new
+					InputStreamReader(clientIn));
+			clientOut = client.getOutputStream();
+			pw = new PrintWriter(clientOut, true);
+			new Read().start(); // create a new thread for reading the messages from socket
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+        new UpdatePanelList().start();
+        processOpenOlineFriend(friendusername);
+        
+	}
 	class Read extends Thread {
 		@Override
 		public void run() {
@@ -1119,7 +1136,227 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		add(panelChat, BorderLayout.EAST);
 		validate();
     }
-    
+    private void processOpenOlineFriend( String friendUserName) {
+    	messageList.clear();
+    	inboxCurrentlyOpen = friendUserName;
+    	
+    	try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			conn = DriverManager.getConnection(Main.DB_URL, Main.USER, Main.PASS);
+		} catch (SQLException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		try {
+			stmt = conn.createStatement();
+		} catch (SQLException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		
+		remove(panelChat);
+		
+		
+		panelChat = new JPanel();
+        panelChat.setPreferredSize(new Dimension(596,600)); // Được sử dụng khi setSize đã có trong phần cha lớn.
+        panelChat.setLayout(null);
+        panelChat.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        
+        try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			conn = DriverManager.getConnection(Main.DB_URL, Main.USER, Main.PASS);
+		} catch (SQLException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		try {
+			stmt = conn.createStatement();
+		} catch (SQLException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		
+		panelGroupName = new JPanel();
+	    panelGroupName.setPreferredSize(new Dimension(596,60));
+	    panelGroupName.setLayout(null);
+	    panelGroupName.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+	        
+	    Icon avatar = new ImageIcon("source/image/iconUserMenu.png");
+	    Image image = ((ImageIcon) avatar).getImage(); // transform it 
+	    Image newimg = image.getScaledInstance(48, 48,  java.awt.Image.SCALE_SMOOTH);
+	    avatar = new ImageIcon(newimg);
+	    labelGroupAvatar = new JLabel(avatar);
+	    labelGroupAvatar.setBounds(10,10,40,40);
+	     
+	    labelGroupName = new JLabel(friendUserName);
+	    labelGroupName.setFont(Main.fontBigBold);
+	    labelGroupName.setBounds(60,10,200,20);
+	    
+	    String status ="";
+	    try {
+			rs = ((java.sql.Statement)stmt).executeQuery("select OnlineStatus,OfflineTime from activestatus where UserID=(select UserID from users where UserName = '"+friendUserName+"')");
+			rs.next();
+			if (rs.getString("OnlineStatus").equals("1")) {
+				status = "Online";
+			}
+			else {
+				status = "Offline";
+			}
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	    
+	    labelGroupStatus = new JLabel(status);
+    	labelGroupStatus.setFont(Main.fontSmallest);
+    	labelGroupStatus.setBounds(60,35,200,20);
+    	
+    	Icon iconMore = new ImageIcon("source/image/iconMore.png");
+    	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
+    	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
+    	iconMore = new ImageIcon(newimgMore);
+        buttonGroupOption = new JButton(iconMore);
+        buttonGroupOption.setBounds(550,10,40,40);
+        buttonGroupOption.setFocusable(false);
+        buttonGroupOption.addActionListener(this);
+        buttonGroupOption.setOpaque(false);
+        buttonGroupOption.setContentAreaFilled(false);
+        
+        panelGroupName.add(labelGroupAvatar);
+    	panelGroupName.add(labelGroupName);
+    	panelGroupName.add(labelGroupStatus);
+    	panelGroupName.add(buttonGroupOption);
+    	panelGroupName.setBounds(0,0,596,60);
+    	
+    	panelInputChat = new JPanel();
+        panelInputChat.setLayout(null);
+    	try {
+			rs = ((java.sql.Statement)stmt).executeQuery("SELECT distinct InboxID from (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+username+"')) as table1 inner join  (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+friendUserName+"')) as table2 using(InboxID)");
+			String inboxID;
+			if (!rs.isBeforeFirst() ) {    
+				panelGroupChat = new JPanel();
+		    	scrollPaneGroupChat = new JScrollPane();
+		        scrollPaneGroupChat.setPreferredSize(new Dimension(340,460));
+		        scrollPaneGroupChat.setViewportView(panelGroupChat);
+		        scrollPaneGroupChat.setBounds(0,60,596,440);
+		        
+		        buttonNewChatOnlineSend = new JButton("SEND");
+		        buttonNewChatOnlineSend.setBounds(460,20,120,40);
+		        buttonNewChatOnlineSend.setFocusable(false);
+		        buttonNewChatOnlineSend.addActionListener(this);
+		        panelInputChat.add(buttonNewChatOnlineSend);
+			} 
+			else {
+				rs.next();
+				inboxID = rs.getString("InboxID");
+				panelGroupChat = new JPanel();
+				panelGroupChat.setLayout(new BoxLayout(panelGroupChat, BoxLayout.Y_AXIS));
+				
+				int messagecount = 100;
+		        int count = 0;
+		        try {
+					rs = ((java.sql.Statement)stmt).executeQuery("select MessID,UserName,Message,messages.CreateTime from messages left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' ORDER BY messages.CreateTime ASC");
+					while (rs.next()) {
+						messageList.add(new Message(rs.getString("MessID"),rs.getString("UserName"),rs.getString("Message"),rs.getString("CreateTime")));
+						count++;
+					}
+					messagecount = count;
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+		        for (int i = 0; i < messageList.size(); i++) {
+		        	JPanel panelMessage = new JPanel();
+		        	panelMessage.setPreferredSize(new Dimension(576,60));
+		        	panelMessage.setLayout(null);
+		        	
+		        	Icon avatarMessage = new ImageIcon("source/image/iconUserMenu.png");
+		        	Image imageMessage = ((ImageIcon) avatarMessage).getImage(); // transform it 
+		        	Image newimgMessage = imageMessage.getScaledInstance(24, 24,  java.awt.Image.SCALE_SMOOTH);
+		        	avatarMessage = new ImageIcon(newimgMessage);
+		        	
+		        	JLabel avatarLabel = new JLabel(avatar);
+		        	JLabel labelMessage = new JLabel(messageList.get(i).getMessage());
+		        	JLabel labelFromName = new JLabel();
+		        	labelFromName.setFont(Main.fontSmallest);
+		        	if (!messageList.get(i).getUserName().equals(username)) {
+		        		avatarLabel.setBounds(0,10,40,40);
+		        		labelMessage.setBounds(50,20,200,40);
+		        		labelFromName.setText(messageList.get(i).getUserName());
+		        		labelFromName.setBounds(50,0,200,20);
+		        	}
+		        	else {
+		        		avatarLabel.setBounds(500,10,40,40);
+		        		labelMessage.setBounds(350,20,200,40);
+		        		labelFromName.setText("You");
+		        		labelFromName.setBounds(350,10,200,20);
+		        	}
+		        	
+		        	panelMessage.add(avatarLabel);
+		        	panelMessage.add(labelMessage);
+		        	panelMessage.add(labelFromName);
+		        	
+		        	JButton buttonMessage = new JButton();
+		        	buttonMessage.add(panelMessage,JButton.CENTER);
+		        	buttonMessage.setPreferredSize(new Dimension(576,60));
+		        	buttonMessage.setOpaque(false);
+		        	buttonMessage.setContentAreaFilled(false);
+		        	buttonMessage.addActionListener(this);
+		        	
+		        	panelGroupChat.add(buttonMessage);
+		        }
+		        if (messageList.size() <= 7) {
+		        	scrollPaneGroupChat = new JScrollPane();
+			        scrollPaneGroupChat.setPreferredSize(new Dimension(596,messageList.size()*60+10));
+			        scrollPaneGroupChat.setViewportView(panelGroupChat);
+			        scrollPaneGroupChat.setBounds(0,60,596,messageList.size()*60+10);
+		        }
+		        else {
+		        	scrollPaneGroupChat = new JScrollPane();
+			        scrollPaneGroupChat.setPreferredSize(new Dimension(596,430));
+			        scrollPaneGroupChat.setViewportView(panelGroupChat);
+			        scrollPaneGroupChat.setBounds(0,60,596,430);
+		        }
+		        buttonSend = new JButton("SEND");
+		        buttonSend.setBounds(460,20,120,40);
+		        buttonSend.setFocusable(false);
+		        buttonSend.addActionListener(this);
+		        panelInputChat.add(buttonSend);
+		        
+			}
+    	} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	JScrollBar vertical = scrollPaneGroupChat.getVerticalScrollBar(); 
+    	vertical.setValue(vertical.getMaximum());
+
+        
+        textFieldInputChat = new JTextField("");
+        textFieldInputChat.setBounds(0,20,450,40);
+        
+       
+        panelInputChat.add(textFieldInputChat);
+        
+        panelInputChat.setBounds(0,490,596,80);
+        
+        panelChat.add(panelGroupName);
+    	panelChat.add(scrollPaneGroupChat);
+    	panelChat.add(panelInputChat);
+		
+		add(panelChat, BorderLayout.EAST);
+		validate();
+    }
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub

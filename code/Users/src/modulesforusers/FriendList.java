@@ -39,6 +39,8 @@ public class FriendList extends JFrame implements ActionListener {
 	JButton btnFriendRequest;
 	JButton btnFriendList;
 	JButton btnGroup;
+	JButton btnUnfriend;
+	JButton btnChat;
 	String username;
 	Socket client;
 	JPanel panelView;
@@ -91,7 +93,7 @@ public class FriendList extends JFrame implements ActionListener {
 				try {
 					remove(panelView);
 					usernameList.clear();
-					rs = ((java.sql.Statement)stmt).executeQuery("SELECT users.UserName from friendlist left join users on users.UserID = friendlist.UserID where UserID = (Select UserID FROM users where UserName = '"+ username +"')");
+					rs = ((java.sql.Statement)stmt).executeQuery("SELECT UserName FROM users where UserID in (SELECT FriendID from friendlist where UserID in (Select UserID FROM users where UserName = '"+ username +"'))");
 				
 					while(rs.next()) {
 						usernameList.add(rs.getString("UserName"));
@@ -141,18 +143,19 @@ public class FriendList extends JFrame implements ActionListener {
 			            lbFriendUsername.setBounds(10, 21, 177, 49);
 			            panelFriendInfo.add(lbFriendUsername);
 			            
-			            JButton btnUnfriend = new JButton("UNFRIEND");
+			            btnUnfriend = new JButton("UNFRIEND");
 			            btnUnfriend.setFont(new Font("Tahoma", Font.BOLD, 16));
 			            btnUnfriend.setBounds(430, 11, 136, 32);
 			            panelFriendInfo.add(btnUnfriend);
 			            
 			            btnUnfriend.addActionListener(event -> UnfriendHandle(event,lbFriendUsername.getText()));
-			            JButton btnChat = new JButton("CHAT");
+			            btnChat = new JButton("CHAT");
 			            btnChat.setFont(new Font("Tahoma", Font.BOLD, 16));
 			            btnChat.setBounds(430, 51, 136, 32);
 			            panelFriendInfo.add(btnChat);
-		
+			            btnChat.addActionListener(event -> ChatOpen(event,lbFriendUsername.getText()));
 			        }
+			        
 			        getContentPane().add(panelView, BorderLayout.EAST);
 					validate();
 				} catch (SQLException e) {
@@ -168,6 +171,10 @@ public class FriendList extends JFrame implements ActionListener {
 
 			}
 		}
+	}
+	private void ChatOpen(ActionEvent e, String friendUser) {
+		this.dispose();
+		new HomeScreen(username, client, friendUser);
 	}
 	private void UnfriendHandle(ActionEvent e, String unfriendUser) {
 		System.out.println("UnfriendHandle, " + unfriendUser);
@@ -294,20 +301,21 @@ public class FriendList extends JFrame implements ActionListener {
 		panelSearch.add(btnSearch);
 		btnSearch.setFont(new Font("Times New Roman", Font.BOLD, 18));
 		
-		JButton btnFriendRequest = new JButton("Friend Request");
+		btnFriendRequest = new JButton("Friend Request");
 		btnFriendRequest.setFont(new Font("Times New Roman", Font.PLAIN, 24));
 		btnFriendRequest.setIcon(new ImageIcon("source/image/add-user.png"));
 		btnFriendRequest.addActionListener(this);
 		btnFriendRequest.setBounds(0, 153, 327, 75);
 		panelOption.add(btnFriendRequest);
 		
-		JButton btnFriendList = new JButton("Friend List");
+		btnFriendList = new JButton("Friend List");
 		btnFriendList.setIcon(new ImageIcon("source/image/friends.png"));
 		btnFriendList.setFont(new Font("Times New Roman", Font.PLAIN, 24));
+		btnFriendList.addActionListener(this);
 		btnFriendList.setBounds(0, 257, 327, 75);
 		panelOption.add(btnFriendList);
 		
-		JButton btnGroup = new JButton("Group");
+		btnGroup = new JButton("Group");
 		btnGroup.setIcon(new ImageIcon("source/image/group.png"));
 		btnGroup.setFont(new Font("Times New Roman", Font.PLAIN, 24));
 		btnGroup.setBounds(0, 362, 327, 75);
@@ -337,6 +345,7 @@ public class FriendList extends JFrame implements ActionListener {
 	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		isOpen=false;
 		// TODO Auto-generated method stub
 		if (e.getSource() == buttonChatMenu) {
 			this.dispose();
@@ -364,10 +373,9 @@ public class FriendList extends JFrame implements ActionListener {
             }
 		}
 		else if (e.getSource() == btnFriendRequest) {
-			
-			this.dispose();
-			try{
-				new FriendRequest(username, client );
+            try{
+                new FriendRequest(username, client);
+                this.dispose();
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -376,6 +384,5 @@ public class FriendList extends JFrame implements ActionListener {
 		else if (e.getSource() == btnGroup) {
             
 		}
-		
 	}
 }
