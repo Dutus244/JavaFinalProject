@@ -15,6 +15,7 @@ import javax.swing.Icon;
 import javax.swing.JLabel;
 import com.jgoodies.forms.factories.DefaultComponentFactory;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -88,6 +89,7 @@ public class FriendRequest2 extends JFrame implements ActionListener {
 	    buttonUserMenu.setOpaque(false);
 	    buttonUserMenu.setContentAreaFilled(false);
 	    
+
 	    panel.add(buttonChatMenu);
         panel.add(buttonFriendMenu);
         panel.add(buttonSettingMenu);
@@ -124,6 +126,45 @@ public class FriendRequest2 extends JFrame implements ActionListener {
 		btnNewButton.setBounds(222, 11, 108, 39);
 		panel_2.add(btnNewButton);
 		btnNewButton.setFont(new Font("Times New Roman", Font.BOLD, 18));
+
+	    JPanel panelMenu = new JPanel();
+		panelMenu.add(buttonChatMenu);
+        panelMenu.add(buttonFriendMenu);
+        panelMenu.add(buttonSettingMenu);
+        panelMenu.add(buttonUserMenu);
+		
+		JPanel panelOption = new JPanel();
+		panelOption.setBorder(new LineBorder(new Color(0, 0, 0)));
+		 panelOption.setPreferredSize(new Dimension(350,600)); 
+		//contentPane.add(panelOption);
+		panelOption.setLayout(null);
+		
+		JPanel panelTitle = new JPanel();
+		panelTitle.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panelTitle.setBounds(0, 0, 349, 81);
+		panelOption.add(panelTitle);
+		panelTitle.setLayout(null);
+		
+		JLabel lbTitle = new JLabel("    FRIENDS");
+		lbTitle.setFont(new Font("Times New Roman", Font.BOLD, 26));
+		lbTitle.setBounds(0, 0, 342, 81);
+		panelTitle.add(lbTitle);
+		
+		JPanel panelSearch = new JPanel();
+		panelSearch.setBounds(0, 79, 327, 63);
+		panelOption.add(panelSearch);
+		panelSearch.setLayout(null);
+		
+		JTextField txtSearch = new JTextField();
+		txtSearch.setBounds(10, 11, 202, 34);
+		panelSearch.add(txtSearch);
+		txtSearch.setColumns(10);
+		
+		JButton btnSearch = new JButton("SEARCH");
+		btnSearch.setBounds(222, 11, 108, 39);
+		panelSearch.add(btnSearch);
+		btnSearch.setFont(new Font("Times New Roman", Font.BOLD, 18));
+
 		
 		JButton btnFriendRequest = new JButton("Friend Request");
 		btnFriendRequest.setFont(new Font("Times New Roman", Font.PLAIN, 24));
@@ -145,6 +186,7 @@ public class FriendRequest2 extends JFrame implements ActionListener {
 		btnGroup.setIcon(new ImageIcon("D:\\eclipse-workspace\\ui\\Source\\Image\\group.png"));
 		btnGroup.setFont(new Font("Times New Roman", Font.PLAIN, 24));
 		btnGroup.setBounds(0, 362, 327, 75);
+
 		panel_1.add(btnGroup);
 		
 		JPanel panel_6 = new JPanel();
@@ -286,6 +328,67 @@ public class FriendRequest2 extends JFrame implements ActionListener {
 		panel_14.add(btnNewButton_8);
 		
 		getContentPane().add(contentPane);
+
+		panelOption.add(btnGroup);
+		
+		
+        JPanel panelView = new JPanel();
+        panelView.setLayout(null);
+      
+        panelView.setPreferredSize(new Dimension(596,600));
+        
+        JPanel panelOptionTitle = new JPanel();
+        panelOptionTitle.setLayout(null);
+        panelOptionTitle.setBorder(new LineBorder(new Color(0, 0, 0)));
+        panelOptionTitle.setBounds(0, 0, 596, 80);
+        panelView.add(panelOptionTitle);
+        
+        JLabel lbOptionTitle = new JLabel("Friend's Request");
+        lbOptionTitle.setFont(new Font("Times New Roman", Font.BOLD, 30));
+        lbOptionTitle.setBounds(10, 11, 351, 60);
+        panelOptionTitle.add(lbOptionTitle);
+        
+        JPanel panelViewAdvance = new JPanel();
+        panelViewAdvance.setBounds(10, 94, 586, 41);
+        panelView.add(panelViewAdvance);
+        
+        JLabel lbInvitation = new JLabel("Invitation(50)");
+        lbInvitation.setFont(new Font("Times New Roman", Font.PLAIN, 18));
+        panelViewAdvance.add(lbInvitation);
+        
+        JPanel panelListUser = new JPanel();
+        panelListUser.setLayout(null);
+        panelListUser.setBounds(0, 134, 582, 429);
+        panelView.add(panelListUser);
+        
+        JPanel panelFriendInfo = new JPanel();
+        panelFriendInfo.setLayout(null);
+        panelFriendInfo.setBorder(new LineBorder(new Color(0, 0, 0)));
+        panelFriendInfo.setBounds(10, 11, 576, 94);
+        panelListUser.add(panelFriendInfo);
+        
+        JLabel lbFriendUsername = new JLabel("User's Name");
+        lbFriendUsername.setFont(new Font("Times New Roman", Font.PLAIN, 20));
+        lbFriendUsername.setBounds(10, 21, 177, 49);
+        panelFriendInfo.add(lbFriendUsername);
+        
+        JButton btnAccept = new JButton("ACCEPT");
+        btnAccept.setFont(new Font("Tahoma", Font.BOLD, 16));
+        btnAccept.setBounds(430, 11, 136, 32);
+        panelFriendInfo.add(btnAccept);
+        
+        JButton btnChat = new JButton("CHAT");
+        btnChat.setFont(new Font("Tahoma", Font.BOLD, 16));
+        btnChat.setBounds(430, 51, 136, 32);
+        panelFriendInfo.add(btnChat);
+        
+        
+        getContentPane().add(panelMenu, BorderLayout.WEST);
+        getContentPane().add(panelOption, BorderLayout.CENTER);
+        getContentPane().add(panelView, BorderLayout.EAST);
+
+//		getContentPane().add(contentPane);
+
 	}
 
 	@Override
