@@ -1130,7 +1130,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 
 			this.dispose();
 			try{
-				new FriendList(username, client );
+				new FriendRequest(username, client );
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

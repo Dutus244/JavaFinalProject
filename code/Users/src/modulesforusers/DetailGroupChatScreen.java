@@ -9,24 +9,20 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.JScrollPane;
 import javax.swing.JButton;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
-
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.MessageFormat;
 import java.util.Vector;
 import java.awt.event.ActionEvent;
 
 public class DetailGroupChatScreen extends JFrame {
 
-	JLayeredPane contentPane;
+	JPanel contentPane;
 
 	private JTable adminTable;
 	private DefaultTableModel adminTableModel;
@@ -62,78 +58,31 @@ public class DetailGroupChatScreen extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(400,530);
 		
-		contentPane = new JLayeredPane();
+		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLocation(0, 0);
 		contentPane.setLayout(null);
 		
 		setContentPane(contentPane);
 		
-		//group image
 		JButton btnNewButton = new JButton("New button");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			}
 		});
 		btnNewButton.setBounds(175, 25, 50, 50);
-		contentPane.add(btnNewButton, JLayeredPane.DEFAULT_LAYER);
+		contentPane.add(btnNewButton);
 		
-		//group name
-		JLabel lbl_1 = new JLabel("bucubucubucubucubucu", SwingConstants.CENTER);
+		JLabel lbl_1 = new JLabel("New labelllllllllllllllllllllll", SwingConstants.CENTER);
 		lbl_1.setBounds(50, 85, 300, 15);
-		contentPane.add(lbl_1, JLayeredPane.DEFAULT_LAYER);
+		contentPane.add(lbl_1);
 		
-		JTextField tf = new JTextField(15);
-		tf.setBounds(125, 85, 150, 15);
-		
-		JButton btnConfirm = new JButton("New button");
-		btnConfirm.setBounds(280, 85, 15, 15);
-		
-		JButton btnCancel = new JButton("New button");
-		btnCancel.setBounds(300, 85, 15, 15);
-		
-		btnConfirm.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				tf.setVisible(false);
-				btnConfirm.setVisible(false);
-				btnCancel.setVisible(false);
-			}
-		});
-		btnCancel.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				tf.setVisible(false);
-				btnConfirm.setVisible(false);
-				btnCancel.setVisible(false);
-			}
-		});
-		
-		
-		contentPane.add(tf, JLayeredPane.PALETTE_LAYER);
-		contentPane.add(btnConfirm, JLayeredPane.PALETTE_LAYER);
-		contentPane.add(btnCancel, JLayeredPane.PALETTE_LAYER);
-		
-		tf.setVisible(false);
-		btnConfirm.setVisible(false);
-		btnCancel.setVisible(false);
-		
-		JButton btnChangeName = new JButton("Change name");
-		btnChangeName.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				tf.setVisible(true);
-				btnConfirm.setVisible(true);
-				btnCancel.setVisible(true);
-			}
-		});
-		btnChangeName.setBounds(135, 105, 120, 20);
-		contentPane.add(btnChangeName, JLayeredPane.DEFAULT_LAYER);
-		
-		//admin
 		JLabel lbl_2 = new JLabel("Admin list:");
-		lbl_2.setBounds(100, 130, 100, 15);
-		contentPane.add(lbl_2, JLayeredPane.DEFAULT_LAYER);
+		lbl_2.setBounds(100, 120, 100, 15);
+		contentPane.add(lbl_2);
 		
 		JScrollPane scrollPane_1 = new JScrollPane();
-		scrollPane_1.setBounds(100, 150, 200, 100);
+		scrollPane_1.setBounds(100, 140, 200, 100);
 		scrollPane_1.setViewportView(adminTable);
 		String[] columnNames_1 = { "Username"};
 		adminTableModel = new DefaultTableModel(columnNames_1, 0) {
@@ -147,15 +96,14 @@ public class DetailGroupChatScreen extends JFrame {
 		adminTable = new JTable();
 		adminTable.setModel(adminTableModel);
 		
-		contentPane.add(scrollPane_1, JLayeredPane.DEFAULT_LAYER);
+		contentPane.add(scrollPane_1);
 		
-		//member
 		JLabel lbl_3 = new JLabel("Member list:");
-		lbl_3.setBounds(100, 260, 100, 15);
+		lbl_3.setBounds(100, 250, 100, 15);
 		contentPane.add(lbl_3);
 		
 		JScrollPane scrollPane_2 = new JScrollPane();
-		scrollPane_2.setBounds(100, 280, 200, 200);
+		scrollPane_2.setBounds(100, 270, 200, 200);
 		scrollPane_2.setViewportView(adminTable);
 		String[] columnNames_2 = { "Username" };
 		memberTableModel = new DefaultTableModel(columnNames_2, 0) {
@@ -169,7 +117,7 @@ public class DetailGroupChatScreen extends JFrame {
         memberTable = new JTable();
         memberTable.setModel(memberTableModel);
 		
-		contentPane.add(scrollPane_2, JLayeredPane.DEFAULT_LAYER);
+		contentPane.add(scrollPane_2);
 	}
 	private static Object getGroupName(String groupID) throws SQLException{
 		// Connect DB
@@ -186,9 +134,7 @@ public class DetailGroupChatScreen extends JFrame {
 		}
 		
 		stmt = conn.createStatement();
-		String sql = "Select * from inbox "
-				+ "where inbox.TypeInbox = 'group' "
-				+ "and inbox.InboxID ='" + groupID + "' ";
+		String sql = "";
 
 		ResultSet rs = stmt.executeQuery(sql);
 
@@ -211,7 +157,7 @@ public class DetailGroupChatScreen extends JFrame {
 			e1.printStackTrace();
 		}
 		
-		return rs.getString("InboxName");
+		return rs.getString("?????");
 	}
 	private static void changeGroupName(String groupID, String newName) throws SQLException{
 		// Connect DB
@@ -228,12 +174,9 @@ public class DetailGroupChatScreen extends JFrame {
 		}
 		
 		stmt = conn.createStatement();
-		String sql = MessageFormat.format("update users "
-				+ "set InboxName = \"{0}\""
-				+ "where InboxID = \"{1}\"", 
-				newName, groupID);
+		String sql = "";
 
-		stmt.executeQuery(sql);
+		ResultSet rs = stmt.executeQuery(sql);
 
 		try {
 			stmt.close();
@@ -248,7 +191,7 @@ public class DetailGroupChatScreen extends JFrame {
 			e1.printStackTrace();
 		}
 	}
-	private static Vector<Vector<Object>> getGroupChatAdmin(String groupID) throws SQLException{
+	private static Vector<Vector<Object>> getAdminGroup(String groupID) throws SQLException{
 		// Connect DB
 		Connection conn = null;
 		Statement stmt = null;
@@ -263,12 +206,8 @@ public class DetailGroupChatScreen extends JFrame {
 		}
 		
 		stmt = conn.createStatement();
-		String sql = "select * from users "
-				+ "join admingroup on users.UserID = admingroup.UserID "
-				+ "join inbox on admingroup.InboxID = inbox.InboxID "
-				+ "and inbox.TypeInbox = 'group' "
-				+ "and inbox.InboxID ='" + groupID + "' ";
-		
+		String sql = "";
+
 		ResultSet rs = stmt.executeQuery(sql);
 		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
 		while (rs.next()) { 
@@ -299,7 +238,7 @@ public class DetailGroupChatScreen extends JFrame {
 		
 		return data;
 	}
-	private static Vector<Vector<Object>> getGroupChatMember(String groupID) throws SQLException{
+	private static Vector<Vector<Object>> getMemberGroup(String groupID) throws SQLException{
 		// Connect DB
 		Connection conn = null;
 		Statement stmt = null;
@@ -314,16 +253,13 @@ public class DetailGroupChatScreen extends JFrame {
 		}
 		
 		stmt = conn.createStatement();
-		String sql = "select * from users "
-				+ "join inboxparticipants on users.UserID = inboxparticipants.UserID "
-				+ "join inbox on inboxparticipants.InboxID = inbox.InboxID "
-				+ "and inbox.TypeInbox = 'group' "
-				+ "and + " + groupID + " = inbox.InboxID";
-		
+		String sql = "";
+
 		ResultSet rs = stmt.executeQuery(sql);
 		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
 		while (rs.next()) { 
 			Vector<Object> row = new Vector<Object>();
+			row.add(rs.getString("UserName"));
 			row.add(rs.getString("UserName"));
 			
 			data.add(row);
