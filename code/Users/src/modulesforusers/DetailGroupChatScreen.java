@@ -27,6 +27,8 @@ import java.awt.event.ActionEvent;
 public class DetailGroupChatScreen extends JFrame {
 
 	JLayeredPane contentPane;
+	
+	JTextField tf;
 
 	private JTable adminTable;
 	private DefaultTableModel adminTableModel;
@@ -34,7 +36,9 @@ public class DetailGroupChatScreen extends JFrame {
 	private JTable memberTable;
 	private DefaultTableModel memberTableModel;
 	
-	String groupid = "";
+	String userid = "a73080ac-501d-4a6c-8e1f-1c65335376a1";
+	String groupid = "455ab4a0-2e39-1111-83b9-a28f4d2f73d7";
+	String groupName = "";
 	
 	Vector<Vector<Object>> data_1 = new Vector<Vector<Object>>();
 	Vector<Vector<Object>> data_2 = new Vector<Vector<Object>>();
@@ -79,11 +83,11 @@ public class DetailGroupChatScreen extends JFrame {
 		contentPane.add(btnNewButton, JLayeredPane.DEFAULT_LAYER);
 		
 		//group name
-		JLabel lbl_1 = new JLabel("bucubucubucubucubucu", SwingConstants.CENTER);
+		JLabel lbl_1 = new JLabel(groupName, SwingConstants.CENTER);
 		lbl_1.setBounds(50, 85, 300, 15);
 		contentPane.add(lbl_1, JLayeredPane.DEFAULT_LAYER);
 		
-		JTextField tf = new JTextField(15);
+		tf = new JTextField(15);
 		tf.setBounds(125, 85, 150, 15);
 		
 		JButton btnConfirm = new JButton("New button");
@@ -97,6 +101,16 @@ public class DetailGroupChatScreen extends JFrame {
 				tf.setVisible(false);
 				btnConfirm.setVisible(false);
 				btnCancel.setVisible(false);
+				
+				if(groupName.equals(tf.getText()) == false )
+					try {
+						changeGroupName(groupid, tf.getText());
+						groupName = getGroupName(groupid);
+						lbl_1.setText(groupName);
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 			}
 		});
 		btnCancel.addActionListener(new ActionListener() {
@@ -124,7 +138,7 @@ public class DetailGroupChatScreen extends JFrame {
 				btnCancel.setVisible(true);
 			}
 		});
-		btnChangeName.setBounds(135, 105, 120, 20);
+		btnChangeName.setBounds(140, 105, 120, 20);
 		contentPane.add(btnChangeName, JLayeredPane.DEFAULT_LAYER);
 		
 		//admin
@@ -170,8 +184,19 @@ public class DetailGroupChatScreen extends JFrame {
         memberTable.setModel(memberTableModel);
 		
 		contentPane.add(scrollPane_2, JLayeredPane.DEFAULT_LAYER);
+		
+		try {
+			groupName = getGroupName(groupid);
+			lbl_1.setText(groupName);
+			tf.setText(groupName);
+			data_1 = getGroupChatAdmin(groupid);
+			data_2 = getGroupChatMember(groupid);
+		} catch (SQLException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 	}
-	private static Object getGroupName(String groupID) throws SQLException{
+	private static String getGroupName(String groupID) throws SQLException{
 		// Connect DB
 		Connection conn = null;
 		Statement stmt = null;
@@ -190,8 +215,8 @@ public class DetailGroupChatScreen extends JFrame {
 				+ "where inbox.TypeInbox = 'group' "
 				+ "and inbox.InboxID ='" + groupID + "' ";
 
-		ResultSet rs = stmt.executeQuery(sql);
-
+		ResultSet rs = stmt.executeQuery(sql); rs.next();
+		String data = rs.getString("InboxName");
 		try {
 			rs.close();
 		} catch (SQLException e) {
@@ -211,7 +236,7 @@ public class DetailGroupChatScreen extends JFrame {
 			e1.printStackTrace();
 		}
 		
-		return rs.getString("InboxName");
+		return data;
 	}
 	private static void changeGroupName(String groupID, String newName) throws SQLException{
 		// Connect DB
@@ -228,12 +253,12 @@ public class DetailGroupChatScreen extends JFrame {
 		}
 		
 		stmt = conn.createStatement();
-		String sql = MessageFormat.format("update users "
+		String sql = MessageFormat.format("update inbox "
 				+ "set InboxName = \"{0}\""
 				+ "where InboxID = \"{1}\"", 
 				newName, groupID);
 
-		stmt.executeQuery(sql);
+		stmt.executeUpdate(sql);
 
 		try {
 			stmt.close();
@@ -318,7 +343,7 @@ public class DetailGroupChatScreen extends JFrame {
 				+ "join inboxparticipants on users.UserID = inboxparticipants.UserID "
 				+ "join inbox on inboxparticipants.InboxID = inbox.InboxID "
 				+ "and inbox.TypeInbox = 'group' "
-				+ "and + " + groupID + " = inbox.InboxID";
+				+ "and inbox.InboxID ='" + groupID + "' ";
 		
 		ResultSet rs = stmt.executeQuery(sql);
 		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
