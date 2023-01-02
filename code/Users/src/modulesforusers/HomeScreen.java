@@ -1030,7 +1030,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 			int messagecount = 100;
 	        int count = 0;
 	        try {
-				rs = ((java.sql.Statement)stmt).executeQuery("select MessID,UserName,Message,messages.CreateTime from messages left join users on messages.UserID = users.UserID where messages.InboxName ='"+inboxName+"' ORDER BY messages.CreateTime ASC");
+				rs = ((java.sql.Statement)stmt).executeQuery("select MessID,UserName,Message,messages.CreateTime from messages left join users on messages.UserID = users.UserID where messages.InboxID = (select InboxID from inbox where InboxName='"+inboxName+"') ORDER BY messages.CreateTime ASC");
 				while (rs.next()) {
 					messageList.add(new Message(rs.getString("MessID"),rs.getString("UserName"),rs.getString("Message"),rs.getString("CreateTime")));
 					count++;
