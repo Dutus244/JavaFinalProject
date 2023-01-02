@@ -46,7 +46,7 @@ public class FriendList extends JFrame implements ActionListener {
 	JPanel panelView;
 	List<String> usernameList = new ArrayList<>();
 	public FriendList(String Username, Socket s) {
-		System.out.println("F List");
+//		System.out.println("F List");
 		this.username = Username;
 		this.client = s;
 		
@@ -98,7 +98,7 @@ public class FriendList extends JFrame implements ActionListener {
 					while(rs.next()) {
 						usernameList.add(rs.getString("UserName"));
 					}
-					System.out.println("list" +usernameList.size());
+//					System.out.println("list" +usernameList.size());
 					
 					panelView = new JPanel();
 			        panelView.setLayout(null);
