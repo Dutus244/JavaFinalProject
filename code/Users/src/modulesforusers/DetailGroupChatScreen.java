@@ -1,5 +1,6 @@
 package modulesforusers;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -11,9 +12,11 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 import javax.swing.JScrollPane;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -35,6 +38,9 @@ import java.awt.event.ActionEvent;
 public class DetailGroupChatScreen extends JFrame {
 	private static DetailGroupChatScreen frame;
 	
+	int width = 400;
+	int height = 530;
+	
 	JLayeredPane contentPane;
 	
 	JTextField tf;
@@ -44,6 +50,11 @@ public class DetailGroupChatScreen extends JFrame {
 	
 	private JTable memberTable;
 	private DefaultTableModel memberTableModel;
+	
+	JPanel addMemberPane;
+	
+	private JTable addMemberTable;
+	private DefaultTableModel addMemberTableModel;
 	
 	private static Connection conn = null;
 	private static Statement stmt = null;
@@ -56,6 +67,7 @@ public class DetailGroupChatScreen extends JFrame {
 	
 	Vector<Vector<Object>> data_1 = new Vector<Vector<Object>>();
 	Vector<Vector<Object>> data_2 = new Vector<Vector<Object>>();
+	Vector<Vector<Object>> data_3 = new Vector<Vector<Object>>();
 
 	/**
 	 * Launch the application.
@@ -80,10 +92,10 @@ public class DetailGroupChatScreen extends JFrame {
 		connectDB();
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(400,530);
+		setSize(width, height);
 		
 		contentPane = new JLayeredPane();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		//contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLocation(0, 0);
 		contentPane.setLayout(null);
 		
@@ -201,6 +213,27 @@ public class DetailGroupChatScreen extends JFrame {
 		
 		contentPane.add(scrollPane_2, JLayeredPane.DEFAULT_LAYER);
 		
+		JButton btnPopupAddmember = new JButton("New button");
+		btnPopupAddmember.setBounds(285, 260, 15, 15);
+		
+		btnPopupAddmember.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				addMemberPane.setVisible(true);
+	            
+	            try {
+					data_3 = getGroupChatMember(groupid, userName);
+					for (int i = 0; i < data_3.size(); i++) {
+		            	addMemberTableModel.addRow(data_3.get(i));
+		            }
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+
+		contentPane.add(btnPopupAddmember, JLayeredPane.DEFAULT_LAYER);
+		
 		//popup menu
 		JPopupMenu popupMenu = new JPopupMenu();
 		popupMenu.setPopupSize(new Dimension(200, 50));
@@ -232,7 +265,7 @@ public class DetailGroupChatScreen extends JFrame {
 						
 						data_2.clear();
 						memberTableModel.setRowCount(0);
-						data_2 = getGroupChatMember(groupid);
+						data_2 = getGroupChatMember(groupid, userName);
 						for (int i = 0; i < data_2.size(); i++) {
 			            	memberTableModel.addRow(data_2.get(i));
 			            }
@@ -250,6 +283,78 @@ public class DetailGroupChatScreen extends JFrame {
 		});
 		popupMenu.add(removeMenuItem);
 		
+		//add member pane
+		
+		addMemberPane = new JPanel();
+		addMemberPane.setSize(366, 375);
+		addMemberPane.setLocation(10, 105);
+		addMemberPane.setBorder(BorderFactory.createLineBorder(Color.black));
+		
+		addMemberPane.setLayout(null);
+		
+		contentPane.add(addMemberPane, JLayeredPane.PALETTE_LAYER);
+		
+		JLabel lbl_4 = new JLabel("Choose person you want to add", SwingConstants.CENTER);
+		lbl_4.setBounds(80, 30, 200, 15);
+		addMemberPane.add(lbl_4);
+
+		//add member table
+		addMemberTable = new JTable();
+		JScrollPane scrollPane_3 = new JScrollPane();
+		scrollPane_3.setBounds(80, 65, 200, 250);
+		scrollPane_3.setViewportView(addMemberTable);
+		String[] columnNames_3 = { "Username" };
+		addMemberTableModel = new DefaultTableModel(columnNames_3, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+               //all cells false
+               return false;
+            }
+        };
+        addMemberTable.setModel(addMemberTableModel);
+        
+        addMemberPane.add(scrollPane_3);
+        
+		JButton btnAddMember = new JButton("Add to group");
+		btnAddMember.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//add to group
+				int row = addMemberTable.getSelectedRow();
+				String user = addMemberTable.getValueAt(row, 0).toString();
+				
+				//refresh table 3
+				data_3.clear();
+				addMemberTableModel.setRowCount(0);
+				try {
+					data_3 = getGroupChatMember(groupid, userName);
+					for (int i = 0; i < data_3.size(); i++) {
+		            	addMemberTableModel.addRow(data_3.get(i));
+		            }
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+		btnAddMember.setBounds(80, 345, 110, 20);
+		addMemberPane.add(btnAddMember);
+		
+		JButton btnCancelAdd = new JButton("Cancel");
+		btnCancelAdd.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//clear table 3
+				data_3.clear();
+				addMemberTableModel.setRowCount(0);
+				//set visible false 
+				addMemberPane.setVisible(false);
+			}
+		});
+		btnCancelAdd.setBounds(200, 345, 80, 20);
+		addMemberPane.add(btnCancelAdd);
+		
+		
+		addMemberPane.setVisible(false);
+		
 		//refresh
 		try {
 			userName = getUserName(userid);
@@ -261,7 +366,7 @@ public class DetailGroupChatScreen extends JFrame {
 			isadmin = isAdmin(groupid, userid);
 			
 			data_1 = getGroupChatAdmin(groupid);
-			data_2 = getGroupChatMember(groupid);
+			data_2 = getGroupChatMember(groupid, userName);
 			for (int i = 0; i < data_1.size(); i++) {
 				adminTableModel.addRow(data_1.get(i));
             }
@@ -273,10 +378,7 @@ public class DetailGroupChatScreen extends JFrame {
 			e2.printStackTrace();
 		}
 	}
-//	data_1.clear();
-//	tableModel_1.setRowCount(0);
-//	data_2.clear();
-//	tableModel_2.setRowCount(0);
+
 	private void addPopup(Component component, final JPopupMenu popup) {
 		component.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
@@ -289,6 +391,8 @@ public class DetailGroupChatScreen extends JFrame {
 				String user = "";
 				if(row != -1) {
 					user = memberTable.getValueAt(row, 0).toString();
+					if(user.indexOf(" (You)") != -1)
+						user = user.substring(0, user.length() - 6);
 				}	
 				if (e.isPopupTrigger() && row != -1 && user.equals("") == false && user.equals(userName) == false) {
 					showMenu(e);
@@ -319,6 +423,28 @@ public class DetailGroupChatScreen extends JFrame {
 
 		ResultSet rs = stmt.executeQuery(sql); rs.next();
 		String data = rs.getString("UserName");
+		try {
+			rs.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			stmt.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return data;
+	}
+	private static String getUserID(String username) throws SQLException{		
+		stmt = conn.createStatement();
+		String sql = "Select * from users "
+				+ "where userName ='" + username + "' ";
+
+		ResultSet rs = stmt.executeQuery(sql); rs.next();
+		String data = rs.getString("UserID");
 		try {
 			rs.close();
 		} catch (SQLException e) {
@@ -405,7 +531,7 @@ public class DetailGroupChatScreen extends JFrame {
 		
 		return data;
 	}
-	private static Vector<Vector<Object>> getGroupChatMember(String groupID) throws SQLException{
+	private static Vector<Vector<Object>> getGroupChatMember(String groupID, String username) throws SQLException{
 		stmt = conn.createStatement();
 		String sql = "select * from users "
 				+ "join inboxparticipants on users.UserID = inboxparticipants.UserID "
@@ -417,8 +543,58 @@ public class DetailGroupChatScreen extends JFrame {
 		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
 		while (rs.next()) { 
 			Vector<Object> row = new Vector<Object>();
+			if(username.equals(rs.getString("UserName")) == true)
+				row.add(rs.getString("UserName") + " (You)");
+			else
+				row.add(rs.getString("UserName"));
+			data.add(row);
+		}
+
+		try {
+			rs.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			stmt.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return data;
+	}
+	private static void addMemberGroupChat(String groupID, String user) throws SQLException{
+		stmt = conn.createStatement();
+		String sql = MessageFormat.format("insert into inboxparticipants values "
+				+ "(\"{0}\", \"{1}\")", 
+				groupID, getUserID(user));
+
+		stmt.executeUpdate(sql);
+
+		try {
+			stmt.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	private static Vector<Vector<Object>> getAddList(String groupID) throws SQLException{
+		stmt = conn.createStatement();
+		String sql = "select * from users "
+				+ "except "
+				+ "select * from users "
+				+ "join inboxparticipants on users.UserID = inboxparticipants.UserID "
+				+ "join inbox on inboxparticipants.InboxID = inbox.InboxID "
+				+ "and inbox.TypeInbox = 'group' "
+				+ "and inbox.InboxID ='" + groupID + "' ";
+		
+		ResultSet rs = stmt.executeQuery(sql);
+		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
+		while (rs.next()) { 
+			Vector<Object> row = new Vector<Object>();
 			row.add(rs.getString("UserName"));
-			
 			data.add(row);
 		}
 

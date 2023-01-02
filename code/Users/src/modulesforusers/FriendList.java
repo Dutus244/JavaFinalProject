@@ -4,6 +4,8 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import javax.swing.JTextField;
@@ -12,6 +14,7 @@ import java.awt.GridLayout;
 import java.awt.Image;
 
 import javax.swing.JButton;
+import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import java.awt.Color;
@@ -46,7 +49,7 @@ public class FriendList extends JFrame implements ActionListener {
 	JPanel panelView;
 	List<String> usernameList = new ArrayList<>();
 	public FriendList(String Username, Socket s) {
-//		System.out.println("F List");
+		System.out.println("F List");
 		this.username = Username;
 		this.client = s;
 		
@@ -98,7 +101,7 @@ public class FriendList extends JFrame implements ActionListener {
 					while(rs.next()) {
 						usernameList.add(rs.getString("UserName"));
 					}
-//					System.out.println("list" +usernameList.size());
+					System.out.println("list" +usernameList.size());
 					
 					panelView = new JPanel();
 			        panelView.setLayout(null);
@@ -126,14 +129,15 @@ public class FriendList extends JFrame implements ActionListener {
 			        panelViewAdvance.add(lbFriendNumber);
 			        
 			        JPanel panelListUser = new JPanel();
-			        panelListUser.setLayout(null);
-			        panelListUser.setBounds(0, 134, 582, 429);
-			        panelView.add(panelListUser);
+			        panelListUser.setLayout(new BoxLayout(panelListUser, BoxLayout.Y_AXIS));
+			        panelListUser.setBounds(0, 140, 576, usernameList.size()*100);
+//			        panelView.add(panelListUser);
 					
 			        for(int i =0; i<usernameList.size();i++ ) {
 			        	
 			        	JPanel panelFriendInfo = new JPanel();
 			            panelFriendInfo.setLayout(null);
+			            panelFriendInfo.setPreferredSize(new Dimension(576,100));
 			            panelFriendInfo.setBorder(new LineBorder(new Color(0, 0, 0)));
 			            panelFriendInfo.setBounds(10, 11+ i*105, 576, 94);
 			            panelListUser.add(panelFriendInfo);
@@ -154,6 +158,22 @@ public class FriendList extends JFrame implements ActionListener {
 			            btnChat.setBounds(430, 51, 136, 32);
 			            panelFriendInfo.add(btnChat);
 			            btnChat.addActionListener(event -> ChatOpen(event,lbFriendUsername.getText()));
+			        }
+			        
+			        if(usernameList.size()<=4 ) {
+			        	////System.out.println("1");
+			        	panelView.add(panelListUser);
+			        }
+			        else {
+			        	//System.out.println("2");
+			        	JScrollPane ScrollPane = new JScrollPane();
+			        	ScrollPane.setPreferredSize(new Dimension(580,580));
+			        	ScrollPane.setViewportView(panelListUser);
+			        	ScrollPane.setBounds(0, 140, 580,430);
+			        	JScrollBar vertical = ScrollPane.getVerticalScrollBar(); 
+				    	vertical.setValue(vertical.getMaximum());
+				    	
+			        	panelView.add(ScrollPane);
 			        }
 			        
 			        getContentPane().add(panelView, BorderLayout.EAST);
@@ -177,7 +197,7 @@ public class FriendList extends JFrame implements ActionListener {
 		new HomeScreen(username, client, friendUser);
 	}
 	private void UnfriendHandle(ActionEvent e, String unfriendUser) {
-		System.out.println("UnfriendHandle, " + unfriendUser);
+		//System.out.println("UnfriendHandle, " + unfriendUser);
 		
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");

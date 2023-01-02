@@ -4,6 +4,8 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import javax.swing.JTextField;
@@ -12,6 +14,7 @@ import java.awt.GridLayout;
 import java.awt.Image;
 
 import javax.swing.JButton;
+import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import java.awt.Color;
@@ -31,7 +34,6 @@ import javax.swing.border.LineBorder;
 import javax.swing.ImageIcon;
 
 public class FriendRequest extends JFrame implements ActionListener {
-	
 	Container container;
 	JButton buttonChatMenu;
 	JButton buttonFriendMenu;
@@ -40,12 +42,14 @@ public class FriendRequest extends JFrame implements ActionListener {
 	JButton btnFriendRequest;
 	JButton btnFriendList;
 	JButton btnGroup;
+	JButton btnAccept;
+	JButton btnChat;
 	String username;
 	Socket client;
 	JPanel panelView;
-	List<String> usernameRequest = new ArrayList<>();
+	List<String> usernameList = new ArrayList<>();
 	public FriendRequest(String Username, Socket s) {
-		System.out.println("F request");
+		
 		this.username = Username;
 		this.client = s;
 		
@@ -91,12 +95,12 @@ public class FriendRequest extends JFrame implements ActionListener {
 
 				try {
 					remove(panelView);
-					usernameRequest.clear();
-					rs = ((java.sql.Statement)stmt).executeQuery("SELECT UserName FROM users where UserID in (select UserID FROM sendrequestfriendlistfriendlist where AddFriendID =  '"+ username +"')");
+					usernameList.clear();
+					rs = ((java.sql.Statement)stmt).executeQuery("SELECT UserName FROM users where UserID in (select UserID FROM sendrequestfriendlistfriendlist where AddFriendID in (select UserID from users where UserName =  '"+username+"'))");
 					while(rs.next()) {
-						usernameRequest.add(rs.getString("UserName"));
+						usernameList.add(rs.getString("UserName"));
 					}
-					System.out.println("list" +usernameRequest.size());
+					System.out.println("list" +usernameList.size());
 					
 					panelView = new JPanel();
 			        panelView.setLayout(null);
@@ -119,40 +123,58 @@ public class FriendRequest extends JFrame implements ActionListener {
 			        panelView.add(panelViewAdvance);
 			        
 			        
-			        JLabel lbInvitation = new JLabel("Invitation("+usernameRequest.size()+")");
-			        lbInvitation.setFont(new Font("Times New Roman", Font.PLAIN, 18));
-			        panelViewAdvance.add(lbInvitation);
+			        JLabel lbFriendNumber = new JLabel("Invitation ("+usernameList.size()+")");
+			        lbFriendNumber.setFont(new Font("Times New Roman", Font.PLAIN, 18));
+			        panelViewAdvance.add(lbFriendNumber);
 			        
 			        JPanel panelListUser = new JPanel();
-			        panelListUser.setLayout(null);
-			        panelListUser.setBounds(0, 134, 582, 429);
-			        panelView.add(panelListUser);
+			        panelListUser.setLayout(new BoxLayout(panelListUser, BoxLayout.Y_AXIS));
+			        panelListUser.setBounds(0, 140, 576, usernameList.size()*100);
+//			        panelView.add(panelListUser);
 					
-			        for(int i =0; i<usernameRequest.size();i++ ) {
+			        for(int i =0; i<usernameList.size();i++ ) {
 			        	
 			        	JPanel panelFriendInfo = new JPanel();
 			            panelFriendInfo.setLayout(null);
+			            panelFriendInfo.setPreferredSize(new Dimension(576,100));
 			            panelFriendInfo.setBorder(new LineBorder(new Color(0, 0, 0)));
 			            panelFriendInfo.setBounds(10, 11+ i*105, 576, 94);
 			            panelListUser.add(panelFriendInfo);
 			            
-			            JLabel lbFriendUsername = new JLabel(usernameRequest.get(i));
+			            JLabel lbFriendUsername = new JLabel(usernameList.get(i));
 			            lbFriendUsername.setFont(new Font("Times New Roman", Font.PLAIN, 20));
 			            lbFriendUsername.setBounds(10, 21, 177, 49);
 			            panelFriendInfo.add(lbFriendUsername);
 			            
-			            JButton btnAccept = new JButton("ACCEPT");
+			            btnAccept = new JButton("ACCEPT");
 			            btnAccept.setFont(new Font("Tahoma", Font.BOLD, 16));
 			            btnAccept.setBounds(430, 11, 136, 32);
 			            panelFriendInfo.add(btnAccept);
 			            
 			            btnAccept.addActionListener(event -> AcceptHandle(event,lbFriendUsername.getText()));
-			            JButton btnChat = new JButton("CHAT");
+			            btnChat = new JButton("CHAT");
 			            btnChat.setFont(new Font("Tahoma", Font.BOLD, 16));
 			            btnChat.setBounds(430, 51, 136, 32);
 			            panelFriendInfo.add(btnChat);
-		
+			            btnChat.addActionListener(event -> ChatOpen(event,lbFriendUsername.getText()));
 			        }
+			        
+			        if(usernameList.size()<=4 ) {
+//			        	System.out.println("1");
+			        	panelView.add(panelListUser);
+			        }
+			        else {
+//			        	System.out.println("2");
+			        	JScrollPane ScrollPane = new JScrollPane();
+			        	ScrollPane.setPreferredSize(new Dimension(580,580));
+			        	ScrollPane.setViewportView(panelListUser);
+			        	ScrollPane.setBounds(0, 140, 580,430);
+			        	JScrollBar vertical = ScrollPane.getVerticalScrollBar(); 
+				    	vertical.setValue(vertical.getMaximum());
+				    	
+			        	panelView.add(ScrollPane);
+			        }
+			        
 			        getContentPane().add(panelView, BorderLayout.EAST);
 					validate();
 				} catch (SQLException e) {
@@ -169,8 +191,12 @@ public class FriendRequest extends JFrame implements ActionListener {
 			}
 		}
 	}
-	private void AcceptHandle(ActionEvent e, String acceptUser) {
-		System.out.println("acceptHandle, " + acceptUser);
+	private void ChatOpen(ActionEvent e, String friendUser) {
+		this.dispose();
+		new HomeScreen(username, client, friendUser);
+	}
+	private void AcceptHandle(ActionEvent e, String AcceptUser) {
+		System.out.println("AcceptHandle, " + AcceptUser);
 		
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
@@ -190,18 +216,24 @@ public class FriendRequest extends JFrame implements ActionListener {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
-//		try {
-////			((java.sql.Statement)stmt).executeUpdate("delete from friendlist where UserID in (select UserID from Users where Username ='"+username+"') and FriendID in (select UserID from Users where Username ='"+acceptUser+"')");
-//		} catch (SQLException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
-//		try {
-////			((java.sql.Statement)stmt).executeUpdate("delete from friendlist where UserID in (select UserID from Users where Username ='"+acceptUser+"') and FriendID in (select UserID from Users where Username ='"+username+"')");
-//		} catch (SQLException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
+		try {
+			((java.sql.Statement)stmt).executeUpdate("insert into friendlist (UserID,FriendID) values( (select UserID from users where UserName ='"+username+"'), (select UserID from users where UserName ='"+AcceptUser+"'))");
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			((java.sql.Statement)stmt).executeUpdate("insert into friendlist (UserID,FriendID) values( (select UserID from users where UserName ='"+AcceptUser+"'), (select UserID from users where UserName ='"+username+"'))");
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			((java.sql.Statement)stmt).executeUpdate("delete from sendrequestfriendlistfriendlist  where AddFriendID in (select UserID from users where UserName =  '"+ username +"') and UserID in  (select UserID from users where UserName =  '"+AcceptUser+"')");
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 	}
 	public void initialize(String Username) {
@@ -297,24 +329,23 @@ public class FriendRequest extends JFrame implements ActionListener {
 		btnFriendRequest = new JButton("Friend Request");
 		btnFriendRequest.setFont(new Font("Times New Roman", Font.PLAIN, 24));
 		btnFriendRequest.setIcon(new ImageIcon("source/image/add-user.png"));
-		
+		btnFriendRequest.addActionListener(this);
 		btnFriendRequest.setBounds(0, 153, 327, 75);
 		panelOption.add(btnFriendRequest);
 		
 		btnFriendList = new JButton("Friend List");
 		btnFriendList.setIcon(new ImageIcon("source/image/friends.png"));
 		btnFriendList.setFont(new Font("Times New Roman", Font.PLAIN, 24));
+		btnFriendList.addActionListener(this);
 		btnFriendList.setBounds(0, 257, 327, 75);
 		panelOption.add(btnFriendList);
-		btnFriendList.addActionListener(this);
+		
 		btnGroup = new JButton("Group");
 		btnGroup.setIcon(new ImageIcon("source/image/group.png"));
 		btnGroup.setFont(new Font("Times New Roman", Font.PLAIN, 24));
 		btnGroup.setBounds(0, 362, 327, 75);
-		
-		btnGroup.addActionListener(this);
 		panelOption.add(btnGroup);
-		
+		btnGroup.addActionListener(this);
 		panelView = new JPanel();
         panelView.setLayout(null);
       
@@ -337,7 +368,7 @@ public class FriendRequest extends JFrame implements ActionListener {
         getContentPane().add(panelOption, BorderLayout.CENTER);
         getContentPane().add(panelView, BorderLayout.EAST);
 	}
-
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		isOpen=false;
 		// TODO Auto-generated method stub
@@ -368,7 +399,6 @@ public class FriendRequest extends JFrame implements ActionListener {
 		}
 		else if (e.getSource() == btnFriendList) {
             try{
-            	isOpen = false;
                 new FriendList(username, client);
                 this.dispose();
             } catch (Exception ex) {
@@ -377,7 +407,7 @@ public class FriendRequest extends JFrame implements ActionListener {
 		}
 		
 		else if (e.getSource() == btnGroup) {
-			isOpen = false;
+            
 		}
 	}
 }
