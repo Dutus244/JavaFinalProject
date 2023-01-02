@@ -438,28 +438,6 @@ public class DetailGroupChatScreen extends JFrame {
 		
 		return data;
 	}
-	private static String getUserID(String username) throws SQLException{		
-		stmt = conn.createStatement();
-		String sql = "Select * from users "
-				+ "where userName ='" + username + "' ";
-
-		ResultSet rs = stmt.executeQuery(sql); rs.next();
-		String data = rs.getString("UserID");
-		try {
-			rs.close();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		try {
-			stmt.close();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return data;
-	}
 	private static String getGroupName(String groupID) throws SQLException{		
 		stmt = conn.createStatement();
 		String sql = "Select * from inbox "
@@ -547,54 +525,6 @@ public class DetailGroupChatScreen extends JFrame {
 				row.add(rs.getString("UserName") + " (You)");
 			else
 				row.add(rs.getString("UserName"));
-			data.add(row);
-		}
-
-		try {
-			rs.close();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		try {
-			stmt.close();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return data;
-	}
-	private static void addMemberGroupChat(String groupID, String user) throws SQLException{
-		stmt = conn.createStatement();
-		String sql = MessageFormat.format("insert into inboxparticipants values "
-				+ "(\"{0}\", \"{1}\")", 
-				groupID, getUserID(user));
-
-		stmt.executeUpdate(sql);
-
-		try {
-			stmt.close();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	private static Vector<Vector<Object>> getAddList(String groupID) throws SQLException{
-		stmt = conn.createStatement();
-		String sql = "select * from users "
-				+ "except "
-				+ "select * from users "
-				+ "join inboxparticipants on users.UserID = inboxparticipants.UserID "
-				+ "join inbox on inboxparticipants.InboxID = inbox.InboxID "
-				+ "and inbox.TypeInbox = 'group' "
-				+ "and inbox.InboxID ='" + groupID + "' ";
-		
-		ResultSet rs = stmt.executeQuery(sql);
-		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
-		while (rs.next()) { 
-			Vector<Object> row = new Vector<Object>();
-			row.add(rs.getString("UserName"));
 			data.add(row);
 		}
 
