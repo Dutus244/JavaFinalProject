@@ -1,17 +1,15 @@
 package modulesforusers;
 
-import java.awt.EventQueue;
+
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
-import javax.swing.border.EmptyBorder;
+
 import java.awt.BorderLayout;
 import javax.swing.JTextField;
 import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.Image;
 
 import javax.swing.JButton;
 import javax.swing.BoxLayout;
@@ -33,7 +31,7 @@ import java.util.List;
 import javax.swing.border.LineBorder;
 import javax.swing.ImageIcon;
 
-public class FriendRequest extends JFrame implements ActionListener {
+public class SearchFriendScreen extends JFrame implements ActionListener {
 	Container container;
 	JButton buttonChatMenu;
 	JButton buttonFriendMenu;
@@ -42,28 +40,21 @@ public class FriendRequest extends JFrame implements ActionListener {
 	JButton btnFriendRequest;
 	JButton btnFriendList;
 	JButton btnGroup;
-	JButton btnAccept;
+	JButton btnSendRequest;
 	JButton btnChat;
 	String username;
 	Socket client;
 	JPanel panelView;
-	JButton btnSearch;
-	JTextField txtSearch;
 	List<String> usernameList = new ArrayList<>();
-	public FriendRequest(String Username, Socket s) {
-		
+	String searchFriend;
+	JTextField txtSearch;
+	public SearchFriendScreen(String Username, Socket s,String searchfriendusername) {
 		this.username = Username;
 		this.client = s;
+		this.searchFriend = searchfriendusername;
 		initialize(Username);
-		new ReadFriendRequest().start();
+		new ReadSearchFriendScreen().start();
 	}
-//	class ReadDatabase extends Thread{
-//		public void run() {
-//			while(ThreadContinue) {
-//				
-//			}
-//		} 
-//	}
 	Connection conn = null;
 	java.sql.Statement stmt;
 	ResultSet rs;
@@ -71,7 +62,7 @@ public class FriendRequest extends JFrame implements ActionListener {
 	java.sql.Statement stmtd;
 	ResultSet rsd;
 	boolean isOpen = true;
-	class ReadFriendRequest extends Thread{
+	class ReadSearchFriendScreen extends Thread{
 		public void run() {
 			while(isOpen) {
 				try {
@@ -97,11 +88,13 @@ public class FriendRequest extends JFrame implements ActionListener {
 				try {
 					remove(panelView);
 					usernameList.clear();
-					rs = ((java.sql.Statement)stmt).executeQuery("SELECT UserName FROM users where UserID in (select UserID FROM sendrequestfriendlistfriendlist where AddFriendID in (select UserID from users where UserName =  '"+username+"'))");
+					rs = ((java.sql.Statement)stmt).executeQuery("SELECT UserName FROM users where userid in ( select users.UserID from users where userid in (select UserID from users where UserName LIKE  '%"+searchFriend+"%') and UserName !='"+username+"' ) and userid not in (select friendlist.UserID from friendlist  where FriendId in (select UserID from users where Username = '"+username+"'))");
+				
+
 					while(rs.next()) {
 						usernameList.add(rs.getString("UserName"));
 					}
-					//System.out.println("list" +usernameList.size());
+					
 					
 					panelView = new JPanel();
 			        panelView.setLayout(null);
@@ -114,7 +107,7 @@ public class FriendRequest extends JFrame implements ActionListener {
 			        panelOptionTitle.setBounds(0, 0, 596, 80);
 			        panelView.add(panelOptionTitle);
 			        
-			        JLabel lbOptionTitle = new JLabel("Friend's Request");
+			        JLabel lbOptionTitle = new JLabel("Search Friend");
 			        lbOptionTitle.setFont(new Font("Times New Roman", Font.BOLD, 30));
 			        lbOptionTitle.setBounds(10, 11, 351, 60);
 			        panelOptionTitle.add(lbOptionTitle);
@@ -124,7 +117,7 @@ public class FriendRequest extends JFrame implements ActionListener {
 			        panelView.add(panelViewAdvance);
 			        
 			        
-			        JLabel lbFriendNumber = new JLabel("Invitation ("+usernameList.size()+")");
+			        JLabel lbFriendNumber = new JLabel("Fround ("+usernameList.size()+")");
 			        lbFriendNumber.setFont(new Font("Times New Roman", Font.PLAIN, 18));
 			        panelViewAdvance.add(lbFriendNumber);
 			        
@@ -147,17 +140,12 @@ public class FriendRequest extends JFrame implements ActionListener {
 			            lbFriendUsername.setBounds(10, 21, 177, 49);
 			            panelFriendInfo.add(lbFriendUsername);
 			            
-			            btnAccept = new JButton("ACCEPT");
-			            btnAccept.setFont(new Font("Tahoma", Font.BOLD, 16));
-			            btnAccept.setBounds(430, 11, 136, 32);
-			            panelFriendInfo.add(btnAccept);
+			            btnSendRequest = new JButton("SEND REQUEST");
+			            btnSendRequest.setFont(new Font("Tahoma", Font.BOLD, 16));
+			            btnSendRequest.setBounds(350, 20, 200, 60);
+			            panelFriendInfo.add(btnSendRequest);
+			            btnSendRequest.addActionListener(event -> SendRequestHandle(event,lbFriendUsername.getText()));
 			            
-			            btnAccept.addActionListener(event -> AcceptHandle(event,lbFriendUsername.getText()));
-			            btnChat = new JButton("CHAT");
-			            btnChat.setFont(new Font("Tahoma", Font.BOLD, 16));
-			            btnChat.setBounds(430, 51, 136, 32);
-			            panelFriendInfo.add(btnChat);
-			            btnChat.addActionListener(event -> ChatOpen(event,lbFriendUsername.getText()));
 			        }
 			        
 			        if(usernameList.size()<=4 ) {
@@ -183,7 +171,7 @@ public class FriendRequest extends JFrame implements ActionListener {
 					e.printStackTrace();
 				}
 				try {
-					Thread.sleep(5000);
+					Thread.sleep(4000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -192,12 +180,10 @@ public class FriendRequest extends JFrame implements ActionListener {
 			}
 		}
 	}
-	private void ChatOpen(ActionEvent e, String friendUser) {
-		this.dispose();
-		new HomeScreen(username, client, friendUser);
-	}
-	private void AcceptHandle(ActionEvent e, String AcceptUser) {
-		//System.out.println("AcceptHandle, " + AcceptUser);
+	
+	private void SendRequestHandle(ActionEvent e, String SendRequestUser) {
+		//System.out.println("SendRequestHandle, " + SendRequestUser);
+		
 		
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
@@ -218,19 +204,17 @@ public class FriendRequest extends JFrame implements ActionListener {
 			e2.printStackTrace();
 		}
 		try {
-			((java.sql.Statement)stmt).executeUpdate("insert into friendlist (UserID,FriendID) values( (select UserID from users where UserName ='"+username+"'), (select UserID from users where UserName ='"+AcceptUser+"'))");
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		try {
-			((java.sql.Statement)stmt).executeUpdate("insert into friendlist (UserID,FriendID) values( (select UserID from users where UserName ='"+AcceptUser+"'), (select UserID from users where UserName ='"+username+"'))");
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		try {
-			((java.sql.Statement)stmt).executeUpdate("delete from sendrequestfriendlistfriendlist  where AddFriendID in (select UserID from users where UserName =  '"+ username +"') and UserID in  (select UserID from users where UserName =  '"+AcceptUser+"')");
+			rsd = ((java.sql.Statement)stmt).executeQuery("SELECT UserName FROM users where UserID in (select UserID FROM sendrequestfriendlistfriendlist where AddFriendID in (select UserID from users where UserName =  '"+username+"'))  and username = '"+SendRequestUser+"'");
+		
+			if (rsd.isBeforeFirst() ) {    
+				//if this friend request username before, they become friend, delete request from the other
+				((java.sql.Statement)stmt).executeUpdate("delete from sendrequestfriendlistfriendlist  where AddFriendID in (select UserID from users where UserName =  '"+ username +"') and UserID in  (select UserID from users where UserName =  '"+SendRequestUser+"')");
+				((java.sql.Statement)stmt).executeUpdate("insert into friendlist (UserID,FriendID) values( (select UserID from users where UserName ='"+username+"'), (select UserID from users where UserName ='"+SendRequestUser+"'))");
+				((java.sql.Statement)stmt).executeUpdate("insert into friendlist (UserID,FriendID) values( (select UserID from users where UserName ='"+SendRequestUser+"'), (select UserID from users where UserName ='"+username+"'))");
+			}
+			else {
+				((java.sql.Statement)stmt).executeUpdate("insert into sendrequestfriendlistfriendlist values ((select UserID from users where UserName =  '"+username+"'),( select UserID from users where UserName = '"+SendRequestUser+"'))");
+			}
 		} catch (SQLException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -238,7 +222,7 @@ public class FriendRequest extends JFrame implements ActionListener {
 		
 	}
 	public void initialize(String Username) {
-		this.setTitle("Friend Request");
+		this.setTitle("Friend search");
         this.setSize(1000,600);
         getContentPane().setLayout(new BorderLayout());
         this.setLocationRelativeTo(null);
@@ -317,17 +301,19 @@ public class FriendRequest extends JFrame implements ActionListener {
 		panelOption.add(panelSearch);
 		panelSearch.setLayout(null);
 		
-		txtSearch = new JTextField();
+		txtSearch = new JTextField(this.searchFriend);
 		txtSearch.setBounds(10, 11, 202, 34);
 		panelSearch.add(txtSearch);
 		txtSearch.setColumns(10);
 		
-		btnSearch = new JButton("SEARCH");
+		JButton btnSearch = new JButton("SEARCH");
 		btnSearch.setBounds(222, 11, 108, 39);
 		panelSearch.add(btnSearch);
 		btnSearch.setFont(new Font("Times New Roman", Font.BOLD, 14));
-		btnSearch.addActionListener(this);
-		
+		btnSearch.addActionListener(event->{
+			this.searchFriend = txtSearch.getText();
+			
+		});
 		btnFriendRequest = new JButton("Friend Request");
 		btnFriendRequest.setFont(new Font("Times New Roman", Font.PLAIN, 24));
 		btnFriendRequest.setIcon(new ImageIcon("source/image/add-user.png"));
@@ -399,18 +385,17 @@ public class FriendRequest extends JFrame implements ActionListener {
                 ex.printStackTrace();
             }
 		}
-		else if (e.getSource() == btnSearch) {
+		else if (e.getSource() == btnFriendList) {
             try{
-                new SearchFriendScreen(username, client,txtSearch.getText());
+                new FriendList(username, client);
                 this.dispose();
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
 		}
-		
-		else if (e.getSource() == btnFriendList) {
+		else if (e.getSource() == btnFriendRequest) {
             try{
-                new FriendList(username, client);
+                new FriendRequest(username, client);
                 this.dispose();
             } catch (Exception ex) {
                 ex.printStackTrace();

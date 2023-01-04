@@ -1,17 +1,14 @@
 package modulesforusers;
 
-import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
-import javax.swing.border.EmptyBorder;
+
 import java.awt.BorderLayout;
 import javax.swing.JTextField;
 import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.Image;
+
 
 import javax.swing.JButton;
 import javax.swing.BoxLayout;
@@ -47,22 +44,17 @@ public class FriendList extends JFrame implements ActionListener {
 	String username;
 	Socket client;
 	JPanel panelView;
+	JButton btnSearch;
+	JTextField txtSearch;
 	List<String> usernameList = new ArrayList<>();
 	public FriendList(String Username, Socket s) {
-		System.out.println("F List");
+		//System.out.println("F List");
 		this.username = Username;
 		this.client = s;
 		
 		initialize(Username);
 		new ReadFriendList().start();
 	}
-//	class ReadDatabase extends Thread{
-//		public void run() {
-//			while(ThreadContinue) {
-//				
-//			}
-//		} 
-//	}
 	Connection conn = null;
 	java.sql.Statement stmt;
 	ResultSet rs;
@@ -101,7 +93,7 @@ public class FriendList extends JFrame implements ActionListener {
 					while(rs.next()) {
 						usernameList.add(rs.getString("UserName"));
 					}
-					System.out.println("list" +usernameList.size());
+					//System.out.println("list" +usernameList.size());
 					
 					panelView = new JPanel();
 			        panelView.setLayout(null);
@@ -232,7 +224,7 @@ public class FriendList extends JFrame implements ActionListener {
 		
 	}
 	public void initialize(String Username) {
-		this.setTitle("CHAT APPLICATION");
+		this.setTitle("Friend List");
         this.setSize(1000,600);
         getContentPane().setLayout(new BorderLayout());
         this.setLocationRelativeTo(null);
@@ -316,10 +308,11 @@ public class FriendList extends JFrame implements ActionListener {
 		panelSearch.add(txtSearch);
 		txtSearch.setColumns(10);
 		
-		JButton btnSearch = new JButton("SEARCH");
+		btnSearch = new JButton("SEARCH");
 		btnSearch.setBounds(222, 11, 108, 39);
 		panelSearch.add(btnSearch);
-		btnSearch.setFont(new Font("Times New Roman", Font.BOLD, 18));
+		btnSearch.setFont(new Font("Times New Roman", Font.BOLD, 14));
+		btnSearch.addActionListener(this);
 		
 		btnFriendRequest = new JButton("Friend Request");
 		btnFriendRequest.setFont(new Font("Times New Roman", Font.PLAIN, 24));
@@ -401,8 +394,17 @@ public class FriendList extends JFrame implements ActionListener {
             }
 		}
 		
+		
 		else if (e.getSource() == btnGroup) {
             
+		}
+		else if (e.getSource() == btnSearch) {
+            try{
+                new SearchFriendScreen(username, client,txtSearch.getText());
+                this.dispose();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
 		}
 	}
 }
