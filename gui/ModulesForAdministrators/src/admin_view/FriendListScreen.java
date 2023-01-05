@@ -105,6 +105,7 @@ public class FriendListScreen extends JFrame {
         }
         table.setModel(tableModel);
         
+        table.getColumnModel().getColumn(0).setPreferredWidth(20);
 		table.getColumnModel().getColumn(3).setPreferredWidth(40);
 		table.getColumnModel().getColumn(4).setPreferredWidth(20);
 		table.setFont(new Font("Tahoma", Font.PLAIN, 14));

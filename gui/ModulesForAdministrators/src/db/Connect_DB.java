@@ -206,7 +206,7 @@ public class Connect_DB {
 				
 		String sql = "select * from users "
 				+ "join friendlist on users.UserID = friendlist.FriendID "
-				+ "where users.UserID = '" + id + "' "
+				+ "where friendlist.UserID = '" + id + "' "
 				+ "order by " + filter + " " + order;
 		
 		ResultSet rs = stmt.executeQuery(sql);
@@ -242,7 +242,7 @@ public class Connect_DB {
 		
 		String sql = "select * from users "
 				+ "join friendlist on users.UserID = friendlist.FriendID "
-				+ "where users.UserID = '" + id + "' "
+				+ "where friendlist.UserID = '" + id + "' "
 				+ "and " + criteria + " like '%" + keyword + "%' "
 				+ "order by " + filter + " " + order;
 		
