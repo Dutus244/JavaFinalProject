@@ -179,7 +179,8 @@ public class HomeScreen  extends JFrame implements ActionListener {
 						int messagecount = 100;
 				        int count = 0;
 				        try {
-				        	rsThread2 = ((java.sql.Statement)stmtThread2).executeQuery("select MessID,UserName,Message,messages.CreateTime from messages left join users on messages.UserID = users.UserID where messages.InboxID = '"+inboxID+"' ORDER BY messages.CreateTime ASC");
+				        	rsThread2 = ((java.sql.Statement)stmt).executeQuery("select messages.MessID, users.UserName, messages.Message,messages.CreateTime from messages join messageaccess on messageaccess.messid = messages.MessID and messageaccess.UserID = (select userid from users where username='"+username+"') left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' ORDER BY messages.CreateTime ASC");
+
 							while (rsThread2.next()) {
 								messageListRead.add(new Message(rsThread2.getString("MessID"),rsThread2.getString("UserName"),rsThread2.getString("Message"),rsThread2.getString("CreateTime")));
 								count++;
@@ -753,7 +754,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 				int messagecount = 100;
 		        int count = 0;
 		        try {
-					rs = ((java.sql.Statement)stmt).executeQuery("select MessID,UserName,Message,messages.CreateTime from messages left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' ORDER BY messages.CreateTime ASC");
+		        	rs = ((java.sql.Statement)stmt).executeQuery("select messages.MessID, users.UserName, messages.Message,messages.CreateTime from messages join messageaccess on messageaccess.messid = messages.MessID and messageaccess.UserID = (select userid from users where username='"+username+"') left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' ORDER BY messages.CreateTime ASC");
 					while (rs.next()) {
 						messageListOnlineFriend.add(new Message(rs.getString("MessID"),rs.getString("UserName"),rs.getString("Message"),rs.getString("CreateTime")));
 						count++;
@@ -800,7 +801,17 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        	buttonMessage.setOpaque(false);
 		        	buttonMessage.setContentAreaFilled(false);
 		        	buttonMessage.addActionListener(this);
-		        	
+		        	JLabel messageId = new JLabel(messageListOnlineFriend.get(i).getMessageID());
+		        	JPopupMenu menu = new JPopupMenu("Menu");
+		        			        	JMenuItem jmi = new JMenuItem("Delete Message");
+		        		                menu.add(jmi);//123
+		        		                buttonMessage.addActionListener( new ActionListener() {
+		        		                    public void actionPerformed(ActionEvent ae) {
+		        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
+		        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),buttonMessage));
+		        		                    }
+		        		                } );
+
 		        	panelGroupChat.add(buttonMessage);
 		        }
 		        if (messageListOnlineFriend.size() <= 7) {
@@ -957,7 +968,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 				int messagecount = 100;
 		        int count = 0;
 		        try {
-					rs = ((java.sql.Statement)stmt).executeQuery("select MessID,UserName,Message,messages.CreateTime from messages left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' ORDER BY messages.CreateTime ASC");
+		        	rs = ((java.sql.Statement)stmt).executeQuery("select messages.MessID, users.UserName, messages.Message,messages.CreateTime from messages join messageaccess on messageaccess.messid = messages.MessID and messageaccess.UserID = (select userid from users where username='"+username+"') left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' ORDER BY messages.CreateTime ASC");
 					while (rs.next()) {
 						messageListOpenInbox.add(new Message(rs.getString("MessID"),rs.getString("UserName"),rs.getString("Message"),rs.getString("CreateTime")));
 						count++;
@@ -1004,7 +1015,17 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        	buttonMessage.setOpaque(false);
 		        	buttonMessage.setContentAreaFilled(false);
 		        	buttonMessage.addActionListener(this);
-		        	
+		        	JLabel messageId = new JLabel(messageListOpenInbox.get(i).getMessageID());
+		        	JPopupMenu menu = new JPopupMenu("Menu");
+		        			        	JMenuItem jmi = new JMenuItem("Delete Message");
+		        		                menu.add(jmi);//123
+		        		                buttonMessage.addActionListener( new ActionListener() {
+		        		                    public void actionPerformed(ActionEvent ae) {
+		        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
+		        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),buttonMessage));
+		        		                    }
+		        		                } );
+
 		        	panelGroupChat.add(buttonMessage);
 		        }
 		        if (messageListOpenInbox.size() <= 7) {
@@ -1031,7 +1052,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 			int messagecount = 100;
 	        int count = 0;
 	        try {
-				rs = ((java.sql.Statement)stmt).executeQuery("select MessID,UserName,Message,messages.CreateTime from messages left join users on messages.UserID = users.UserID where messages.InboxID = (select InboxID from inbox where InboxName='"+inboxName+"') ORDER BY messages.CreateTime ASC");
+	         	rs = ((java.sql.Statement)stmt).executeQuery("select messages.MessID, users.UserName, messages.Message,messages.CreateTime from messages join messageaccess on messageaccess.messid = messages.MessID and messageaccess.UserID = (select userid from users where username='"+username+"') left join users on messages.UserID = users.UserID where messages.InboxID =(select InboxID from inbox where InboxName='"+inboxName+"') ORDER BY messages.CreateTime ASC");
 				while (rs.next()) {
 					messageListOpenInbox.add(new Message(rs.getString("MessID"),rs.getString("UserName"),rs.getString("Message"),rs.getString("CreateTime")));
 					count++;
@@ -1120,7 +1141,34 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		add(panelChat, BorderLayout.EAST);
 		validate();
     }
-    
+    private void DeleteMessage(ActionEvent ae, String msgid, JButton buttonMessage ) {
+    	panelGroupChat.remove(buttonMessage);
+    	try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			conn = DriverManager.getConnection(Main.DB_URL, Main.USER, Main.PASS);
+		} catch (SQLException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		try {
+			stmt = conn.createStatement();
+		} catch (SQLException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		try {
+			((java.sql.Statement)stmt).executeUpdate("delete FROM messageaccess where messId = '"+msgid+"' and userId in (select userid from users where username ='"+username+"')");
+			
+		} catch (SQLException e1) {
+						e1.printStackTrace();
+		}
+		
+    }
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
@@ -1275,7 +1323,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 					rs.next();
 					inboxID = rs.getString("InboxID");
 			        try {
-						rs = ((java.sql.Statement)stmt).executeQuery("select MessID,UserName,Message,messages.CreateTime from messages left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' ORDER BY messages.CreateTime ASC");
+			        	rs = ((java.sql.Statement)stmt).executeQuery("select messages.MessID, users.UserName, messages.Message,messages.CreateTime from messages join messageaccess on messageaccess.messid = messages.MessID and messageaccess.UserID = (select userid from users where username='"+username+"') left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' ORDER BY messages.CreateTime ASC");
 						while (rs.next()) {
 							messageNewChat.add(new Message(rs.getString("MessID"),rs.getString("UserName"),rs.getString("Message"),rs.getString("CreateTime")));
 							messagecount++;
@@ -1533,7 +1581,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 				int messagecount = 100;
 		        int count = 0;
 		        try {
-					rs = ((java.sql.Statement)stmt).executeQuery("select MessID,UserName,Message,messages.CreateTime from messages left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' ORDER BY messages.CreateTime ASC");
+		        	rs = ((java.sql.Statement)stmt).executeQuery("select messages.MessID, users.UserName, messages.Message,messages.CreateTime from messages join messageaccess on messageaccess.messid = messages.MessID and messageaccess.UserID = (select userid from users where username='"+username+"') left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' ORDER BY messages.CreateTime ASC");
 					while (rs.next()) {
 						messageButtonSend.add(new Message(rs.getString("MessID"),rs.getString("UserName"),rs.getString("Message"),rs.getString("CreateTime")));
 						count++;
@@ -1670,7 +1718,16 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        	buttonMessage.setOpaque(false);
 		        	buttonMessage.setContentAreaFilled(false);
 		        	buttonMessage.addActionListener(HomeScreen.this);
-		        	
+		        	JLabel messageId = new JLabel(messageButtonSend.get(i).getMessageID());
+		        	JPopupMenu menu = new JPopupMenu("Menu");
+		        			        	JMenuItem jmi = new JMenuItem("Delete Message");
+		        		                menu.add(jmi);//123
+		        		                buttonMessage.addActionListener( new ActionListener() {
+		        		                    public void actionPerformed(ActionEvent ae) {
+		        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
+		        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),buttonMessage));
+		        		                    }
+		        		                } );
 		        	panelGroupChat.add(buttonMessage);
 		        }
 		        if (messageButtonSend.size() <= 7) {
@@ -1717,7 +1774,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 					int messagecount = 100;
 			        int count = 0;
 			        try {
-						rs = ((java.sql.Statement)stmt).executeQuery("select MessID,UserName,Message,messages.CreateTime from messages left join users on messages.UserID = users.UserID where messages.InboxID = (select InboxID from inbox where InboxName='"+inboxName+"') ORDER BY messages.CreateTime ASC");
+			         	rs = ((java.sql.Statement)stmt).executeQuery("select messages.MessID, users.UserName, messages.Message,messages.CreateTime from messages join messageaccess on messageaccess.messid = messages.MessID and messageaccess.UserID = (select userid from users where username='"+username+"') left join users on messages.UserID = users.UserID where messages.InboxID =(select InboxID from inbox where InboxName='"+inboxName+"') ORDER BY messages.CreateTime ASC");
 						while (rs.next()) {
 							messageButtonSend.add(new Message(rs.getString("MessID"),rs.getString("UserName"),rs.getString("Message"),rs.getString("CreateTime")));
 							count++;
@@ -1844,7 +1901,16 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        	buttonMessage.setOpaque(false);
 		        	buttonMessage.setContentAreaFilled(false);
 		        	buttonMessage.addActionListener(HomeScreen.this);
-		        	
+		        	JLabel messageId = new JLabel(messageButtonSend.get(i).getMessageID());
+		        	JPopupMenu menu = new JPopupMenu("Menu");
+		        			        	JMenuItem jmi = new JMenuItem("Delete Message");
+		        		                menu.add(jmi);//123
+		        		                buttonMessage.addActionListener( new ActionListener() {
+		        		                    public void actionPerformed(ActionEvent ae) {
+		        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
+		        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),buttonMessage));
+		        		                    }
+		        		                } );
 		        	panelGroupChat.add(buttonMessage);
 		        }
 		        if (messageButtonSend.size() <= 7) {
@@ -1940,7 +2006,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 					rs.next();
 					inboxID = rs.getString("InboxID");
 			        try {
-						rs = ((java.sql.Statement)stmt).executeQuery("select MessID,UserName,Message,messages.CreateTime from messages left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' ORDER BY messages.CreateTime ASC");
+			        	rs = ((java.sql.Statement)stmt).executeQuery("select messages.MessID, users.UserName, messages.Message,messages.CreateTime from messages join messageaccess on messageaccess.messid = messages.MessID and messageaccess.UserID = (select userid from users where username='"+username+"') left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' ORDER BY messages.CreateTime ASC");
 						while (rs.next()) {
 							messageNewChatOnline.add(new Message(rs.getString("MessID"),rs.getString("UserName"),rs.getString("Message"),rs.getString("CreateTime")));
 							messagecount++;
@@ -2100,7 +2166,16 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        	buttonMessage.setOpaque(false);
 		        	buttonMessage.setContentAreaFilled(false);
 		        	buttonMessage.addActionListener(this);
-		        	
+		        	JLabel messageId = new JLabel(messageNewChatOnline.get(i).getMessageID());
+		        	JPopupMenu menu = new JPopupMenu("Menu");
+		        			        	JMenuItem jmi = new JMenuItem("Delete Message");
+		        		                menu.add(jmi);//123
+		        		                buttonMessage.addActionListener( new ActionListener() {
+		        		                    public void actionPerformed(ActionEvent ae) {
+		        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
+		        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),buttonMessage));
+		        		                    }
+		        		                } );
 		        	panelGroupChat.add(buttonMessage);
 		        }
 		        if (messageNewChatOnline.size() <= 7) {

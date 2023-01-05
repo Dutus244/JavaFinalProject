@@ -142,7 +142,7 @@ public class SearchFriendScreen extends JFrame implements ActionListener {
 			            
 			            btnSendRequest = new JButton("SEND REQUEST");
 			            btnSendRequest.setFont(new Font("Tahoma", Font.BOLD, 16));
-			            btnSendRequest.setBounds(350, 20, 200, 60);
+			            btnSendRequest.setBounds(370, 30, 200, 32);
 			            panelFriendInfo.add(btnSendRequest);
 			            btnSendRequest.addActionListener(event -> SendRequestHandle(event,lbFriendUsername.getText()));
 			            

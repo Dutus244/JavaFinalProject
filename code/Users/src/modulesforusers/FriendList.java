@@ -303,7 +303,7 @@ public class FriendList extends JFrame implements ActionListener {
 		panelOption.add(panelSearch);
 		panelSearch.setLayout(null);
 		
-		JTextField txtSearch = new JTextField();
+		txtSearch = new JTextField();
 		txtSearch.setBounds(10, 11, 202, 34);
 		panelSearch.add(txtSearch);
 		txtSearch.setColumns(10);
@@ -400,6 +400,7 @@ public class FriendList extends JFrame implements ActionListener {
 		}
 		else if (e.getSource() == btnSearch) {
             try{
+            	System.out.println(1);
                 new SearchFriendScreen(username, client,txtSearch.getText());
                 this.dispose();
             } catch (Exception ex) {
