@@ -256,7 +256,8 @@ public class HomeScreen  extends JFrame implements ActionListener {
 				        
 				        buttonSearchW.setBounds(500,10,40,40);
 				        buttonSearchW.setFocusable(false);
-				        buttonSearchW.addActionListener(HomeScreen.this);
+				        buttonSearchW.addActionListener(event->searchMessage(event,txtSearchW.getText(),comboBoxSearchBy.getSelectedItem().toString()));
+
 				        
 				    	Icon iconMore = new ImageIcon("source/image/iconMore.png");
 				    	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
@@ -266,6 +267,9 @@ public class HomeScreen  extends JFrame implements ActionListener {
 				        panelGroupName.add(labelGroupAvatar);
 				    	panelGroupName.add(labelGroupName);
 				    	panelGroupName.add(labelGroupStatus);
+				    	panelGroupName.add(txtSearchW);
+				    	panelGroupName.add(comboBoxSearchBy);
+				    	panelGroupName.add(buttonSearchW);
 				    	panelGroupName.setBounds(0,0,596,60);
 				    	
 
@@ -310,7 +314,18 @@ public class HomeScreen  extends JFrame implements ActionListener {
 				        	buttonMessage.setOpaque(false);
 				        	buttonMessage.setContentAreaFilled(false);
 				        	buttonMessage.addActionListener(HomeScreen.this);
-				        	
+				        	JLabel messageId = new JLabel(messageListRead.get(i).getMessageID());
+				        	JPopupMenu menu = new JPopupMenu("Menu");
+				        			        	JMenuItem jmi = new JMenuItem("Delete Message");
+				        		                menu.add(jmi);
+				        		                buttonMessage.addActionListener( new ActionListener() {
+				        		                    public void actionPerformed(ActionEvent ae) {
+				        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
+				        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),inboxCurrentlyOpen));
+				        		                    }
+				        		                } );
+
+				        	panelGroupChat.add(buttonMessage);
 				        	panelGroupChat.add(buttonMessage);
 				        }
 				        if (messageListRead.size() <= 7) {
@@ -748,10 +763,11 @@ public class HomeScreen  extends JFrame implements ActionListener {
         buttonSearchW = new JButton(iconSearch);
         buttonSearchW.setBounds(500,10,40,40);
         buttonSearchW.setFocusable(false);
-        buttonSearchW.addActionListener(this);
+        buttonSearchW.addActionListener(event->searchMessage(event,txtSearchW.getText(),comboBoxSearchBy.getSelectedItem().toString()));
+
         buttonSearchW.setOpaque(false);
         buttonSearchW.setContentAreaFilled(false);
-        buttonSearchW.addActionListener(this);
+   
     	Icon iconMore = new ImageIcon("source/image/iconMore.png");
     	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
     	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
@@ -760,6 +776,9 @@ public class HomeScreen  extends JFrame implements ActionListener {
         panelGroupName.add(labelGroupAvatar);
     	panelGroupName.add(labelGroupName);
     	panelGroupName.add(labelGroupStatus);
+    	panelGroupName.add(txtSearchW);
+    	panelGroupName.add(comboBoxSearchBy);
+    	panelGroupName.add(buttonSearchW);
     	panelGroupName.setBounds(0,0,596,60);
     	
     	panelInputChat = new JPanel();
@@ -839,7 +858,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        	JLabel messageId = new JLabel(messageListOnlineFriend.get(i).getMessageID());
 		        	JPopupMenu menu = new JPopupMenu("Menu");
 		        			        	JMenuItem jmi = new JMenuItem("Delete Message");
-		        		                menu.add(jmi);//123
+		        		                menu.add(jmi);
 		        		                buttonMessage.addActionListener( new ActionListener() {
 		        		                    public void actionPerformed(ActionEvent ae) {
 		        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
@@ -989,10 +1008,11 @@ public class HomeScreen  extends JFrame implements ActionListener {
         buttonSearchW = new JButton(iconSearch);
         buttonSearchW.setBounds(500,10,40,40);
         buttonSearchW.setFocusable(false);
-        buttonSearchW.addActionListener(this);
+        buttonSearchW.addActionListener(event->searchMessage(event,txtSearchW.getText(),comboBoxSearchBy.getSelectedItem().toString()));
+
         buttonSearchW.setOpaque(false);
         buttonSearchW.setContentAreaFilled(false);
-        buttonSearchW.addActionListener(this);
+       
     	Icon iconMore = new ImageIcon("source/image/iconMore.png");
     	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
     	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
@@ -1069,7 +1089,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        	JLabel messageId = new JLabel(messageListOpenInbox.get(i).getMessageID());
 		        	JPopupMenu menu = new JPopupMenu("Menu");
 		        			        	JMenuItem jmi = new JMenuItem("Delete Message");
-		        		                menu.add(jmi);//123
+		        		                menu.add(jmi);
 		        		                buttonMessage.addActionListener( new ActionListener() {
 		        		                    public void actionPerformed(ActionEvent ae) {
 		        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
@@ -1150,7 +1170,18 @@ public class HomeScreen  extends JFrame implements ActionListener {
 	        	buttonMessage.setOpaque(false);
 	        	buttonMessage.setContentAreaFilled(false);
 	        	buttonMessage.addActionListener(this);
-	        	
+	        	JLabel messageId = new JLabel(messageListOpenInbox.get(i).getMessageID());
+	        	JPopupMenu menu = new JPopupMenu("Menu");
+	        			        	JMenuItem jmi = new JMenuItem("Delete Message");
+	        		                menu.add(jmi);
+	        		                buttonMessage.addActionListener( new ActionListener() {
+	        		                    public void actionPerformed(ActionEvent ae) {
+	        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
+	        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),inboxCurrentlyOpen));
+	        		                    }
+	        		                } );
+
+	        	panelGroupChat.add(buttonMessage);
 	        	panelGroupChat.add(buttonMessage);
 	        }
 	        if (messageListOpenInbox.size() <= 7) {
@@ -1252,7 +1283,18 @@ public class HomeScreen  extends JFrame implements ActionListener {
 				        	buttonMessage.setOpaque(false);
 				        	buttonMessage.setContentAreaFilled(false);
 				        	buttonMessage.addActionListener(HomeScreen.this);
-				        	
+				        	JLabel messageId = new JLabel(messageListOpenInbox.get(i).getMessageID());
+				        	JPopupMenu menu = new JPopupMenu("Menu");
+				        			        	JMenuItem jmi = new JMenuItem("Delete Message");
+				        		                menu.add(jmi);
+				        		                buttonMessage.addActionListener( new ActionListener() {
+				        		                    public void actionPerformed(ActionEvent ae) {
+				        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
+				        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),inboxCurrentlyOpen));
+				        		                    }
+				        		                } );
+
+				        	panelGroupChat.add(buttonMessage);
 				        	panelGroupChat.add(buttonMessage);
 				        }
 				        if (messageListOpenInbox.size() <= 7) {
@@ -1345,7 +1387,453 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		}
 		processOpenInbox(ae,inboxName);
     }
-	@Override
+	private void searchMessage(ActionEvent ae,String inputSearch,String searchByChoice) {
+	//123
+		if(inputSearch.isEmpty()) {
+			processOpenOlineFriend(ae,searchByChoice);
+		}
+		remove(panelChat);
+		if(searchByChoice =="All") {
+			
+		}
+		
+		else {
+			if (threadGroup != null) {
+	    		threadGroup.stop();
+	    		threadGroup = null;
+	    	}
+			try {
+				conn = DriverManager.getConnection(Main.DB_URL, Main.USER, Main.PASS);
+			} catch (SQLException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			try {
+				stmt = conn.createStatement();
+			} catch (SQLException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			
+			String typeInbox = "";
+			try {
+				rs = ((java.sql.Statement)stmt).executeQuery("SELECT * from inbox where InboxName='"+inboxCurrentlyOpen+"'");
+				if (!rs.isBeforeFirst() ) {    
+					typeInbox = "individual";
+				} 
+				else {
+					typeInbox = "group";
+				}
+			} catch (SQLException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			
+			
+			//inboxCurrentlyOpen = inboxName;
+
+			remove(panelChat);
+			panelChat = new JPanel();
+	        panelChat.setPreferredSize(new Dimension(596,600)); // Được sử dụng khi setSize đã có trong phần cha lớn.
+	        panelChat.setLayout(null);
+	        panelChat.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+	        
+			panelGroupName = new JPanel();
+		    panelGroupName.setPreferredSize(new Dimension(596,60));
+		    panelGroupName.setLayout(null);
+		    panelGroupName.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		        
+		    Icon avatar = new ImageIcon("source/image/iconUserMenu.png");
+		    Image image = ((ImageIcon) avatar).getImage(); // transform it 
+		    Image newimg = image.getScaledInstance(48, 48,  java.awt.Image.SCALE_SMOOTH);
+		    avatar = new ImageIcon(newimg);
+		    labelGroupAvatar = new JLabel(avatar);
+		    labelGroupAvatar.setBounds(10,10,40,40);
+		     
+		    labelGroupName = new JLabel(inboxCurrentlyOpen);
+		    labelGroupName.setFont(Main.fontBigBold);
+		    labelGroupName.setBounds(60,10,200,20);
+		    
+		    String status ="";
+		    if (typeInbox.equals("individual")) {
+		    	try {
+					rs = ((java.sql.Statement)stmt).executeQuery("select OnlineStatus,OfflineTime from activestatus where UserID=(select UserID from users where UserName = '"+inboxCurrentlyOpen+"')");
+					rs.next();
+					if (rs.getString("OnlineStatus").equals("1")) {
+						status = "Online";
+					}
+					else {
+						status = "Offline";
+					}
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+		    }
+		    labelGroupStatus = new JLabel(status);
+	    	labelGroupStatus.setFont(Main.fontSmallest);
+	    	labelGroupStatus.setBounds(60,35,200,20);
+	    	String[] searchBy = {inboxCurrentlyOpen, "All"};
+	        comboBoxSearchBy = new JComboBox(searchBy);
+	        comboBoxSearchBy.setBounds(200,10,100,40);
+	    	Icon iconSearch = new ImageIcon("source/image/search.png");
+	    	Image imageSearch = ((ImageIcon) iconSearch).getImage(); // transform it 
+	    	Image newimgSearch = imageSearch.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
+	    	iconSearch = new ImageIcon(newimgSearch);
+	    	txtSearchW = new JTextField(inputSearch);
+	        txtSearchW.setBounds(300,10,200,40);
+	        buttonSearchW = new JButton(iconSearch);
+	        buttonSearchW.setBounds(500,10,40,40);
+	        buttonSearchW.setFocusable(false);
+	        buttonSearchW.addActionListener(event->searchMessage(event,txtSearchW.getText(),comboBoxSearchBy.getSelectedItem().toString()));
+	        buttonSearchW.setOpaque(false);
+	        buttonSearchW.setContentAreaFilled(false);
+	    
+	        panelGroupName.add(labelGroupAvatar);
+	    	panelGroupName.add(labelGroupName);
+	    	panelGroupName.add(labelGroupStatus);
+	    	panelGroupName.add(txtSearchW);
+	    	panelGroupName.add(comboBoxSearchBy);
+	    	panelGroupName.add(buttonSearchW);
+	    	panelGroupName.setBounds(0,0,596,60);
+	    	
+	    	if (typeInbox.equals("individual")) {
+	    		try {
+	    			rs = ((java.sql.Statement)stmt).executeQuery("SELECT inbox.InboxID from inbox where TypeInbox = 'individual' and inbox.InboxID IN (SELECT distinct InboxID from (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+username+"')) as table1 inner join  (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+inboxCurrentlyOpen+"')) as table2 using(InboxID))");
+	    			String inboxID;
+	    			rs.next();
+					inboxID = rs.getString("InboxID");
+					
+					panelGroupChat = new JPanel();
+					panelGroupChat.setLayout(new BoxLayout(panelGroupChat, BoxLayout.Y_AXIS));
+					List<Message> messageListOpenInbox = new ArrayList<>();
+					int messagecount = 100;
+			        int count = 0;
+			        try {
+			        	rs = ((java.sql.Statement)stmt).executeQuery("select messages.MessID, users.UserName, messages.Message,messages.CreateTime from messages join messageaccess on messageaccess.messid = messages.MessID and messageaccess.UserID = (select userid from users where username='"+username+"') left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' and messages.Message like '%"+inputSearch+"%' ORDER BY messages.CreateTime ASC");
+						while (rs.next()) {
+							messageListOpenInbox.add(new Message(rs.getString("MessID"),rs.getString("UserName"),rs.getString("Message"),rs.getString("CreateTime")));
+							count++;
+						}
+						messagecount = count;
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+			        for (int i = 0; i < messageListOpenInbox.size(); i++) {
+			        	JPanel panelMessage = new JPanel();
+			        	panelMessage.setPreferredSize(new Dimension(576,60));
+			        	panelMessage.setLayout(null);
+			        	
+			        	Icon avatarMessage = new ImageIcon("source/image/iconUserMenu.png");
+			        	Image imageMessage = ((ImageIcon) avatarMessage).getImage(); // transform it 
+			        	Image newimgMessage = imageMessage.getScaledInstance(24, 24,  java.awt.Image.SCALE_SMOOTH);
+			        	avatarMessage = new ImageIcon(newimgMessage);
+			        	
+			        	JLabel avatarLabel = new JLabel(avatar);
+			        	JLabel labelMessage = new JLabel(messageListOpenInbox.get(i).getMessage());
+			        	JLabel labelFromName = new JLabel();
+			        	labelFromName.setFont(Main.fontSmallest);
+			        	if (!messageListOpenInbox.get(i).getUserName().equals(username)) {
+			        		avatarLabel.setBounds(0,10,40,40);
+			        		labelMessage.setBounds(50,20,200,40);
+			        		labelFromName.setText(messageListOpenInbox.get(i).getUserName());
+			        		labelFromName.setBounds(50,0,200,20);
+			        	}
+			        	else {
+			        		avatarLabel.setBounds(500,10,40,40);
+			        		labelMessage.setBounds(350,20,200,40);
+			        		labelFromName.setText("You");
+			        		labelFromName.setBounds(350,10,200,20);
+			        	}
+			        	
+			        	panelMessage.add(avatarLabel);
+			        	panelMessage.add(labelMessage);
+			        	panelMessage.add(labelFromName);
+			        	
+			        	JButton buttonMessage = new JButton();
+			        	buttonMessage.add(panelMessage,JButton.CENTER);
+			        	buttonMessage.setPreferredSize(new Dimension(576,60));
+			        	buttonMessage.setOpaque(false);
+			        	buttonMessage.setContentAreaFilled(false);
+			        	buttonMessage.addActionListener(this);
+			        	JLabel messageId = new JLabel(messageListOpenInbox.get(i).getMessageID());
+			        	JPopupMenu menu = new JPopupMenu("Menu");
+			        			        	JMenuItem jmi = new JMenuItem("Delete Message");
+			        		                menu.add(jmi);
+			        		                buttonMessage.addActionListener( new ActionListener() {
+			        		                    public void actionPerformed(ActionEvent ae) {
+			        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
+			        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),inboxCurrentlyOpen));
+			        		                    }
+			        		                } );
+
+			        	panelGroupChat.add(buttonMessage);
+			        }
+			        if (messageListOpenInbox.size() <= 7) {
+			        	scrollPaneGroupChat = new JScrollPane();
+				        scrollPaneGroupChat.setPreferredSize(new Dimension(596,messageListOpenInbox.size()*60+10));
+				        scrollPaneGroupChat.setViewportView(panelGroupChat);
+				        scrollPaneGroupChat.setBounds(0,60,596,messageListOpenInbox.size()*60+10);
+			        }
+			        else {
+			        	scrollPaneGroupChat = new JScrollPane();
+				        scrollPaneGroupChat.setPreferredSize(new Dimension(596,430));
+				        scrollPaneGroupChat.setViewportView(panelGroupChat);
+				        scrollPaneGroupChat.setBounds(0,60,596,430);
+			        }
+	        	} catch (SQLException e) {
+	    			// TODO Auto-generated catch block
+	    			e.printStackTrace();
+	    		}
+	    		
+	    	}
+	    	else {
+	    		panelGroupChat = new JPanel();
+				panelGroupChat.setLayout(new BoxLayout(panelGroupChat, BoxLayout.Y_AXIS));
+				List<Message> messageListOpenInbox = new ArrayList<>();
+				int messagecount = 100;
+		        int count = 0;
+		        try {
+		         	rs = ((java.sql.Statement)stmt).executeQuery("select messages.MessID, users.UserName, messages.Message,messages.CreateTime from messages join messageaccess on messageaccess.messid = messages.MessID and messageaccess.UserID = (select userid from users where username='"+username+"') left join users on messages.UserID = users.UserID where messages.InboxID =(select InboxID from inbox where InboxName='"+inboxCurrentlyOpen+"') and messages.Message like '%"+inputSearch+"%' ORDER BY messages.CreateTime ASC");
+					while (rs.next()) {
+						messageListOpenInbox.add(new Message(rs.getString("MessID"),rs.getString("UserName"),rs.getString("Message"),rs.getString("CreateTime")));
+						count++;
+					}
+					messagecount = count;
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+		        for (int i = 0; i < messageListOpenInbox.size(); i++) {
+		        	JPanel panelMessage = new JPanel();
+		        	panelMessage.setPreferredSize(new Dimension(576,60));
+		        	panelMessage.setLayout(null);
+		        	
+		        	Icon avatarMessage = new ImageIcon("source/image/iconUserMenu.png");
+		        	Image imageMessage = ((ImageIcon) avatarMessage).getImage(); // transform it 
+		        	Image newimgMessage = imageMessage.getScaledInstance(24, 24,  java.awt.Image.SCALE_SMOOTH);
+		        	avatarMessage = new ImageIcon(newimgMessage);
+		        	
+		        	JLabel avatarLabel = new JLabel(avatar);
+		        	JLabel labelMessage = new JLabel(messageListOpenInbox.get(i).getMessage());
+		        	JLabel labelFromName = new JLabel();
+		        	labelFromName.setFont(Main.fontSmallest);
+		        	if (!messageListOpenInbox.get(i).getUserName().equals(username)) {
+		        		avatarLabel.setBounds(0,10,40,40);
+		        		labelMessage.setBounds(50,20,200,40);
+		        		labelFromName.setText(messageListOpenInbox.get(i).getUserName());
+		        		labelFromName.setBounds(50,0,200,20);
+		        	}
+		        	else {
+		        		avatarLabel.setBounds(500,10,40,40);
+		        		labelMessage.setBounds(350,20,200,40);
+		        		labelFromName.setText("You");
+		        		labelFromName.setBounds(350,10,200,20);
+		        	}
+		        	
+		        	panelMessage.add(avatarLabel);
+		        	panelMessage.add(labelMessage);
+		        	panelMessage.add(labelFromName);
+		        	
+		        	JButton buttonMessage = new JButton();
+		        	buttonMessage.add(panelMessage,JButton.CENTER);
+		        	buttonMessage.setPreferredSize(new Dimension(576,60));
+		        	buttonMessage.setOpaque(false);
+		        	buttonMessage.setContentAreaFilled(false);
+		        	buttonMessage.addActionListener(this);
+		        	JLabel messageId = new JLabel(messageListOpenInbox.get(i).getMessageID());
+		        	JPopupMenu menu = new JPopupMenu("Menu");
+		        			        	JMenuItem jmi = new JMenuItem("Delete Message");
+		        		                menu.add(jmi);//123
+		        		                buttonMessage.addActionListener( new ActionListener() {
+		        		                    public void actionPerformed(ActionEvent ae) {
+		        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
+		        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),inboxCurrentlyOpen));
+		        		                    }
+		        		                } );
+
+		        	panelGroupChat.add(buttonMessage);
+		        	panelGroupChat.add(buttonMessage);
+		        }
+		        if (messageListOpenInbox.size() <= 7) {
+		        	scrollPaneGroupChat = new JScrollPane();
+			        scrollPaneGroupChat.setPreferredSize(new Dimension(596,messageListOpenInbox.size()*60+10));
+			        scrollPaneGroupChat.setViewportView(panelGroupChat);
+			        scrollPaneGroupChat.setBounds(0,60,596,messageListOpenInbox.size()*60+10);
+		        }
+		        else {
+		        	scrollPaneGroupChat = new JScrollPane();
+			        scrollPaneGroupChat.setPreferredSize(new Dimension(596,430));
+			        scrollPaneGroupChat.setViewportView(panelGroupChat);
+			        scrollPaneGroupChat.setBounds(0,60,596,430);
+		        }
+		        Icon iconMore = new ImageIcon("source/image/iconMore.png");
+		    	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
+		    	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
+		        buttonGroupOption = new JButton(iconMore);
+		        buttonGroupOption.setBounds(550,10,40,40);
+		        buttonGroupOption.setFocusable(false);
+		        buttonGroupOption.addActionListener(this);
+		        buttonGroupOption.setOpaque(false);
+		        buttonGroupOption.setContentAreaFilled(false);
+		        
+		    	panelGroupName.add(buttonGroupOption);
+		        threadGroup = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						while (true) {
+							try {
+								Thread.sleep(3000);
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							try {
+								connThread3 = DriverManager.getConnection(Main.DB_URL, Main.USER, Main.PASS);
+							} catch (SQLException e2) {
+								// TODO Auto-generated catch block
+								e2.printStackTrace();
+							}
+							try {
+								stmtThread3 = connThread3.createStatement();
+							} catch (SQLException e2) {
+								// TODO Auto-generated catch block
+								e2.printStackTrace();
+							}
+							
+							remove(panelGroupChat);
+							
+					    	panelGroupChat = new JPanel();
+							panelGroupChat.setLayout(new BoxLayout(panelGroupChat, BoxLayout.Y_AXIS));
+							List<Message> messageListOpenInbox = new ArrayList<>();
+							int messagecount = 100;
+					        int count = 0;
+					        try {
+								rsThread3 = ((java.sql.Statement)stmtThread3).executeQuery("select messages.MessID, users.UserName, messages.Message,messages.CreateTime from messages join messageaccess on messageaccess.messid = messages.MessID and messageaccess.UserID = (select userid from users where username='"+username+"') left join users on messages.UserID = users.UserID where messages.InboxID =(select InboxID from inbox where InboxName='"+inboxCurrentlyOpen+"') and messages.Message like '%"+inputSearch+"%' ORDER BY messages.CreateTime ASC");
+								while (rsThread3.next()) {
+									messageListOpenInbox.add(new Message(rsThread3.getString("MessID"),rsThread3.getString("UserName"),rsThread3.getString("Message"),rsThread3.getString("CreateTime")));
+									count++;
+								}
+								messagecount = count;
+							} catch (SQLException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+					        for (int i = 0; i < messageListOpenInbox.size(); i++) {
+					        	JPanel panelMessage = new JPanel();
+					        	panelMessage.setPreferredSize(new Dimension(576,60));
+					        	panelMessage.setLayout(null);
+					        	
+					        	Icon avatarMessage = new ImageIcon("source/image/iconUserMenu.png");
+					        	Image imageMessage = ((ImageIcon) avatarMessage).getImage(); // transform it 
+					        	Image newimgMessage = imageMessage.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
+					        	avatarMessage = new ImageIcon(newimgMessage);
+					        	
+					        	JLabel avatarLabel = new JLabel(avatarMessage);
+					        	JLabel labelMessage = new JLabel(messageListOpenInbox.get(i).getMessage());
+					        	JLabel labelFromName = new JLabel();
+					        	labelFromName.setFont(Main.fontSmallest);
+					        	if (!messageListOpenInbox.get(i).getUserName().equals(username)) {
+					        		avatarLabel.setBounds(0,10,40,40);
+					        		labelMessage.setBounds(50,20,200,40);
+					        		labelFromName.setText(messageListOpenInbox.get(i).getUserName());
+					        		labelFromName.setBounds(50,0,200,20);
+					        	}
+					        	else {
+					        		avatarLabel.setBounds(500,10,40,40);
+					        		labelMessage.setBounds(350,20,200,40);
+					        		labelFromName.setText("You");
+					        		labelFromName.setBounds(350,10,200,20);
+					        	}
+					        	
+					        	panelMessage.add(avatarLabel);
+					        	panelMessage.add(labelMessage);
+					        	panelMessage.add(labelFromName);
+					        	
+					        	JButton buttonMessage = new JButton();
+					        	buttonMessage.add(panelMessage,JButton.CENTER);
+					        	buttonMessage.setPreferredSize(new Dimension(576,60));
+					        	buttonMessage.setOpaque(false);
+					        	buttonMessage.setContentAreaFilled(false);
+					        	buttonMessage.addActionListener(HomeScreen.this);
+					        	JLabel messageId = new JLabel(messageListOpenInbox.get(i).getMessageID());
+					        	JPopupMenu menu = new JPopupMenu("Menu");
+					        			        	JMenuItem jmi = new JMenuItem("Delete Message");
+					        		                menu.add(jmi);//123
+					        		                buttonMessage.addActionListener( new ActionListener() {
+					        		                    public void actionPerformed(ActionEvent ae) {
+					        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
+					        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),inboxCurrentlyOpen));
+					        		                    }
+					        		                } );
+
+					        	panelGroupChat.add(buttonMessage);
+					        	panelGroupChat.add(buttonMessage);
+					        }
+					        if (messageListOpenInbox.size() <= 7) {
+					        	scrollPaneGroupChat = new JScrollPane();
+						        scrollPaneGroupChat.setPreferredSize(new Dimension(596,messageListOpenInbox.size()*60+10));
+						        scrollPaneGroupChat.setViewportView(panelGroupChat);
+						        scrollPaneGroupChat.setBounds(0,60,596,messageListOpenInbox.size()*60+10);
+					        }
+					        else {
+					        	scrollPaneGroupChat = new JScrollPane();
+						        scrollPaneGroupChat.setPreferredSize(new Dimension(596,430));
+						        scrollPaneGroupChat.setViewportView(panelGroupChat);
+						        scrollPaneGroupChat.setBounds(0,60,596,430);
+					        }
+					        JScrollBar vertical = scrollPaneGroupChat.getVerticalScrollBar(); 
+					    	vertical.setValue(vertical.getMaximum());
+					    	
+					    	panelChat.add(scrollPaneGroupChat);
+							validate();
+							try {
+								stmtThread3.close();
+								connThread3.close();
+							} catch (SQLException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+					}
+				});
+		        threadGroup.start();
+	    	}
+	    	JScrollBar vertical = scrollPaneGroupChat.getVerticalScrollBar(); 
+	    	vertical.setValue(vertical.getMaximum());
+	    	
+	        panelInputChat = new JPanel();
+	        panelInputChat.setLayout(null);
+	        
+	        textFieldInputChat = new JTextField("");
+	        textFieldInputChat.setBounds(0,20,450,40);
+	        
+	        buttonSend = new JButton("SEND");
+	        buttonSend.setBounds(460,20,120,40);
+	        buttonSend.setFocusable(false);
+	        buttonSend.addActionListener(this);
+	        
+	        panelInputChat.add(textFieldInputChat);
+	        panelInputChat.add(buttonSend);
+	        panelInputChat.setBounds(0,490,596,80);
+	        
+	        panelChat.add(panelGroupName);
+	    	panelChat.add(scrollPaneGroupChat);
+	    	panelChat.add(panelInputChat);
+			
+			add(panelChat, BorderLayout.EAST);
+			validate();
+			try {
+				stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		if (e.getSource() == buttonChatMenu) {
@@ -1356,6 +1844,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 			this.dispose();
 			try{
 				new FriendRequest(username, client );
+				System.out.println("buttonSearchW press");
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -1615,10 +2104,10 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        buttonSearchW = new JButton(iconSearch);
 		        buttonSearchW.setBounds(500,10,40,40);
 		        buttonSearchW.setFocusable(false);
-		        buttonSearchW.addActionListener(this);
+		        buttonSearchW.addActionListener(event->searchMessage(event,txtSearchW.getText(),comboBoxSearchBy.getSelectedItem().toString()));
 		        buttonSearchW.setOpaque(false);
 		        buttonSearchW.setContentAreaFilled(false);
-		        buttonSearchW.addActionListener(this);
+		 
 		        
 		    	Icon iconMore = new ImageIcon("source/image/iconMore.png");
 		    	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
@@ -1628,6 +2117,9 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        panelGroupName.add(labelGroupAvatar);
 		    	panelGroupName.add(labelGroupName);
 		    	panelGroupName.add(labelGroupStatus);
+		    	panelGroupName.add(txtSearchW);
+		    	panelGroupName.add(comboBoxSearchBy);
+		    	panelGroupName.add(buttonSearchW);
 		    	panelGroupName.setBounds(0,0,596,60);
 		    	
 		    	panelGroupChat = new JPanel();
@@ -1670,7 +2162,18 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        	buttonMessage.setOpaque(false);
 		        	buttonMessage.setContentAreaFilled(false);
 		        	buttonMessage.addActionListener(this);
-		        	
+		        	JLabel messageId = new JLabel(messageNewChat.get(i).getMessageID());
+		        	JPopupMenu menu = new JPopupMenu("Menu");
+		        			        	JMenuItem jmi = new JMenuItem("Delete Message");
+		        		                menu.add(jmi);
+		        		                buttonMessage.addActionListener( new ActionListener() {
+		        		                    public void actionPerformed(ActionEvent ae) {
+		        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
+		        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),inboxCurrentlyOpen));
+		        		                    }
+		        		                } );
+
+		        	panelGroupChat.add(buttonMessage);
 		        	panelGroupChat.add(buttonMessage);
 		        }
 		        if (messageNewChat.size() <= 7) {
@@ -1868,10 +2371,10 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        buttonSearchW = new JButton(iconSearch);
 		        buttonSearchW.setBounds(500,10,40,40);
 		        buttonSearchW.setFocusable(false);
-		        buttonSearchW.addActionListener(this);
+		        buttonSearchW.addActionListener(event->searchMessage(event,txtSearchW.getText(),comboBoxSearchBy.getSelectedItem().toString()));
 		        buttonSearchW.setOpaque(false);
 		        buttonSearchW.setContentAreaFilled(false);
-		        buttonSearchW.addActionListener(this);
+
 		    	Icon iconMore = new ImageIcon("source/image/iconMore.png");
 		    	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
 		    	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
@@ -1880,6 +2383,9 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        panelGroupName.add(labelGroupAvatar);
 		    	panelGroupName.add(labelGroupName);
 		    	panelGroupName.add(labelGroupStatus);
+		    	panelGroupName.add(txtSearchW);
+		    	panelGroupName.add(comboBoxSearchBy);
+		    	panelGroupName.add(buttonSearchW);
 		    	panelGroupName.setBounds(0,0,596,60);
 		    	
 		    	panelGroupChat = new JPanel();
@@ -1924,7 +2430,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        	JLabel messageId = new JLabel(messageButtonSend.get(i).getMessageID());
 		        	JPopupMenu menu = new JPopupMenu("Menu");
 		        			        	JMenuItem jmi = new JMenuItem("Delete Message");
-		        		                menu.add(jmi);//123
+		        		                menu.add(jmi);// 
 		        		                buttonMessage.addActionListener( new ActionListener() {
 		        		                    public void actionPerformed(ActionEvent ae) {
 		        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
@@ -2066,10 +2572,11 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        buttonSearchW = new JButton(iconSearch);
 		        buttonSearchW.setBounds(500,10,40,40);
 		        buttonSearchW.setFocusable(false);
-		        buttonSearchW.addActionListener(this);
+		        buttonSearchW.addActionListener(event->searchMessage(event,txtSearchW.getText(),comboBoxSearchBy.getSelectedItem().toString()));
+
 		        buttonSearchW.setOpaque(false);
 		        buttonSearchW.setContentAreaFilled(false);
-		        buttonSearchW.addActionListener(this);
+
 		    	Icon iconMore = new ImageIcon("source/image/iconMore.png");
 		    	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
 		    	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
@@ -2084,6 +2591,9 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        panelGroupName.add(labelGroupAvatar);
 		    	panelGroupName.add(labelGroupName);
 		    	panelGroupName.add(labelGroupStatus);
+		    	panelGroupName.add(txtSearchW);
+		    	panelGroupName.add(comboBoxSearchBy);
+		    	panelGroupName.add(buttonSearchW);
 		    	panelGroupName.add(buttonGroupOption);
 		    	panelGroupName.setBounds(0,0,596,60);
 		    	
@@ -2129,7 +2639,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        	JLabel messageId = new JLabel(messageButtonSend.get(i).getMessageID());
 		        	JPopupMenu menu = new JPopupMenu("Menu");
 		        			        	JMenuItem jmi = new JMenuItem("Delete Message");
-		        		                menu.add(jmi);//123
+		        		                menu.add(jmi);
 		        		                buttonMessage.addActionListener( new ActionListener() {
 		        		                    public void actionPerformed(ActionEvent ae) {
 		        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
@@ -2346,10 +2856,11 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        buttonSearchW = new JButton(iconSearch);
 		        buttonSearchW.setBounds(500,10,40,40);
 		        buttonSearchW.setFocusable(false);
-		        buttonSearchW.addActionListener(this);
+		        buttonSearchW.addActionListener(event->searchMessage(event,txtSearchW.getText(),comboBoxSearchBy.getSelectedItem().toString()));
+
 		        buttonSearchW.setOpaque(false);
 		        buttonSearchW.setContentAreaFilled(false);
-		        buttonSearchW.addActionListener(this);
+
 		    	Icon iconMore = new ImageIcon("source/image/iconMore.png");
 		    	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
 		    	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
@@ -2358,6 +2869,9 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        panelGroupName.add(labelGroupAvatar);
 		    	panelGroupName.add(labelGroupName);
 		    	panelGroupName.add(labelGroupStatus);
+		    	panelGroupName.add(txtSearchW);
+		    	panelGroupName.add(comboBoxSearchBy);
+		    	panelGroupName.add(buttonSearchW);
 		    	panelGroupName.setBounds(0,0,596,60);
 		    	
 		    	panelGroupChat = new JPanel();
@@ -2403,7 +2917,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        	JLabel messageId = new JLabel(messageNewChatOnline.get(i).getMessageID());
 		        	JPopupMenu menu = new JPopupMenu("Menu");
 		        			        	JMenuItem jmi = new JMenuItem("Delete Message");
-		        		                menu.add(jmi);//123
+		        		                menu.add(jmi);
 		        		                buttonMessage.addActionListener( new ActionListener() {
 		        		                    public void actionPerformed(ActionEvent ae) {
 		        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
@@ -2657,6 +3171,9 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		}
 		else if (e.getSource() == buttonGroupOption) {
 			
+		}
+		else if(e.getSource()==buttonSearchW) {
+			System.out.println("buttonSearchW press");
 		}
 	}
 	
