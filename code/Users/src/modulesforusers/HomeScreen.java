@@ -194,7 +194,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 						
 						List<Message> messageListRead = new ArrayList<>();
 				        try {
-				        	rsThread2 = ((java.sql.Statement)stmt).executeQuery("select messages.MessID, users.UserName, messages.Message,messages.CreateTime from messages join messageaccess on messageaccess.messid = messages.MessID and messageaccess.UserID = (select userid from users where username='"+username+"') left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' ORDER BY messages.CreateTime ASC");
+				        	rsThread2 = ((java.sql.Statement)stmtThread2).executeQuery("select messages.MessID, users.UserName, messages.Message,messages.CreateTime from messages join messageaccess on messageaccess.messid = messages.MessID and messageaccess.UserID = (select userid from users where username='"+username+"') left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' ORDER BY messages.CreateTime ASC");
 
 							while (rsThread2.next()) {
 								messageListRead.add(new Message(rsThread2.getString("MessID"),rsThread2.getString("UserName"),rsThread2.getString("Message"),rsThread2.getString("CreateTime")));
@@ -203,7 +203,6 @@ public class HomeScreen  extends JFrame implements ActionListener {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
-						
 						panelChat = new JPanel();
 				        panelChat.setPreferredSize(new Dimension(596,600)); // Được sử dụng khi setSize đã có trong phần cha lớn.
 				        panelChat.setLayout(null);
@@ -257,7 +256,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 				        
 				        buttonSearchW.setBounds(500,10,40,40);
 				        buttonSearchW.setFocusable(false);
-				        buttonSearchW.addActionListener((ActionListener) this);
+				        buttonSearchW.addActionListener(HomeScreen.this);
 				        
 				    	Icon iconMore = new ImageIcon("source/image/iconMore.png");
 				    	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
@@ -2655,6 +2654,9 @@ public class HomeScreen  extends JFrame implements ActionListener {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+		}
+		else if (e.getSource() == buttonGroupOption) {
+			
 		}
 	}
 	
