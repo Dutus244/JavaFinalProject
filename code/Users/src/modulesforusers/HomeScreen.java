@@ -31,8 +31,6 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-
-
 public class HomeScreen  extends JFrame implements ActionListener {
 	Container containerHome;
 	final String username;
@@ -43,6 +41,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 	JButton buttonFriendMenu;
 	JButton buttonSettingMenu;
 	JButton buttonUserMenu;
+	
 	
 	JPanel panelList;
 	
@@ -67,8 +66,15 @@ public class HomeScreen  extends JFrame implements ActionListener {
 	JTextField textFieldInputChat;
 	JButton buttonSend;
 	
+	JButton buttonCreateGroup;
 	JButton buttonNewChatSend;
 	JButton buttonNewChatOnlineSend;
+	
+	JTextField textFieldInputGroupName;
+	JList listChooseGroupParticipant;
+	JList listChooseAdmin;
+	JButton buttonChoose;
+	JButton buttonConfirmCreateGroup;
 	
 	Connection conn = null;
 	java.sql.Statement stmt;
@@ -82,8 +88,15 @@ public class HomeScreen  extends JFrame implements ActionListener {
 	java.sql.Statement stmtThread2;
 	ResultSet rsThread2;
 	
+	Thread threadGroup = null;
+	Connection connThread3 = null;
+	java.sql.Statement stmtThread3;
+	ResultSet rsThread3;
+	
 	List<String> userOnlineList = new ArrayList<>();
 	List<String> inboxList = new ArrayList<>();
+	List<String> groupParticipant = new ArrayList<>();
+	List<String> groupAdmin = new ArrayList();
 //	List<Message> messageList = new ArrayList<>();
 	
 	String[] stringFriendList;
@@ -113,7 +126,12 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-        
+    	try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
         new UpdatePanelList().start();
 	}
 	public HomeScreen(String Username, Socket s, String friendusername) {
@@ -133,7 +151,12 @@ public class HomeScreen  extends JFrame implements ActionListener {
         new UpdatePanelList().start();
         ActionEvent ae = null;
         processOpenOlineFriend(ae, friendusername);
-        
+    	try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 	}
 	class Read extends Thread {
 		@Override
@@ -149,13 +172,6 @@ public class HomeScreen  extends JFrame implements ActionListener {
 					String createTime = split[3];
 					String message = split[4];
 					if (inboxCurrentlyOpen.equals(fromName)) {
-						
-				    	try {
-							Class.forName("com.mysql.cj.jdbc.Driver");
-						} catch (ClassNotFoundException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
 						try {
 							connThread2 = DriverManager.getConnection(Main.DB_URL, Main.USER, Main.PASS);
 						} catch (SQLException e2) {
@@ -171,20 +187,16 @@ public class HomeScreen  extends JFrame implements ActionListener {
 						
 						remove(panelChat);
 						
-						rsThread2 = ((java.sql.Statement)stmtThread2).executeQuery("SELECT distinct InboxID from (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+username+"')) as table1 inner join  (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+fromName+"')) as table2 using(InboxID)");
+						rsThread2 = ((java.sql.Statement)stmtThread2).executeQuery("SELECT inbox.InboxID from inbox where TypeInbox = 'individual' and inbox.InboxID IN (SELECT distinct InboxID from (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+username+"')) as table1 inner join  (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+fromName+"')) as table2 using(InboxID))");
 						rsThread2.next();
 						String inboxID = rsThread2.getString("InboxID");
 						
 						List<Message> messageListRead = new ArrayList<>();
-						int messagecount = 100;
-				        int count = 0;
 				        try {
 				        	rsThread2 = ((java.sql.Statement)stmtThread2).executeQuery("select MessID,UserName,Message,messages.CreateTime from messages left join users on messages.UserID = users.UserID where messages.InboxID = '"+inboxID+"' ORDER BY messages.CreateTime ASC");
 							while (rsThread2.next()) {
 								messageListRead.add(new Message(rsThread2.getString("MessID"),rsThread2.getString("UserName"),rsThread2.getString("Message"),rsThread2.getString("CreateTime")));
-								count++;
 							}
-							messagecount = count;
 						} catch (SQLException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
@@ -213,9 +225,9 @@ public class HomeScreen  extends JFrame implements ActionListener {
 					    
 					    String status ="";
 					    try {
-							rs = ((java.sql.Statement)stmt).executeQuery("select OnlineStatus,OfflineTime from activestatus where UserID=(select UserID from users where UserName = '"+fromName+"')");
-							rs.next();
-							if (rs.getString("OnlineStatus").equals("1")) {
+					    	rsThread2 = ((java.sql.Statement)stmtThread2).executeQuery("select OnlineStatus,OfflineTime from activestatus where UserID=(select UserID from users where UserName = '"+fromName+"')");
+					    	rsThread2.next();
+							if (rsThread2.getString("OnlineStatus").equals("1")) {
 								status = "Online";
 							}
 							else {
@@ -234,17 +246,10 @@ public class HomeScreen  extends JFrame implements ActionListener {
 				    	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
 				    	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
 				    	iconMore = new ImageIcon(newimgMore);
-				        buttonGroupOption = new JButton(iconMore);
-				        buttonGroupOption.setBounds(550,10,40,40);
-				        buttonGroupOption.setFocusable(false);
-				        buttonGroupOption.addActionListener(HomeScreen.this);
-				        buttonGroupOption.setOpaque(false);
-				        buttonGroupOption.setContentAreaFilled(false);
 				        
 				        panelGroupName.add(labelGroupAvatar);
 				    	panelGroupName.add(labelGroupName);
 				    	panelGroupName.add(labelGroupStatus);
-				    	panelGroupName.add(buttonGroupOption);
 				    	panelGroupName.setBounds(0,0,596,60);
 				    	
 
@@ -330,33 +335,34 @@ public class HomeScreen  extends JFrame implements ActionListener {
 						add(panelChat, BorderLayout.EAST);
 						validate();
 					}
-					rs = ((java.sql.Statement)stmt).executeQuery("SELECT distinct InboxID from (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+username+"')) as table1 inner join  (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+fromName+"')) as table2 using(InboxID)");
-					rs.next();
-					String inboxID = rs.getString("InboxID");
+					rsThread2 = ((java.sql.Statement)stmtThread2).executeQuery("SELECT inbox.InboxID from inbox where TypeInbox = 'individual' and inbox.InboxID IN (SELECT distinct InboxID from (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+username+"')) as table1 inner join  (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+fromName+"')) as table2 using(InboxID))");
+					rsThread2.next();
+					String inboxID = rsThread2.getString("InboxID");
 					List<String> userIDList = new ArrayList<>();
-					rs = ((java.sql.Statement)stmt).executeQuery("select userID from inboxparticipants where inboxID ='"+inboxID+"'");
-        			while (rs.next()) {
-        				String userID = rs.getString("userID");
+					rsThread2 = ((java.sql.Statement)stmtThread2).executeQuery("select userID from inboxparticipants where inboxID ='"+inboxID+"'");
+        			while (rsThread2.next()) {
+        				String userID = rsThread2.getString("userID");
         				userIDList.add(userID);
         			}
 					try {
-		                conn.setAutoCommit(false);
+		                connThread2.setAutoCommit(false);
 		                String sql = "insert into messages values('"+messageID+"','"+inboxID+"',(select UserID from users where UserName = '"+fromName+"'),'"+message+"','','"+createTime+"')";
-		                stmt.executeUpdate(sql);
+		                stmtThread2.executeUpdate(sql);
 		                sql = "update inbox set LastMessage='"+message+"',LastSentUserID=(select UserID from users where UserName = '"+fromName+"'),UpdateTime='"+createTime+"' where inboxID='"+inboxID+"'";
-		                stmt.executeUpdate(sql);
+		                stmtThread2.executeUpdate(sql);
 	        			for (int i = 0; i < userIDList.size(); i++) {
 	        				String userID = userIDList.get(i);
 	        				sql = "insert into messageaccess values('"+messageID+"','"+userID+"')";
-	        				stmt.executeUpdate(sql);
+	        				stmtThread2.executeUpdate(sql);
 	        			}
-		                conn.commit();
+		                connThread2.commit();
 		            }
 		            catch (SQLException ae){
 		            	JOptionPane.showMessageDialog(HomeScreen.this,"Unable to insert", "Attention",JOptionPane.ERROR_MESSAGE);
 		            	ae.printStackTrace();
 		            }
-					
+					stmtThread2.close();
+					connThread2.close();
 				} catch (Exception e) {
 					break;
 				}
@@ -409,6 +415,14 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        labelList = new JLabel("CHATS");
 		        labelList.setBounds(20,10,200,50);
 		        labelList.setFont(Main.fontBigBold);
+		        
+		        Icon iconCreateGroup = new ImageIcon("source/image/createGroup.png");
+		        buttonCreateGroup = new JButton(iconCreateGroup);
+		        buttonCreateGroup.setBounds(210,10,50,50);
+		        buttonCreateGroup.setFocusable(false);
+		        buttonCreateGroup.addActionListener(HomeScreen.this);
+		        buttonCreateGroup.setOpaque(false);
+		        buttonCreateGroup.setContentAreaFilled(false);
 		        
 		        Icon iconNewChat = new ImageIcon("source/image/iconNewChat.png");
 		        buttonNewChat = new JButton(iconNewChat);
@@ -591,6 +605,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        
 		    	
 		        panelList.add(labelList);
+		        panelList.add(buttonCreateGroup);
 		        panelList.add(buttonNewChat);
 		        panelList.add(labelListFriendsOnline);
 		        panelList.add(scrollPaneListFriendOnline);
@@ -647,13 +662,10 @@ public class HomeScreen  extends JFrame implements ActionListener {
     
     private void processOpenOlineFriend(ActionEvent ae, String friendUserName) {
     	inboxCurrentlyOpen = friendUserName;
-
-    	try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
-		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+    	if (threadGroup != null) {
+    		threadGroup.stop();
+    		threadGroup = null;
+    	}
 		try {
 			conn = DriverManager.getConnection(Main.DB_URL, Main.USER, Main.PASS);
 		} catch (SQLException e2) {
@@ -713,23 +725,16 @@ public class HomeScreen  extends JFrame implements ActionListener {
     	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
     	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
     	iconMore = new ImageIcon(newimgMore);
-        buttonGroupOption = new JButton(iconMore);
-        buttonGroupOption.setBounds(550,10,40,40);
-        buttonGroupOption.setFocusable(false);
-        buttonGroupOption.addActionListener(this);
-        buttonGroupOption.setOpaque(false);
-        buttonGroupOption.setContentAreaFilled(false);
         
         panelGroupName.add(labelGroupAvatar);
     	panelGroupName.add(labelGroupName);
     	panelGroupName.add(labelGroupStatus);
-    	panelGroupName.add(buttonGroupOption);
     	panelGroupName.setBounds(0,0,596,60);
     	
     	panelInputChat = new JPanel();
         panelInputChat.setLayout(null);
     	try {
-			rs = ((java.sql.Statement)stmt).executeQuery("SELECT distinct InboxID from (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+username+"')) as table1 inner join  (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+friendUserName+"')) as table2 using(InboxID)");
+			rs = ((java.sql.Statement)stmt).executeQuery("SELECT inbox.InboxID from inbox where TypeInbox = 'individual' and inbox.InboxID IN (SELECT distinct InboxID from (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+username+"')) as table1 inner join  (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+friendUserName+"')) as table2 using(InboxID))");
 			String inboxID;
 			if (!rs.isBeforeFirst() ) {    
 				panelGroupChat = new JPanel();
@@ -844,15 +849,20 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		
 		add(panelChat, BorderLayout.EAST);
 		validate();
+		try {
+			stmt.close();
+			conn.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
     private void processOpenInbox(ActionEvent ae, String inboxName) {
-    	try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
-		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+    	if (threadGroup != null) {
+    		threadGroup.stop();
+    		threadGroup = null;
+    	}
 		try {
 			conn = DriverManager.getConnection(Main.DB_URL, Main.USER, Main.PASS);
 		} catch (SQLException e2) {
@@ -931,22 +941,15 @@ public class HomeScreen  extends JFrame implements ActionListener {
     	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
     	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
     	iconMore = new ImageIcon(newimgMore);
-        buttonGroupOption = new JButton(iconMore);
-        buttonGroupOption.setBounds(550,10,40,40);
-        buttonGroupOption.setFocusable(false);
-        buttonGroupOption.addActionListener(this);
-        buttonGroupOption.setOpaque(false);
-        buttonGroupOption.setContentAreaFilled(false);
-        
+
         panelGroupName.add(labelGroupAvatar);
     	panelGroupName.add(labelGroupName);
     	panelGroupName.add(labelGroupStatus);
-    	panelGroupName.add(buttonGroupOption);
     	panelGroupName.setBounds(0,0,596,60);
     	
     	if (typeInbox.equals("individual")) {
     		try {
-    			rs = ((java.sql.Statement)stmt).executeQuery("SELECT distinct InboxID from (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+username+"')) as table1 inner join  (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+inboxName+"')) as table2 using(InboxID)");
+    			rs = ((java.sql.Statement)stmt).executeQuery("SELECT inbox.InboxID from inbox where TypeInbox = 'individual' and inbox.InboxID IN (SELECT distinct InboxID from (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+username+"')) as table1 inner join  (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+inboxName+"')) as table2 using(InboxID))");
     			String inboxID;
     			rs.next();
 				inboxID = rs.getString("InboxID");
@@ -1093,6 +1096,124 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        scrollPaneGroupChat.setViewportView(panelGroupChat);
 		        scrollPaneGroupChat.setBounds(0,60,596,430);
 	        }
+	        buttonGroupOption = new JButton(iconMore);
+	        buttonGroupOption.setBounds(550,10,40,40);
+	        buttonGroupOption.setFocusable(false);
+	        buttonGroupOption.addActionListener(this);
+	        buttonGroupOption.setOpaque(false);
+	        buttonGroupOption.setContentAreaFilled(false);
+	        
+	    	panelGroupName.add(buttonGroupOption);
+	        threadGroup = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					while (true) {
+						try {
+							Thread.sleep(3000);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						try {
+							connThread3 = DriverManager.getConnection(Main.DB_URL, Main.USER, Main.PASS);
+						} catch (SQLException e2) {
+							// TODO Auto-generated catch block
+							e2.printStackTrace();
+						}
+						try {
+							stmtThread3 = connThread3.createStatement();
+						} catch (SQLException e2) {
+							// TODO Auto-generated catch block
+							e2.printStackTrace();
+						}
+						
+						remove(panelGroupChat);
+						
+				    	panelGroupChat = new JPanel();
+						panelGroupChat.setLayout(new BoxLayout(panelGroupChat, BoxLayout.Y_AXIS));
+						List<Message> messageListOpenInbox = new ArrayList<>();
+						int messagecount = 100;
+				        int count = 0;
+				        try {
+							rsThread3 = ((java.sql.Statement)stmtThread3).executeQuery("select MessID,UserName,Message,messages.CreateTime from messages left join users on messages.UserID = users.UserID where messages.InboxID = (select InboxID from inbox where InboxName='"+inboxName+"') ORDER BY messages.CreateTime ASC");
+							while (rsThread3.next()) {
+								messageListOpenInbox.add(new Message(rsThread3.getString("MessID"),rsThread3.getString("UserName"),rsThread3.getString("Message"),rsThread3.getString("CreateTime")));
+								count++;
+							}
+							messagecount = count;
+						} catch (SQLException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+				        for (int i = 0; i < messageListOpenInbox.size(); i++) {
+				        	JPanel panelMessage = new JPanel();
+				        	panelMessage.setPreferredSize(new Dimension(576,60));
+				        	panelMessage.setLayout(null);
+				        	
+				        	Icon avatarMessage = new ImageIcon("source/image/iconUserMenu.png");
+				        	Image imageMessage = ((ImageIcon) avatarMessage).getImage(); // transform it 
+				        	Image newimgMessage = imageMessage.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
+				        	avatarMessage = new ImageIcon(newimgMessage);
+				        	
+				        	JLabel avatarLabel = new JLabel(avatarMessage);
+				        	JLabel labelMessage = new JLabel(messageListOpenInbox.get(i).getMessage());
+				        	JLabel labelFromName = new JLabel();
+				        	labelFromName.setFont(Main.fontSmallest);
+				        	if (!messageListOpenInbox.get(i).getUserName().equals(username)) {
+				        		avatarLabel.setBounds(0,10,40,40);
+				        		labelMessage.setBounds(50,20,200,40);
+				        		labelFromName.setText(messageListOpenInbox.get(i).getUserName());
+				        		labelFromName.setBounds(50,0,200,20);
+				        	}
+				        	else {
+				        		avatarLabel.setBounds(500,10,40,40);
+				        		labelMessage.setBounds(350,20,200,40);
+				        		labelFromName.setText("You");
+				        		labelFromName.setBounds(350,10,200,20);
+				        	}
+				        	
+				        	panelMessage.add(avatarLabel);
+				        	panelMessage.add(labelMessage);
+				        	panelMessage.add(labelFromName);
+				        	
+				        	JButton buttonMessage = new JButton();
+				        	buttonMessage.add(panelMessage,JButton.CENTER);
+				        	buttonMessage.setPreferredSize(new Dimension(576,60));
+				        	buttonMessage.setOpaque(false);
+				        	buttonMessage.setContentAreaFilled(false);
+				        	buttonMessage.addActionListener(HomeScreen.this);
+				        	
+				        	panelGroupChat.add(buttonMessage);
+				        }
+				        if (messageListOpenInbox.size() <= 7) {
+				        	scrollPaneGroupChat = new JScrollPane();
+					        scrollPaneGroupChat.setPreferredSize(new Dimension(596,messageListOpenInbox.size()*60+10));
+					        scrollPaneGroupChat.setViewportView(panelGroupChat);
+					        scrollPaneGroupChat.setBounds(0,60,596,messageListOpenInbox.size()*60+10);
+				        }
+				        else {
+				        	scrollPaneGroupChat = new JScrollPane();
+					        scrollPaneGroupChat.setPreferredSize(new Dimension(596,430));
+					        scrollPaneGroupChat.setViewportView(panelGroupChat);
+					        scrollPaneGroupChat.setBounds(0,60,596,430);
+				        }
+				        JScrollBar vertical = scrollPaneGroupChat.getVerticalScrollBar(); 
+				    	vertical.setValue(vertical.getMaximum());
+				    	
+				    	panelChat.add(scrollPaneGroupChat);
+						validate();
+						try {
+							stmtThread3.close();
+							connThread3.close();
+						} catch (SQLException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+			});
+	        threadGroup.start();
     	}
     	
     	JScrollBar vertical = scrollPaneGroupChat.getVerticalScrollBar(); 
@@ -1119,6 +1240,13 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		
 		add(panelChat, BorderLayout.EAST);
 		validate();
+		try {
+			stmt.close();
+			conn.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
 	@Override
@@ -1149,18 +1277,15 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		else if (e.getSource() == buttonNewChat) {
 			inboxCurrentlyOpen = "";
 			remove(panelChat);
-			
+			if (threadGroup != null) {
+	    		threadGroup.stop();
+	    		threadGroup = null;
+	    	}
 			panelChat = new JPanel();
 	        panelChat.setPreferredSize(new Dimension(596,600)); // Được sử dụng khi setSize đã có trong phần cha lớn.
 	        panelChat.setLayout(null);
 	        panelChat.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 	        
-	        try {
-				Class.forName("com.mysql.cj.jdbc.Driver");
-			} catch (ClassNotFoundException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
 			try {
 				conn = DriverManager.getConnection(Main.DB_URL, Main.USER, Main.PASS);
 			} catch (SQLException e2) {
@@ -1215,6 +1340,13 @@ public class HomeScreen  extends JFrame implements ActionListener {
 	        
 			add(panelChat, BorderLayout.EAST);
 			validate();
+			try {
+				stmt.close();
+				conn.close();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 		else if (e.getSource() == buttonNewChatSend) {
 			if (jListFriendList.getSelectedValue() == null) {
@@ -1250,7 +1382,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 			int messagecount = 0;
 			String inboxID;
 			try {
-				rs = ((java.sql.Statement)stmt).executeQuery("SELECT distinct InboxID from (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+username+"')) as table1 inner join  (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+friendUserName+"')) as table2 using(InboxID)");
+    			rs = ((java.sql.Statement)stmt).executeQuery("SELECT inbox.InboxID from inbox where TypeInbox = 'individual' and inbox.InboxID IN (SELECT distinct InboxID from (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+username+"')) as table1 inner join  (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+friendUserName+"')) as table2 using(InboxID))");
 				String inboxName;
 				if (!rs.isBeforeFirst() ) {    
 					inboxID = UUID.randomUUID().toString();
@@ -1338,37 +1470,34 @@ public class HomeScreen  extends JFrame implements ActionListener {
 					String messageID = UUID.randomUUID().toString();
 					if (rs.getString("OnlineStatus").equals("1")) {
 						status = "Online";
-						messageNewChat.add(new Message(messageID,username,message,createTime));
-						String msg = messageID + "`" + username + "`" + friendUserName + "`" + createTime + "`" + message;
-						pw.println(msg);
 					}
 					else {
 						status = "Offline";
-						List<String> userIDList = new ArrayList<>();
-						rs = ((java.sql.Statement)stmt).executeQuery("select userID from inboxparticipants where inboxID ='"+inboxID+"'");
-	        			while (rs.next()) {
-	        				String userID = rs.getString("userID");
-	        				userIDList.add(userID);
-	        			}
-						try {
-			                conn.setAutoCommit(false);
-			                String sql = "insert into messages values('"+messageID+"','"+inboxID+"',(select UserID from users where UserName = '"+username+"'),'"+message+"','','"+createTime+"')";
-			                stmt.executeUpdate(sql);
-			                sql = "update inbox set LastMessage='"+message+"',LastSentUserID=(select UserID from users where UserName = '"+username+"'),UpdateTime='"+createTime+"' where inboxID='"+inboxID+"'";
-			                stmt.executeUpdate(sql);
-		        			for (int i = 0; i < userIDList.size(); i++) {
-		        				String userID = userIDList.get(i);
-		        				sql = "insert into messageaccess values('"+messageID+"','"+userID+"')";
-		        				stmt.executeUpdate(sql);
-		        			}
-			                conn.commit();
-			            }
-			            catch (SQLException ae){
-			            	JOptionPane.showMessageDialog(this,"Unable to insert", "Attention",JOptionPane.ERROR_MESSAGE);
-			            	ae.printStackTrace();
-			            }
-						messageNewChat.add(new Message(messageID,username,message,createTime));
 					}
+					List<String> userIDList = new ArrayList<>();
+					rs = ((java.sql.Statement)stmt).executeQuery("select userID from inboxparticipants where inboxID ='"+inboxID+"'");
+        			while (rs.next()) {
+        				String userID = rs.getString("userID");
+        				userIDList.add(userID);
+        			}
+					try {
+		                conn.setAutoCommit(false);
+		                String sql = "insert into messages values('"+messageID+"','"+inboxID+"',(select UserID from users where UserName = '"+username+"'),'"+message+"','','"+createTime+"')";
+		                stmt.executeUpdate(sql);
+		                sql = "update inbox set LastMessage='"+message+"',LastSentUserID=(select UserID from users where UserName = '"+username+"'),UpdateTime='"+createTime+"' where inboxID='"+inboxID+"'";
+		                stmt.executeUpdate(sql);
+	        			for (int i = 0; i < userIDList.size(); i++) {
+	        				String userID = userIDList.get(i);
+	        				sql = "insert into messageaccess values('"+messageID+"','"+userID+"')";
+	        				stmt.executeUpdate(sql);
+	        			}
+		                conn.commit();
+		            }
+		            catch (SQLException ae){
+		            	JOptionPane.showMessageDialog(this,"Unable to insert", "Attention",JOptionPane.ERROR_MESSAGE);
+		            	ae.printStackTrace();
+		            }
+					messageNewChat.add(new Message(messageID,username,message,createTime));
 				} catch (SQLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -1382,17 +1511,10 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		    	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
 		    	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
 		    	iconMore = new ImageIcon(newimgMore);
-		        buttonGroupOption = new JButton(iconMore);
-		        buttonGroupOption.setBounds(550,10,40,40);
-		        buttonGroupOption.setFocusable(false);
-		        buttonGroupOption.addActionListener(this);
-		        buttonGroupOption.setOpaque(false);
-		        buttonGroupOption.setContentAreaFilled(false);
 		        
 		        panelGroupName.add(labelGroupAvatar);
 		    	panelGroupName.add(labelGroupName);
 		    	panelGroupName.add(labelGroupStatus);
-		    	panelGroupName.add(buttonGroupOption);
 		    	panelGroupName.setBounds(0,0,596,60);
 		    	
 		    	panelGroupChat = new JPanel();
@@ -1474,6 +1596,13 @@ public class HomeScreen  extends JFrame implements ActionListener {
 				
 				add(panelChat, BorderLayout.EAST);
 				validate();
+				try {
+					stmt.close();
+					conn.close();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -1519,9 +1648,10 @@ public class HomeScreen  extends JFrame implements ActionListener {
 			}
 			
 			if (typeInbox.equals("individual")) {
+				
 				String inboxID="";
 				try {
-					rs = ((java.sql.Statement)stmt).executeQuery("SELECT distinct InboxID from (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+username+"')) as table1 inner join  (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+inboxName+"')) as table2 using(InboxID)");
+					rs = ((java.sql.Statement)stmt).executeQuery("SELECT inbox.InboxID from inbox where TypeInbox = 'individual' and inbox.InboxID IN (SELECT distinct InboxID from (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+username+"')) as table1 inner join  (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+inboxName+"')) as table2 using(InboxID))");
 					rs.next();
 					inboxID = rs.getString("InboxID");
 				} catch (SQLException e2) {
@@ -1618,17 +1748,10 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		    	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
 		    	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
 		    	iconMore = new ImageIcon(newimgMore);
-		        buttonGroupOption = new JButton(iconMore);
-		        buttonGroupOption.setBounds(550,10,40,40);
-		        buttonGroupOption.setFocusable(false);
-		        buttonGroupOption.addActionListener(HomeScreen.this);
-		        buttonGroupOption.setOpaque(false);
-		        buttonGroupOption.setContentAreaFilled(false);
-		        
+  
 		        panelGroupName.add(labelGroupAvatar);
 		    	panelGroupName.add(labelGroupName);
 		    	panelGroupName.add(labelGroupStatus);
-		    	panelGroupName.add(buttonGroupOption);
 		    	panelGroupName.setBounds(0,0,596,60);
 		    	
 		    	panelGroupChat = new JPanel();
@@ -1709,6 +1832,13 @@ public class HomeScreen  extends JFrame implements ActionListener {
 				
 				add(panelChat, BorderLayout.EAST);
 				validate();
+				try {
+					stmt.close();
+					conn.close();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 			else {
 				List<Message> messageButtonSend = new ArrayList<>();
@@ -1814,7 +1944,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        	
 		        	Icon avatarMessage = new ImageIcon("source/image/iconUserMenu.png");
 		        	Image imageMessage = ((ImageIcon) avatarMessage).getImage(); // transform it 
-		        	Image newimgMessage = imageMessage.getScaledInstance(24, 24,  java.awt.Image.SCALE_SMOOTH);
+		        	Image newimgMessage = imageMessage.getScaledInstance(48, 48,  java.awt.Image.SCALE_SMOOTH);
 		        	avatarMessage = new ImageIcon(newimgMessage);
 		        	
 		        	JLabel avatarLabel = new JLabel(avatar);
@@ -1883,6 +2013,13 @@ public class HomeScreen  extends JFrame implements ActionListener {
 				
 				add(panelChat, BorderLayout.EAST);
 				validate();
+				try {
+					stmt.close();
+					conn.close();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		}
 		else if (e.getSource() == buttonNewChatOnlineSend) {
@@ -1891,12 +2028,6 @@ public class HomeScreen  extends JFrame implements ActionListener {
 			if (message.isEmpty()) {
 				JOptionPane.showMessageDialog(this,"Please input a message", "Attention",JOptionPane.ERROR_MESSAGE);
                 return;
-			}
-			try {
-				Class.forName("com.mysql.cj.jdbc.Driver");
-			} catch (ClassNotFoundException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
 			}
 			try {
 				conn = DriverManager.getConnection(Main.DB_URL, Main.USER, Main.PASS);
@@ -1915,7 +2046,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 			int messagecount = 0;
 			String inboxID;
 			try {
-				rs = ((java.sql.Statement)stmt).executeQuery("SELECT distinct InboxID from (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+username+"')) as table1 inner join  (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+friendUserName+"')) as table2 using(InboxID)");
+				rs = ((java.sql.Statement)stmt).executeQuery("SELECT inbox.InboxID from inbox where TypeInbox = 'individual' and inbox.InboxID IN (SELECT distinct InboxID from (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+username+"')) as table1 inner join  (SELECT * FROM inboxparticipants where UserID = (select UserID from users where UserName = '"+friendUserName+"')) as table2 using(InboxID))");
 				String inboxName;
 				if (!rs.isBeforeFirst() ) {    
 					inboxID = UUID.randomUUID().toString();
@@ -2047,17 +2178,10 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		    	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
 		    	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
 		    	iconMore = new ImageIcon(newimgMore);
-		        buttonGroupOption = new JButton(iconMore);
-		        buttonGroupOption.setBounds(550,10,40,40);
-		        buttonGroupOption.setFocusable(false);
-		        buttonGroupOption.addActionListener(this);
-		        buttonGroupOption.setOpaque(false);
-		        buttonGroupOption.setContentAreaFilled(false);
 		        
 		        panelGroupName.add(labelGroupAvatar);
 		    	panelGroupName.add(labelGroupName);
 		    	panelGroupName.add(labelGroupStatus);
-		    	panelGroupName.add(buttonGroupOption);
 		    	panelGroupName.setBounds(0,0,596,60);
 		    	
 		    	panelGroupChat = new JPanel();
@@ -2139,6 +2263,208 @@ public class HomeScreen  extends JFrame implements ActionListener {
 				
 				add(panelChat, BorderLayout.EAST);
 				validate();
+				try {
+					stmt.close();
+					conn.close();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+		else if (e.getSource() == buttonCreateGroup) {
+			if (threadGroup != null) {
+	    		threadGroup.stop();
+	    		threadGroup = null;
+	    	}
+			inboxCurrentlyOpen = "";
+			remove(panelChat);
+			
+			panelChat = new JPanel();
+	        panelChat.setPreferredSize(new Dimension(596,600)); // Được sử dụng khi setSize đã có trong phần cha lớn.
+	        panelChat.setLayout(null);
+	        panelChat.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+	        
+	        try {
+				Class.forName("com.mysql.cj.jdbc.Driver");
+			} catch (ClassNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			try {
+				conn = DriverManager.getConnection(Main.DB_URL, Main.USER, Main.PASS);
+			} catch (SQLException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			try {
+				stmt = conn.createStatement();
+			} catch (SQLException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			
+			DefaultListModel<String> allFriend = new DefaultListModel<String>();
+			try {
+				rs = ((java.sql.Statement)stmt).executeQuery("select users.UserName from friendlist left join users on users.userID = friendlist.FriendID where friendlist.userID = (select UserID from users where UserName = '"+ username + "')");
+				while (rs.next()) {
+					allFriend.addElement(rs.getString("UserName"));
+				}
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+			JLabel labelNewChat = new JLabel("NEW GROUP");
+			labelNewChat.setBounds(20,10,200,50);
+			labelNewChat.setFont(Main.fontBigBold);
+			
+			JLabel labelInputGroupName = new JLabel("PLEASE CHOOSE YOUR GROUP NAME");
+			labelInputGroupName.setFont(Main.fontSmallestBoldItalic);
+			labelInputGroupName.setBounds(20,60,400,40);
+			
+			textFieldInputGroupName = new JTextField("");
+			textFieldInputGroupName.setBounds(20,100,556,40);
+			
+			JLabel labelInputFriendName = new JLabel("PLEASE CHOOSE YOUR GROUP PARTICIPANTS");
+			labelInputFriendName.setFont(Main.fontSmallestBoldItalic);
+			labelInputFriendName.setBounds(20,140,400,40);
+			
+			listChooseGroupParticipant = new JList();
+			listChooseGroupParticipant.setModel(allFriend);
+			listChooseGroupParticipant.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			
+			JScrollPane jScrollPaneListFriend = new JScrollPane(listChooseGroupParticipant);
+			jScrollPaneListFriend.setBounds(20,180,556,100);
+			
+			buttonChoose = new JButton("CHOOSE PARTICIPANT");
+			buttonChoose.setBounds(260,290,300,40);
+			buttonChoose.setFocusable(false);
+			buttonChoose.addActionListener(this);
+			
+			JLabel labelInputAdmin = new JLabel("PLEASE CHOOSE YOUR ADMIN");
+			labelInputAdmin.setFont(Main.fontSmallestBoldItalic);
+			labelInputAdmin.setBounds(20,360,400,40);
+			
+			listChooseAdmin = new JList();
+			listChooseAdmin.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			
+			JScrollPane jScrollPaneChooseAdmin = new JScrollPane(listChooseAdmin);
+			jScrollPaneChooseAdmin.setBounds(20,400,556,100);
+			
+			buttonConfirmCreateGroup = new JButton("CREATE GROUP");
+			buttonConfirmCreateGroup.setBounds(260,510,300,40);
+			buttonConfirmCreateGroup.setFocusable(false);
+			buttonConfirmCreateGroup.addActionListener(this);
+			
+			panelChat.add(labelInputGroupName);
+			panelChat.add(textFieldInputGroupName);
+			panelChat.add(labelNewChat);
+			panelChat.add(labelInputFriendName);
+			panelChat.add(jScrollPaneListFriend);
+			panelChat.add(jScrollPaneChooseAdmin);
+			panelChat.add(buttonChoose);
+			panelChat.add(labelInputAdmin);
+			panelChat.add(buttonConfirmCreateGroup);
+	        
+			add(panelChat, BorderLayout.EAST);
+			validate();
+			try {
+				stmt.close();
+				conn.close();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+		else if (e.getSource() == buttonChoose) {
+			groupParticipant.clear();
+			 if (listChooseGroupParticipant.getSelectedIndex() != -1) {
+				 DefaultListModel<String> allParticipant = new DefaultListModel<String>();
+                 for (Object participant : listChooseGroupParticipant.getSelectedValues()) {
+                     groupParticipant.add(participant.toString());
+                     allParticipant.addElement(participant.toString());
+                 }
+                 listChooseAdmin.setModel(allParticipant);
+             }
+			 else {
+				 JOptionPane.showMessageDialog(this,"Please choose group participant", "Attention",JOptionPane.ERROR_MESSAGE);
+	             return;
+			 }
+		}
+		else if (e.getSource() == buttonConfirmCreateGroup) {
+			try {
+				Class.forName("com.mysql.cj.jdbc.Driver");
+			} catch (ClassNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			try {
+				conn = DriverManager.getConnection(Main.DB_URL, Main.USER, Main.PASS);
+			} catch (SQLException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			try {
+				stmt = conn.createStatement();
+			} catch (SQLException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			String groupName = textFieldInputGroupName.getText();
+			if (groupName.isEmpty()) {
+				JOptionPane.showMessageDialog(this,"Please input group name", "Attention",JOptionPane.ERROR_MESSAGE);
+	            return;
+			}
+			groupAdmin.clear();
+			if (listChooseAdmin.getSelectedIndex() != -1) {
+                for (Object admin : listChooseAdmin.getSelectedValues()) {
+                    groupAdmin.add(admin.toString());
+                }
+                groupAdmin.add(username);
+                groupParticipant.add(username);
+            }	
+			 else {
+				 JOptionPane.showMessageDialog(this,"Please choose group admin", "Attention",JOptionPane.ERROR_MESSAGE);
+	             return;
+			 }
+			ResultSet rs;
+			String inboxID;
+			try {
+				rs = stmt.executeQuery("select count(*) as total from inbox where InboxName = '"+groupName+"'");
+				rs.next();
+				if (rs.getInt("total") == 1) {    
+					JOptionPane.showMessageDialog(this,"This inbox name already exists", "Attention",JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				inboxID = UUID.randomUUID().toString();
+				conn.setAutoCommit(false);
+				String createTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date());
+				String sql = "insert into inbox values ('"+inboxID+"','"+groupName+"','group','Đã tạo nhóm',(select UserID from users where UserName='"+username+"'),'"+createTime+"','"+createTime+"')";
+                stmt.executeUpdate(sql);
+                for (int i = 0; i < groupParticipant.size(); i++) {
+    				String name = groupParticipant.get(i);
+    				sql = "insert into inboxparticipants values('"+inboxID+"',(select UserID from users where UserName = '"+name+"'))";
+	                stmt.executeUpdate(sql);
+    			}
+                for (int i = 0; i < groupAdmin.size(); i++) {
+    				String name = groupAdmin.get(i);
+    				sql = "insert into admingroup values('"+inboxID+"',(select UserID from users where UserName = '"+name+"'))";
+	                stmt.executeUpdate(sql);
+    			}
+                conn.commit();
+                JOptionPane.showMessageDialog(this,"Create group success");
+			}
+			catch (SQLException ae){
+            	JOptionPane.showMessageDialog(this,"Unable to insert", "Attention",JOptionPane.ERROR_MESSAGE);
+            	ae.printStackTrace();
+            }
+			try {
+				stmt.close();
+				conn.close();
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -2153,13 +2479,6 @@ public class HomeScreen  extends JFrame implements ActionListener {
         this.setLocationRelativeTo(null);
         this.setVisible(true);
         this.setResizable(false);
-        
-        try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
-		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
 		try {
 			conn = DriverManager.getConnection(Main.DB_URL, Main.USER, Main.PASS);
 		} catch (SQLException e2) {
@@ -2177,43 +2496,50 @@ public class HomeScreen  extends JFrame implements ActionListener {
         addWindowListener(new WindowAdapter() {
         	@Override
         	public void windowClosing(WindowEvent e) {
-        		if(conn != null) {
+        		try {
         			try {
-        				try {
-        					String createTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date());
-        					conn.setAutoCommit(false);
-    		                String sql = "update activestatus set OnlineStatus = false,OfflineTime='"+createTime+"' where UserID = (select UserID from users where UserName = '"+ username + "')";
-    		                stmt.executeUpdate(sql);
-    		                conn.commit();
-    		            }
-    		            catch (SQLException ae){
-    		            	
-    		            }
-        				stmt.close();
-						conn.close();
-						if(client != null) {
-		        			try {
-								clientOut = client.getOutputStream();
-								pw = new PrintWriter(clientOut, true);
-								pw.println("````exit");
-								pw.close();
-				                br.close();
-				                client.close();
-				                stopRead = false;
-							} catch (IOException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
+        				conn = DriverManager.getConnection(Main.DB_URL, Main.USER, Main.PASS);
+        			} catch (SQLException e2) {
+        				// TODO Auto-generated catch block
+        				e2.printStackTrace();
+        			}
+        			try {
+        				stmt = conn.createStatement();
+        			} catch (SQLException e2) {
+        				// TODO Auto-generated catch block
+        				e2.printStackTrace();
+        			}
+    				try {
+    					String createTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date());
+    					conn.setAutoCommit(false);
+		                String sql = "update activestatus set OnlineStatus = false,OfflineTime='"+createTime+"' where UserID = (select UserID from users where UserName = '"+ username + "')";
+		                stmt.executeUpdate(sql);
+		                conn.commit();
+		            }
+		            catch (SQLException ae){
+		            	
+		            }
+    				stmt.close();
+					conn.close();
+					if(client != null) {
+	        			try {
+							clientOut = client.getOutputStream();
+							pw = new PrintWriter(clientOut, true);
+							pw.println("````exit");
+							pw.close();
+			                br.close();
+			                client.close();
+			                stopRead = false;
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
 						}
-						System.exit(0);
-					} catch (SQLException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
 					}
-        		}
-        		else {
-        			System.exit(0);
-        		}
+					System.exit(0);
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
         	}
         });
         
@@ -2267,6 +2593,14 @@ public class HomeScreen  extends JFrame implements ActionListener {
         labelList = new JLabel("CHATS");
         labelList.setBounds(20,10,200,50);
         labelList.setFont(Main.fontBigBold);
+        
+        Icon iconCreateGroup = new ImageIcon("source/image/createGroup.png");
+        buttonCreateGroup = new JButton(iconCreateGroup);
+        buttonCreateGroup.setBounds(210,10,50,50);
+        buttonCreateGroup.setFocusable(false);
+        buttonCreateGroup.addActionListener(this);
+        buttonCreateGroup.setOpaque(false);
+        buttonCreateGroup.setContentAreaFilled(false);
         
         Icon iconNewChat = new ImageIcon("source/image/iconNewChat.png");
         buttonNewChat = new JButton(iconNewChat);
@@ -2448,6 +2782,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
         }
     	
         panelList.add(labelList);
+        panelList.add(buttonCreateGroup);
         panelList.add(buttonNewChat);
         panelList.add(labelListFriendsOnline);
         panelList.add(scrollPaneListFriendOnline);
@@ -2469,5 +2804,12 @@ public class HomeScreen  extends JFrame implements ActionListener {
         add(panelMenu, BorderLayout.WEST);
         add(panelList, BorderLayout.CENTER);
         add(panelChat, BorderLayout.EAST);
+        try {
+			stmt.close();
+			conn.close();
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 	}
 }
