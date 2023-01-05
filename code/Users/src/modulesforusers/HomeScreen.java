@@ -1393,9 +1393,11 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		if(inputSearch.isEmpty()) {
 			if (typeInbox.equals( "individual") ) {    
 				processOpenOlineFriend(ae,searchByChoice);
+				return;
 			} 
 			else {
 				processOpenInbox(ae,searchByChoice);
+				return;
 			}
 			
 		}
