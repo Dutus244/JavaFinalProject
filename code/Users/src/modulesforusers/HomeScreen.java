@@ -45,7 +45,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 	JButton buttonUserMenu;
 	
 	JPanel panelList;
-	
+	JComboBox comboBoxSearchBy;
 	JLabel labelList;
 	JButton buttonNewChat;
 	JLabel labelListFriendsOnline;
@@ -61,6 +61,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 	JLabel labelGroupAvatar;
 	JLabel labelGroupStatus;
 	JButton buttonGroupOption;
+	JButton buttonSearchW;
 	JPanel panelGroupChat;
 	JScrollPane scrollPaneGroupChat;
 	JPanel panelInputChat;
@@ -94,7 +95,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 	BufferedReader br;
 	PrintWriter pw;
 	Socket client;
-	
+	JTextField txtSearchW;
 	static String inboxCurrentlyOpen = "";
 	
 	boolean stopRead = true;
@@ -231,6 +232,21 @@ public class HomeScreen  extends JFrame implements ActionListener {
 				    	labelGroupStatus.setFont(Main.fontSmallest);
 				    	labelGroupStatus.setBounds(60,35,200,20);
 				    	
+				    	String[] searchBy = {inboxCurrentlyOpen, "All"};
+				        comboBoxSearchBy = new JComboBox(searchBy);
+				        comboBoxSearchBy.setBounds(200,10,100,40);
+				    	Icon iconSearch = new ImageIcon("source/image/search.png");
+				    	Image imageSearch = ((ImageIcon) iconSearch).getImage(); // transform it 
+				    	Image newimgSearch = imageSearch.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
+				    	iconSearch = new ImageIcon(newimgSearch);
+				    	txtSearchW = new JTextField("");
+				        txtSearchW.setBounds(300,10,200,40);
+				        buttonSearchW = new JButton(iconSearch);
+				        
+				        buttonSearchW.setBounds(500,10,40,40);
+				        buttonSearchW.setFocusable(false);
+				        buttonSearchW.addActionListener((ActionListener) this);
+				        
 				    	Icon iconMore = new ImageIcon("source/image/iconMore.png");
 				    	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
 				    	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
@@ -709,7 +725,22 @@ public class HomeScreen  extends JFrame implements ActionListener {
 	    labelGroupStatus = new JLabel(status);
     	labelGroupStatus.setFont(Main.fontSmallest);
     	labelGroupStatus.setBounds(60,35,200,20);
-    	
+    	String[] searchBy = {inboxCurrentlyOpen, "All"};
+        comboBoxSearchBy = new JComboBox(searchBy);
+        comboBoxSearchBy.setBounds(200,10,100,40);
+    	Icon iconSearch = new ImageIcon("source/image/search.png");
+    	Image imageSearch = ((ImageIcon) iconSearch).getImage(); // transform it 
+    	Image newimgSearch = imageSearch.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
+    	iconSearch = new ImageIcon(newimgSearch);
+    	txtSearchW = new JTextField("");
+        txtSearchW.setBounds(300,10,200,40);
+        buttonSearchW = new JButton(iconSearch);
+        buttonSearchW.setBounds(500,10,40,40);
+        buttonSearchW.setFocusable(false);
+        buttonSearchW.addActionListener(this);
+        buttonSearchW.setOpaque(false);
+        buttonSearchW.setContentAreaFilled(false);
+        buttonSearchW.addActionListener(this);
     	Icon iconMore = new ImageIcon("source/image/iconMore.png");
     	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
     	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
@@ -808,7 +839,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        		                buttonMessage.addActionListener( new ActionListener() {
 		        		                    public void actionPerformed(ActionEvent ae) {
 		        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
-		        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),buttonMessage));
+		        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),inboxCurrentlyOpen));
 		        		                    }
 		        		                } );
 
@@ -937,7 +968,22 @@ public class HomeScreen  extends JFrame implements ActionListener {
 	    labelGroupStatus = new JLabel(status);
     	labelGroupStatus.setFont(Main.fontSmallest);
     	labelGroupStatus.setBounds(60,35,200,20);
-    	
+    	String[] searchBy = {inboxCurrentlyOpen, "All"};
+        comboBoxSearchBy = new JComboBox(searchBy);
+        comboBoxSearchBy.setBounds(200,10,100,40);
+    	Icon iconSearch = new ImageIcon("source/image/search.png");
+    	Image imageSearch = ((ImageIcon) iconSearch).getImage(); // transform it 
+    	Image newimgSearch = imageSearch.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
+    	iconSearch = new ImageIcon(newimgSearch);
+    	txtSearchW = new JTextField("");
+        txtSearchW.setBounds(300,10,200,40);
+        buttonSearchW = new JButton(iconSearch);
+        buttonSearchW.setBounds(500,10,40,40);
+        buttonSearchW.setFocusable(false);
+        buttonSearchW.addActionListener(this);
+        buttonSearchW.setOpaque(false);
+        buttonSearchW.setContentAreaFilled(false);
+        buttonSearchW.addActionListener(this);
     	Icon iconMore = new ImageIcon("source/image/iconMore.png");
     	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
     	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
@@ -952,6 +998,9 @@ public class HomeScreen  extends JFrame implements ActionListener {
         panelGroupName.add(labelGroupAvatar);
     	panelGroupName.add(labelGroupName);
     	panelGroupName.add(labelGroupStatus);
+    	panelGroupName.add(txtSearchW);
+    	panelGroupName.add(comboBoxSearchBy);
+    	panelGroupName.add(buttonSearchW);
     	panelGroupName.add(buttonGroupOption);
     	panelGroupName.setBounds(0,0,596,60);
     	
@@ -1022,7 +1071,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        		                buttonMessage.addActionListener( new ActionListener() {
 		        		                    public void actionPerformed(ActionEvent ae) {
 		        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
-		        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),buttonMessage));
+		        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),inboxCurrentlyOpen));
 		        		                    }
 		        		                } );
 
@@ -1141,8 +1190,8 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		add(panelChat, BorderLayout.EAST);
 		validate();
     }
-    private void DeleteMessage(ActionEvent ae, String msgid, JButton buttonMessage ) {
-    	panelGroupChat.remove(buttonMessage);
+    private void DeleteMessage(ActionEvent ae, String msgid, String inboxName ) {
+//    	panelGroupChat.remove(buttonMessage);
     	try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
 		} catch (ClassNotFoundException e1) {
@@ -1167,7 +1216,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		} catch (SQLException e1) {
 						e1.printStackTrace();
 		}
-		
+		processOpenInbox(ae,inboxName);
     }
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -1426,6 +1475,23 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		    	labelGroupStatus.setFont(Main.fontSmallest);
 		    	labelGroupStatus.setBounds(60,35,200,20);
 		    	
+		    	String[] searchBy = {inboxCurrentlyOpen, "All"};
+		        comboBoxSearchBy = new JComboBox(searchBy);
+		        comboBoxSearchBy.setBounds(200,10,100,40);
+		    	Icon iconSearch = new ImageIcon("source/image/search.png");
+		    	Image imageSearch = ((ImageIcon) iconSearch).getImage(); // transform it 
+		    	Image newimgSearch = imageSearch.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
+		    	iconSearch = new ImageIcon(newimgSearch);
+		    	txtSearchW = new JTextField("");
+		        txtSearchW.setBounds(300,10,200,40);
+		        buttonSearchW = new JButton(iconSearch);
+		        buttonSearchW.setBounds(500,10,40,40);
+		        buttonSearchW.setFocusable(false);
+		        buttonSearchW.addActionListener(this);
+		        buttonSearchW.setOpaque(false);
+		        buttonSearchW.setContentAreaFilled(false);
+		        buttonSearchW.addActionListener(this);
+		        
 		    	Icon iconMore = new ImageIcon("source/image/iconMore.png");
 		    	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
 		    	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
@@ -1661,7 +1727,22 @@ public class HomeScreen  extends JFrame implements ActionListener {
 			    labelGroupStatus = new JLabel(status);
 		    	labelGroupStatus.setFont(Main.fontSmallest);
 		    	labelGroupStatus.setBounds(60,35,200,20);
-		    	
+		    	String[] searchBy = {inboxCurrentlyOpen, "All"};
+		        comboBoxSearchBy = new JComboBox(searchBy);
+		        comboBoxSearchBy.setBounds(200,10,100,40);
+		    	Icon iconSearch = new ImageIcon("source/image/search.png");
+		    	Image imageSearch = ((ImageIcon) iconSearch).getImage(); // transform it 
+		    	Image newimgSearch = imageSearch.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
+		    	iconSearch = new ImageIcon(newimgSearch);
+		    	txtSearchW = new JTextField("");
+		        txtSearchW.setBounds(300,10,200,40);
+		        buttonSearchW = new JButton(iconSearch);
+		        buttonSearchW.setBounds(500,10,40,40);
+		        buttonSearchW.setFocusable(false);
+		        buttonSearchW.addActionListener(this);
+		        buttonSearchW.setOpaque(false);
+		        buttonSearchW.setContentAreaFilled(false);
+		        buttonSearchW.addActionListener(this);
 		    	Icon iconMore = new ImageIcon("source/image/iconMore.png");
 		    	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
 		    	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
@@ -1725,7 +1806,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        		                buttonMessage.addActionListener( new ActionListener() {
 		        		                    public void actionPerformed(ActionEvent ae) {
 		        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
-		        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),buttonMessage));
+		        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),inboxCurrentlyOpen));
 		        		                    }
 		        		                } );
 		        	panelGroupChat.add(buttonMessage);
@@ -1844,7 +1925,22 @@ public class HomeScreen  extends JFrame implements ActionListener {
 			    labelGroupStatus = new JLabel("");
 		    	labelGroupStatus.setFont(Main.fontSmallest);
 		    	labelGroupStatus.setBounds(60,35,200,20);
-		    	
+		    	String[] searchBy = {inboxCurrentlyOpen, "All"};
+		        comboBoxSearchBy = new JComboBox(searchBy);
+		        comboBoxSearchBy.setBounds(200,10,100,40);
+		    	Icon iconSearch = new ImageIcon("source/image/search.png");
+		    	Image imageSearch = ((ImageIcon) iconSearch).getImage(); // transform it 
+		    	Image newimgSearch = imageSearch.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
+		    	iconSearch = new ImageIcon(newimgSearch);
+		    	txtSearchW = new JTextField("");
+		        txtSearchW.setBounds(300,10,200,40);
+		        buttonSearchW = new JButton(iconSearch);
+		        buttonSearchW.setBounds(500,10,40,40);
+		        buttonSearchW.setFocusable(false);
+		        buttonSearchW.addActionListener(this);
+		        buttonSearchW.setOpaque(false);
+		        buttonSearchW.setContentAreaFilled(false);
+		        buttonSearchW.addActionListener(this);
 		    	Icon iconMore = new ImageIcon("source/image/iconMore.png");
 		    	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
 		    	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
@@ -1908,7 +2004,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        		                buttonMessage.addActionListener( new ActionListener() {
 		        		                    public void actionPerformed(ActionEvent ae) {
 		        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
-		        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),buttonMessage));
+		        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),inboxCurrentlyOpen));
 		        		                    }
 		        		                } );
 		        	panelGroupChat.add(buttonMessage);
@@ -2108,7 +2204,22 @@ public class HomeScreen  extends JFrame implements ActionListener {
 			    labelGroupStatus = new JLabel(status);
 		    	labelGroupStatus.setFont(Main.fontSmallest);
 		    	labelGroupStatus.setBounds(60,35,200,20);
-		    	
+		    	String[] searchBy = {inboxCurrentlyOpen, "All"};
+		        comboBoxSearchBy = new JComboBox(searchBy);
+		        comboBoxSearchBy.setBounds(200,10,100,40);
+		    	Icon iconSearch = new ImageIcon("source/image/search.png");
+		    	Image imageSearch = ((ImageIcon) iconSearch).getImage(); // transform it 
+		    	Image newimgSearch = imageSearch.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
+		    	iconSearch = new ImageIcon(newimgSearch);
+		    	txtSearchW = new JTextField("");
+		        txtSearchW.setBounds(300,10,200,40);
+		        buttonSearchW = new JButton(iconSearch);
+		        buttonSearchW.setBounds(500,10,40,40);
+		        buttonSearchW.setFocusable(false);
+		        buttonSearchW.addActionListener(this);
+		        buttonSearchW.setOpaque(false);
+		        buttonSearchW.setContentAreaFilled(false);
+		        buttonSearchW.addActionListener(this);
 		    	Icon iconMore = new ImageIcon("source/image/iconMore.png");
 		    	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
 		    	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
@@ -2173,7 +2284,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        		                buttonMessage.addActionListener( new ActionListener() {
 		        		                    public void actionPerformed(ActionEvent ae) {
 		        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
-		        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),buttonMessage));
+		        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),inboxCurrentlyOpen));
 		        		                    }
 		        		                } );
 		        	panelGroupChat.add(buttonMessage);
