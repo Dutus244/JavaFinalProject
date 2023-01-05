@@ -256,7 +256,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 				        
 				        buttonSearchW.setBounds(500,10,40,40);
 				        buttonSearchW.setFocusable(false);
-				        buttonSearchW.addActionListener(event->searchMessage(event,txtSearchW.getText(),comboBoxSearchBy.getSelectedItem().toString()));
+				        buttonSearchW.addActionListener(event->searchMessage(event,txtSearchW.getText(),comboBoxSearchBy.getSelectedItem().toString(),"individual"));
 
 				        
 				    	Icon iconMore = new ImageIcon("source/image/iconMore.png");
@@ -763,7 +763,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
         buttonSearchW = new JButton(iconSearch);
         buttonSearchW.setBounds(500,10,40,40);
         buttonSearchW.setFocusable(false);
-        buttonSearchW.addActionListener(event->searchMessage(event,txtSearchW.getText(),comboBoxSearchBy.getSelectedItem().toString()));
+        buttonSearchW.addActionListener(event->searchMessage(event,txtSearchW.getText(),comboBoxSearchBy.getSelectedItem().toString(),"individual"));
 
         buttonSearchW.setOpaque(false);
         buttonSearchW.setContentAreaFilled(false);
@@ -975,7 +975,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 	    labelGroupName = new JLabel(inboxName);
 	    labelGroupName.setFont(Main.fontBigBold);
 	    labelGroupName.setBounds(60,10,200,20);
-	    
+	   
 	    String status ="";
 	    if (typeInbox.equals("individual")) {
 	    	try {
@@ -1008,7 +1008,8 @@ public class HomeScreen  extends JFrame implements ActionListener {
         buttonSearchW = new JButton(iconSearch);
         buttonSearchW.setBounds(500,10,40,40);
         buttonSearchW.setFocusable(false);
-        buttonSearchW.addActionListener(event->searchMessage(event,txtSearchW.getText(),comboBoxSearchBy.getSelectedItem().toString()));
+        JLabel typeInboxx = new JLabel(typeInbox);
+        buttonSearchW.addActionListener(event->searchMessage(event,txtSearchW.getText(),comboBoxSearchBy.getSelectedItem().toString(),typeInboxx.getText()));
 
         buttonSearchW.setOpaque(false);
         buttonSearchW.setContentAreaFilled(false);
@@ -1236,7 +1237,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 						int messagecount = 100;
 				        int count = 0;
 				        try {
-							rsThread3 = ((java.sql.Statement)stmtThread3).executeQuery("select MessID,UserName,Message,messages.CreateTime from messages left join users on messages.UserID = users.UserID where messages.InboxID = (select InboxID from inbox where InboxName='"+inboxName+"') ORDER BY messages.CreateTime ASC");
+							rsThread3 = ((java.sql.Statement)stmtThread3).executeQuery("select messages.MessID, users.UserName, messages.Message,messages.CreateTime from messages join messageaccess on messageaccess.messid = messages.MessID and messageaccess.UserID = (select userid from users where username='"+username+"') left join users on messages.UserID = users.UserID where messages.InboxID =(select InboxID from inbox where InboxName='"+inboxName+"') ORDER BY messages.CreateTime ASC");
 							while (rsThread3.next()) {
 								messageListOpenInbox.add(new Message(rsThread3.getString("MessID"),rsThread3.getString("UserName"),rsThread3.getString("Message"),rsThread3.getString("CreateTime")));
 								count++;
@@ -1387,10 +1388,16 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		}
 		processOpenInbox(ae,inboxName);
     }
-	private void searchMessage(ActionEvent ae,String inputSearch,String searchByChoice) {
+	private void searchMessage(ActionEvent ae,String inputSearch,String searchByChoice,String typeInbox) {
 	//123
 		if(inputSearch.isEmpty()) {
-			processOpenOlineFriend(ae,searchByChoice);
+			if (typeInbox.equals( "individual") ) {    
+				processOpenOlineFriend(ae,searchByChoice);
+			} 
+			else {
+				processOpenInbox(ae,searchByChoice);
+			}
+			
 		}
 		remove(panelChat);
 		if(searchByChoice =="All") {
@@ -1415,19 +1422,19 @@ public class HomeScreen  extends JFrame implements ActionListener {
 				e2.printStackTrace();
 			}
 			
-			String typeInbox = "";
-			try {
-				rs = ((java.sql.Statement)stmt).executeQuery("SELECT * from inbox where InboxName='"+inboxCurrentlyOpen+"'");
-				if (!rs.isBeforeFirst() ) {    
-					typeInbox = "individual";
-				} 
-				else {
-					typeInbox = "group";
-				}
-			} catch (SQLException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}
+//			String typeInbox = "";
+//			try {
+//				rs = ((java.sql.Statement)stmt).executeQuery("SELECT * from inbox where InboxName='"+inboxCurrentlyOpen+"'");
+//				if (!rs.isBeforeFirst() ) {    
+//					typeInbox = "individual";
+//				} 
+//				else {
+//					typeInbox = "group";
+//				}
+//			} catch (SQLException e2) {
+//				// TODO Auto-generated catch block
+//				e2.printStackTrace();
+//			}
 			
 			
 			//inboxCurrentlyOpen = inboxName;
@@ -1485,7 +1492,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 	        buttonSearchW = new JButton(iconSearch);
 	        buttonSearchW.setBounds(500,10,40,40);
 	        buttonSearchW.setFocusable(false);
-	        buttonSearchW.addActionListener(event->searchMessage(event,txtSearchW.getText(),comboBoxSearchBy.getSelectedItem().toString()));
+	        buttonSearchW.addActionListener(event->searchMessage(event,txtSearchW.getText(),comboBoxSearchBy.getSelectedItem().toString(),typeInbox));
 	        buttonSearchW.setOpaque(false);
 	        buttonSearchW.setContentAreaFilled(false);
 	    
@@ -2104,7 +2111,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        buttonSearchW = new JButton(iconSearch);
 		        buttonSearchW.setBounds(500,10,40,40);
 		        buttonSearchW.setFocusable(false);
-		        buttonSearchW.addActionListener(event->searchMessage(event,txtSearchW.getText(),comboBoxSearchBy.getSelectedItem().toString()));
+		        buttonSearchW.addActionListener(event->searchMessage(event,txtSearchW.getText(),comboBoxSearchBy.getSelectedItem().toString(),"individual"));
 		        buttonSearchW.setOpaque(false);
 		        buttonSearchW.setContentAreaFilled(false);
 		 
@@ -2371,7 +2378,8 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        buttonSearchW = new JButton(iconSearch);
 		        buttonSearchW.setBounds(500,10,40,40);
 		        buttonSearchW.setFocusable(false);
-		        buttonSearchW.addActionListener(event->searchMessage(event,txtSearchW.getText(),comboBoxSearchBy.getSelectedItem().toString()));
+		        JLabel typeInboxx = new JLabel(typeInbox);
+		        buttonSearchW.addActionListener(event->searchMessage(event,txtSearchW.getText(),comboBoxSearchBy.getSelectedItem().toString(),typeInboxx.getText()));
 		        buttonSearchW.setOpaque(false);
 		        buttonSearchW.setContentAreaFilled(false);
 
@@ -2572,7 +2580,8 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        buttonSearchW = new JButton(iconSearch);
 		        buttonSearchW.setBounds(500,10,40,40);
 		        buttonSearchW.setFocusable(false);
-		        buttonSearchW.addActionListener(event->searchMessage(event,txtSearchW.getText(),comboBoxSearchBy.getSelectedItem().toString()));
+		        JLabel typeInboxx = new JLabel(typeInbox);
+		        buttonSearchW.addActionListener(event->searchMessage(event,txtSearchW.getText(),comboBoxSearchBy.getSelectedItem().toString(),typeInboxx.getText()));
 
 		        buttonSearchW.setOpaque(false);
 		        buttonSearchW.setContentAreaFilled(false);
@@ -2856,7 +2865,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        buttonSearchW = new JButton(iconSearch);
 		        buttonSearchW.setBounds(500,10,40,40);
 		        buttonSearchW.setFocusable(false);
-		        buttonSearchW.addActionListener(event->searchMessage(event,txtSearchW.getText(),comboBoxSearchBy.getSelectedItem().toString()));
+		        buttonSearchW.addActionListener(event->searchMessage(event,txtSearchW.getText(),comboBoxSearchBy.getSelectedItem().toString(),"individual"));
 
 		        buttonSearchW.setOpaque(false);
 		        buttonSearchW.setContentAreaFilled(false);
