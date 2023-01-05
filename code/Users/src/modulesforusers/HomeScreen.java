@@ -1389,7 +1389,10 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		processOpenInbox(ae,inboxName);
     }
 	private void searchMessage(ActionEvent ae,String inputSearch,String searchByChoice,String typeInbox) {
-	//123
+		if (threadGroup != null) {
+    		threadGroup.stop();
+    		threadGroup = null;
+    	}
 		if(inputSearch.isEmpty()) {
 			if (typeInbox.equals( "individual") ) {    
 				processOpenOlineFriend(ae,searchByChoice);
@@ -1401,9 +1404,171 @@ public class HomeScreen  extends JFrame implements ActionListener {
 			}
 			
 		}
-		remove(panelChat);
-		if(searchByChoice =="All") {
+		
+		if(searchByChoice.equals("All")) {
+			//select messages.MessID, users.UserName,inbox.InboxName,inbox.TypeInbox, messages.Message,messages.CreateTime from messages join messageaccess on messageaccess.messid = messages.MessID and messageaccess.UserID = (select userid from users where username='cien') left join users on messages.UserID = users.UserID  join inbox on messages.InboxID = inbox.InboxID  and messages.Message like '%h%' ORDER BY messages.CreateTime ASC;
+			try {
+				conn = DriverManager.getConnection(Main.DB_URL, Main.USER, Main.PASS);
+			} catch (SQLException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			try {
+				stmt = conn.createStatement();
+			} catch (SQLException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
 			
+
+			remove(panelChat);
+			panelChat = new JPanel();
+	        panelChat.setPreferredSize(new Dimension(596,600)); // Được sử dụng khi setSize đã có trong phần cha lớn.
+	        panelChat.setLayout(null);
+	        panelChat.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+	        
+			panelGroupName = new JPanel();
+		    panelGroupName.setPreferredSize(new Dimension(596,60));
+		    panelGroupName.setLayout(null);
+		    panelGroupName.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		        
+		    
+	
+		    labelGroupName = new JLabel("Search All");
+		    labelGroupName.setFont(Main.fontBigBold);
+		    labelGroupName.setBounds(60,10,200,20);
+		
+	    	String[] searchBy = {"All",inboxCurrentlyOpen };
+	        comboBoxSearchBy = new JComboBox(searchBy);
+	        comboBoxSearchBy.setBounds(200,10,100,40);
+	    	Icon iconSearch = new ImageIcon("source/image/search.png");
+	    	Image imageSearch = ((ImageIcon) iconSearch).getImage(); // transform it 
+	    	Image newimgSearch = imageSearch.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
+	    	iconSearch = new ImageIcon(newimgSearch);
+	    	txtSearchW = new JTextField(inputSearch);
+	        txtSearchW.setBounds(300,10,200,40);
+	        buttonSearchW = new JButton(iconSearch);
+	        buttonSearchW.setBounds(500,10,40,40);
+	        buttonSearchW.setFocusable(false);
+	        buttonSearchW.addActionListener(event->searchMessage(event,txtSearchW.getText(),comboBoxSearchBy.getSelectedItem().toString(),typeInbox));
+	        buttonSearchW.setOpaque(false);
+	        buttonSearchW.setContentAreaFilled(false);
+	    
+	        Icon avatar = new ImageIcon("source/image/iconUserMenu.png");
+		    Image image = ((ImageIcon) avatar).getImage(); // transform it 
+		    Image newimg = image.getScaledInstance(48, 48,  java.awt.Image.SCALE_SMOOTH);
+		    avatar = new ImageIcon(newimg);
+		    labelGroupAvatar = new JLabel(avatar);
+		    labelGroupAvatar.setBounds(10,10,40,40);
+	    	panelGroupName.add(labelGroupName);
+	    	
+	    	panelGroupName.add(txtSearchW);
+	    	panelGroupName.add(comboBoxSearchBy);
+	    	panelGroupName.add(buttonSearchW);
+	    	panelGroupName.setBounds(0,0,596,60);
+	    	
+	    	
+    		panelGroupChat = new JPanel();
+			panelGroupChat.setLayout(new BoxLayout(panelGroupChat, BoxLayout.Y_AXIS));
+			List<Message2> messageListOpenInbox = new ArrayList<>();
+			int messagecount = 100;
+			int count = 0;
+			try {
+				rs = ((java.sql.Statement)stmt).executeQuery("select messages.MessID, users.UserName,inbox.InboxName,inbox.TypeInbox, messages.Message,messages.CreateTime from messages join messageaccess on messageaccess.messid = messages.MessID and messageaccess.UserID = (select userid from users where username='"+username+"') left join users on messages.UserID = users.UserID  join inbox on messages.InboxID = inbox.InboxID  and messages.Message like '%"+inputSearch+"%' ORDER BY messages.CreateTime ASC;");
+				while (rs.next()) {
+					messageListOpenInbox.add(new Message2(rs.getString("MessID"),rs.getString("UserName"),rs.getString("InboxName"),rs.getString("TypeInbox"),rs.getString("Message"),rs.getString("CreateTime")));
+					count++;
+				}
+				messagecount = count;
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			for (int i = 0; i < messageListOpenInbox.size(); i++) {
+				JPanel panelMessage = new JPanel();
+				panelMessage.setPreferredSize(new Dimension(576,60));
+				panelMessage.setLayout(null);
+				
+				Icon avatarMessage = new ImageIcon("source/image/iconUserMenu.png");
+				Image imageMessage = ((ImageIcon) avatarMessage).getImage(); // transform it 
+				Image newimgMessage = imageMessage.getScaledInstance(24, 24,  java.awt.Image.SCALE_SMOOTH);
+				avatarMessage = new ImageIcon(newimgMessage);
+				
+				JLabel avatarLabel = new JLabel(avatar);
+				JLabel labelMessage = new JLabel(messageListOpenInbox.get(i).getMessage());
+				JLabel labelFromName = new JLabel();
+				labelFromName.setFont(Main.fontSmallest);
+				if (!messageListOpenInbox.get(i).getUserName().equals(username)) {
+					avatarLabel.setBounds(0,10,40,40);
+					labelMessage.setBounds(50,20,200,40);
+					if(messageListOpenInbox.get(i).getTypeInbox().equals("group")) {
+						labelFromName.setText(messageListOpenInbox.get(i).getUserName() +" ("+messageListOpenInbox.get(i).getGroupName()+")");
+					}
+					else
+						labelFromName.setText(messageListOpenInbox.get(i).getUserName());
+					labelFromName.setBounds(50,0,200,20);
+				}
+				else {
+					avatarLabel.setBounds(500,10,40,40);
+					labelMessage.setBounds(350,20,200,40);
+					labelFromName.setText("You");
+					labelFromName.setBounds(350,10,200,20);
+				}
+				
+				panelMessage.add(avatarLabel);
+				panelMessage.add(labelMessage);
+				panelMessage.add(labelFromName);
+				
+				JButton buttonMessage = new JButton();
+				buttonMessage.add(panelMessage,JButton.CENTER);
+				buttonMessage.setPreferredSize(new Dimension(576,60));
+				buttonMessage.setOpaque(false);
+				buttonMessage.setContentAreaFilled(false);
+				buttonMessage.addActionListener(this);
+				JLabel messageId = new JLabel(messageListOpenInbox.get(i).getMessageID());
+				JPopupMenu menu = new JPopupMenu("Menu");
+						        	JMenuItem jmi = new JMenuItem("Delete Message");
+					                menu.add(jmi);
+					                buttonMessage.addActionListener( new ActionListener() {
+					                    public void actionPerformed(ActionEvent ae) {
+					                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
+					                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),inboxCurrentlyOpen));
+					                    }
+					                } );
+
+				panelGroupChat.add(buttonMessage);
+			}
+			if (messageListOpenInbox.size() <= 8) {
+				scrollPaneGroupChat = new JScrollPane();
+			    scrollPaneGroupChat.setPreferredSize(new Dimension(596,messageListOpenInbox.size()*60+10));
+			    scrollPaneGroupChat.setViewportView(panelGroupChat);
+			    scrollPaneGroupChat.setBounds(0,60,596,messageListOpenInbox.size()*60+10);
+			}
+			else {
+				scrollPaneGroupChat = new JScrollPane();
+			    scrollPaneGroupChat.setPreferredSize(new Dimension(596,490));
+			    scrollPaneGroupChat.setViewportView(panelGroupChat);
+			    scrollPaneGroupChat.setBounds(0,60,596,490);
+			}
+    		JScrollBar vertical = scrollPaneGroupChat.getVerticalScrollBar(); 
+	    	vertical.setValue(vertical.getMaximum());
+	    	
+	        
+	        
+	        panelChat.add(panelGroupName);
+	    	panelChat.add(scrollPaneGroupChat);
+	    	
+			add(panelChat, BorderLayout.EAST);
+			validate();
+			try {
+				stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+				
+	    	return;
 		}
 		
 		else {
@@ -1424,22 +1589,6 @@ public class HomeScreen  extends JFrame implements ActionListener {
 				e2.printStackTrace();
 			}
 			
-//			String typeInbox = "";
-//			try {
-//				rs = ((java.sql.Statement)stmt).executeQuery("SELECT * from inbox where InboxName='"+inboxCurrentlyOpen+"'");
-//				if (!rs.isBeforeFirst() ) {    
-//					typeInbox = "individual";
-//				} 
-//				else {
-//					typeInbox = "group";
-//				}
-//			} catch (SQLException e2) {
-//				// TODO Auto-generated catch block
-//				e2.printStackTrace();
-//			}
-			
-			
-			//inboxCurrentlyOpen = inboxName;
 
 			remove(panelChat);
 			panelChat = new JPanel();
