@@ -669,31 +669,11 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		
 		remove(panelChat);
 		
-		
 		panelChat = new JPanel();
         panelChat.setPreferredSize(new Dimension(596,600)); // Được sử dụng khi setSize đã có trong phần cha lớn.
         panelChat.setLayout(null);
         panelChat.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        
-        try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
-		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		try {
-			conn = DriverManager.getConnection(Main.DB_URL, Main.USER, Main.PASS);
-		} catch (SQLException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-		try {
-			stmt = conn.createStatement();
-		} catch (SQLException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-		
+        	
 		panelGroupName = new JPanel();
 	    panelGroupName.setPreferredSize(new Dimension(596,60));
 	    panelGroupName.setLayout(null);
@@ -867,7 +847,6 @@ public class HomeScreen  extends JFrame implements ActionListener {
     }
     
     private void processOpenInbox(ActionEvent ae, String inboxName) {
-    	
     	try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
 		} catch (ClassNotFoundException e1) {
