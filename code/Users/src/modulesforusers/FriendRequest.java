@@ -57,13 +57,6 @@ public class FriendRequest extends JFrame implements ActionListener {
 		initialize(Username);
 		new ReadFriendRequest().start();
 	}
-//	class ReadDatabase extends Thread{
-//		public void run() {
-//			while(ThreadContinue) {
-//				
-//			}
-//		} 
-//	}
 	Connection conn = null;
 	java.sql.Statement stmt;
 	ResultSet rs;
@@ -149,15 +142,16 @@ public class FriendRequest extends JFrame implements ActionListener {
 			            
 			            btnAccept = new JButton("ACCEPT");
 			            btnAccept.setFont(new Font("Tahoma", Font.BOLD, 16));
-			            btnAccept.setBounds(430, 11, 136, 32);
+			            btnAccept.setBounds(430, 30, 136, 32);
 			            panelFriendInfo.add(btnAccept);
 			            
 			            btnAccept.addActionListener(event -> AcceptHandle(event,lbFriendUsername.getText()));
-			            btnChat = new JButton("CHAT");
-			            btnChat.setFont(new Font("Tahoma", Font.BOLD, 16));
-			            btnChat.setBounds(430, 51, 136, 32);
-			            panelFriendInfo.add(btnChat);
-			            btnChat.addActionListener(event -> ChatOpen(event,lbFriendUsername.getText()));
+			            
+//			            btnChat = new JButton("CHAT");
+//			            btnChat.setFont(new Font("Tahoma", Font.BOLD, 16));
+//			            btnChat.setBounds(430, 51, 136, 32);
+//			            panelFriendInfo.add(btnChat);
+//			            btnChat.addActionListener(event -> ChatOpen(event,lbFriendUsername.getText()));
 			        }
 			        
 			        if(usernameList.size()<=4 ) {

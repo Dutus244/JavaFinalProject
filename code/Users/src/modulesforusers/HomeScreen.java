@@ -44,7 +44,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 	
 	
 	JPanel panelList;
-	
+	JComboBox comboBoxSearchBy;
 	JLabel labelList;
 	JButton buttonNewChat;
 	JLabel labelListFriendsOnline;
@@ -60,6 +60,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 	JLabel labelGroupAvatar;
 	JLabel labelGroupStatus;
 	JButton buttonGroupOption;
+	JButton buttonSearchW;
 	JPanel panelGroupChat;
 	JScrollPane scrollPaneGroupChat;
 	JPanel panelInputChat;
@@ -107,7 +108,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 	BufferedReader br;
 	PrintWriter pw;
 	Socket client;
-	
+	JTextField txtSearchW;
 	static String inboxCurrentlyOpen = "";
 	
 	boolean stopRead = true;
@@ -193,7 +194,8 @@ public class HomeScreen  extends JFrame implements ActionListener {
 						
 						List<Message> messageListRead = new ArrayList<>();
 				        try {
-				        	rsThread2 = ((java.sql.Statement)stmtThread2).executeQuery("select MessID,UserName,Message,messages.CreateTime from messages left join users on messages.UserID = users.UserID where messages.InboxID = '"+inboxID+"' ORDER BY messages.CreateTime ASC");
+				        	rsThread2 = ((java.sql.Statement)stmt).executeQuery("select messages.MessID, users.UserName, messages.Message,messages.CreateTime from messages join messageaccess on messageaccess.messid = messages.MessID and messageaccess.UserID = (select userid from users where username='"+username+"') left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' ORDER BY messages.CreateTime ASC");
+
 							while (rsThread2.next()) {
 								messageListRead.add(new Message(rsThread2.getString("MessID"),rsThread2.getString("UserName"),rsThread2.getString("Message"),rsThread2.getString("CreateTime")));
 							}
@@ -242,6 +244,21 @@ public class HomeScreen  extends JFrame implements ActionListener {
 				    	labelGroupStatus.setFont(Main.fontSmallest);
 				    	labelGroupStatus.setBounds(60,35,200,20);
 				    	
+				    	String[] searchBy = {inboxCurrentlyOpen, "All"};
+				        comboBoxSearchBy = new JComboBox(searchBy);
+				        comboBoxSearchBy.setBounds(200,10,100,40);
+				    	Icon iconSearch = new ImageIcon("source/image/search.png");
+				    	Image imageSearch = ((ImageIcon) iconSearch).getImage(); // transform it 
+				    	Image newimgSearch = imageSearch.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
+				    	iconSearch = new ImageIcon(newimgSearch);
+				    	txtSearchW = new JTextField("");
+				        txtSearchW.setBounds(300,10,200,40);
+				        buttonSearchW = new JButton(iconSearch);
+				        
+				        buttonSearchW.setBounds(500,10,40,40);
+				        buttonSearchW.setFocusable(false);
+				        buttonSearchW.addActionListener((ActionListener) this);
+				        
 				    	Icon iconMore = new ImageIcon("source/image/iconMore.png");
 				    	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
 				    	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
@@ -720,7 +737,22 @@ public class HomeScreen  extends JFrame implements ActionListener {
 	    labelGroupStatus = new JLabel(status);
     	labelGroupStatus.setFont(Main.fontSmallest);
     	labelGroupStatus.setBounds(60,35,200,20);
-    	
+    	String[] searchBy = {inboxCurrentlyOpen, "All"};
+        comboBoxSearchBy = new JComboBox(searchBy);
+        comboBoxSearchBy.setBounds(200,10,100,40);
+    	Icon iconSearch = new ImageIcon("source/image/search.png");
+    	Image imageSearch = ((ImageIcon) iconSearch).getImage(); // transform it 
+    	Image newimgSearch = imageSearch.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
+    	iconSearch = new ImageIcon(newimgSearch);
+    	txtSearchW = new JTextField("");
+        txtSearchW.setBounds(300,10,200,40);
+        buttonSearchW = new JButton(iconSearch);
+        buttonSearchW.setBounds(500,10,40,40);
+        buttonSearchW.setFocusable(false);
+        buttonSearchW.addActionListener(this);
+        buttonSearchW.setOpaque(false);
+        buttonSearchW.setContentAreaFilled(false);
+        buttonSearchW.addActionListener(this);
     	Icon iconMore = new ImageIcon("source/image/iconMore.png");
     	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
     	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
@@ -758,7 +790,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 				int messagecount = 100;
 		        int count = 0;
 		        try {
-					rs = ((java.sql.Statement)stmt).executeQuery("select MessID,UserName,Message,messages.CreateTime from messages left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' ORDER BY messages.CreateTime ASC");
+		        	rs = ((java.sql.Statement)stmt).executeQuery("select messages.MessID, users.UserName, messages.Message,messages.CreateTime from messages join messageaccess on messageaccess.messid = messages.MessID and messageaccess.UserID = (select userid from users where username='"+username+"') left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' ORDER BY messages.CreateTime ASC");
 					while (rs.next()) {
 						messageListOnlineFriend.add(new Message(rs.getString("MessID"),rs.getString("UserName"),rs.getString("Message"),rs.getString("CreateTime")));
 						count++;
@@ -805,7 +837,17 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        	buttonMessage.setOpaque(false);
 		        	buttonMessage.setContentAreaFilled(false);
 		        	buttonMessage.addActionListener(this);
-		        	
+		        	JLabel messageId = new JLabel(messageListOnlineFriend.get(i).getMessageID());
+		        	JPopupMenu menu = new JPopupMenu("Menu");
+		        			        	JMenuItem jmi = new JMenuItem("Delete Message");
+		        		                menu.add(jmi);//123
+		        		                buttonMessage.addActionListener( new ActionListener() {
+		        		                    public void actionPerformed(ActionEvent ae) {
+		        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
+		        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),inboxCurrentlyOpen));
+		        		                    }
+		        		                } );
+
 		        	panelGroupChat.add(buttonMessage);
 		        }
 		        if (messageListOnlineFriend.size() <= 7) {
@@ -936,7 +978,22 @@ public class HomeScreen  extends JFrame implements ActionListener {
 	    labelGroupStatus = new JLabel(status);
     	labelGroupStatus.setFont(Main.fontSmallest);
     	labelGroupStatus.setBounds(60,35,200,20);
-    	
+    	String[] searchBy = {inboxCurrentlyOpen, "All"};
+        comboBoxSearchBy = new JComboBox(searchBy);
+        comboBoxSearchBy.setBounds(200,10,100,40);
+    	Icon iconSearch = new ImageIcon("source/image/search.png");
+    	Image imageSearch = ((ImageIcon) iconSearch).getImage(); // transform it 
+    	Image newimgSearch = imageSearch.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
+    	iconSearch = new ImageIcon(newimgSearch);
+    	txtSearchW = new JTextField("");
+        txtSearchW.setBounds(300,10,200,40);
+        buttonSearchW = new JButton(iconSearch);
+        buttonSearchW.setBounds(500,10,40,40);
+        buttonSearchW.setFocusable(false);
+        buttonSearchW.addActionListener(this);
+        buttonSearchW.setOpaque(false);
+        buttonSearchW.setContentAreaFilled(false);
+        buttonSearchW.addActionListener(this);
     	Icon iconMore = new ImageIcon("source/image/iconMore.png");
     	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
     	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
@@ -945,6 +1002,9 @@ public class HomeScreen  extends JFrame implements ActionListener {
         panelGroupName.add(labelGroupAvatar);
     	panelGroupName.add(labelGroupName);
     	panelGroupName.add(labelGroupStatus);
+    	panelGroupName.add(txtSearchW);
+    	panelGroupName.add(comboBoxSearchBy);
+    	panelGroupName.add(buttonSearchW);
     	panelGroupName.setBounds(0,0,596,60);
     	
     	if (typeInbox.equals("individual")) {
@@ -960,7 +1020,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 				int messagecount = 100;
 		        int count = 0;
 		        try {
-					rs = ((java.sql.Statement)stmt).executeQuery("select MessID,UserName,Message,messages.CreateTime from messages left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' ORDER BY messages.CreateTime ASC");
+		        	rs = ((java.sql.Statement)stmt).executeQuery("select messages.MessID, users.UserName, messages.Message,messages.CreateTime from messages join messageaccess on messageaccess.messid = messages.MessID and messageaccess.UserID = (select userid from users where username='"+username+"') left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' ORDER BY messages.CreateTime ASC");
 					while (rs.next()) {
 						messageListOpenInbox.add(new Message(rs.getString("MessID"),rs.getString("UserName"),rs.getString("Message"),rs.getString("CreateTime")));
 						count++;
@@ -1007,7 +1067,17 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        	buttonMessage.setOpaque(false);
 		        	buttonMessage.setContentAreaFilled(false);
 		        	buttonMessage.addActionListener(this);
-		        	
+		        	JLabel messageId = new JLabel(messageListOpenInbox.get(i).getMessageID());
+		        	JPopupMenu menu = new JPopupMenu("Menu");
+		        			        	JMenuItem jmi = new JMenuItem("Delete Message");
+		        		                menu.add(jmi);//123
+		        		                buttonMessage.addActionListener( new ActionListener() {
+		        		                    public void actionPerformed(ActionEvent ae) {
+		        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
+		        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),inboxCurrentlyOpen));
+		        		                    }
+		        		                } );
+
 		        	panelGroupChat.add(buttonMessage);
 		        }
 		        if (messageListOpenInbox.size() <= 7) {
@@ -1034,7 +1104,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 			int messagecount = 100;
 	        int count = 0;
 	        try {
-				rs = ((java.sql.Statement)stmt).executeQuery("select MessID,UserName,Message,messages.CreateTime from messages left join users on messages.UserID = users.UserID where messages.InboxID = (select InboxID from inbox where InboxName='"+inboxName+"') ORDER BY messages.CreateTime ASC");
+	         	rs = ((java.sql.Statement)stmt).executeQuery("select messages.MessID, users.UserName, messages.Message,messages.CreateTime from messages join messageaccess on messageaccess.messid = messages.MessID and messageaccess.UserID = (select userid from users where username='"+username+"') left join users on messages.UserID = users.UserID where messages.InboxID =(select InboxID from inbox where InboxName='"+inboxName+"') ORDER BY messages.CreateTime ASC");
 				while (rs.next()) {
 					messageListOpenInbox.add(new Message(rs.getString("MessID"),rs.getString("UserName"),rs.getString("Message"),rs.getString("CreateTime")));
 					count++;
@@ -1248,7 +1318,34 @@ public class HomeScreen  extends JFrame implements ActionListener {
 			e.printStackTrace();
 		}
     }
-    
+    private void DeleteMessage(ActionEvent ae, String msgid, String inboxName ) {
+//    	panelGroupChat.remove(buttonMessage);
+    	try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			conn = DriverManager.getConnection(Main.DB_URL, Main.USER, Main.PASS);
+		} catch (SQLException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		try {
+			stmt = conn.createStatement();
+		} catch (SQLException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		try {
+			((java.sql.Statement)stmt).executeUpdate("delete FROM messageaccess where messId = '"+msgid+"' and userId in (select userid from users where username ='"+username+"')");
+			
+		} catch (SQLException e1) {
+						e1.printStackTrace();
+		}
+		processOpenInbox(ae,inboxName);
+    }
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
@@ -1407,7 +1504,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 					rs.next();
 					inboxID = rs.getString("InboxID");
 			        try {
-						rs = ((java.sql.Statement)stmt).executeQuery("select MessID,UserName,Message,messages.CreateTime from messages left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' ORDER BY messages.CreateTime ASC");
+			        	rs = ((java.sql.Statement)stmt).executeQuery("select messages.MessID, users.UserName, messages.Message,messages.CreateTime from messages join messageaccess on messageaccess.messid = messages.MessID and messageaccess.UserID = (select userid from users where username='"+username+"') left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' ORDER BY messages.CreateTime ASC");
 						while (rs.next()) {
 							messageNewChat.add(new Message(rs.getString("MessID"),rs.getString("UserName"),rs.getString("Message"),rs.getString("CreateTime")));
 							messagecount++;
@@ -1507,6 +1604,23 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		    	labelGroupStatus.setFont(Main.fontSmallest);
 		    	labelGroupStatus.setBounds(60,35,200,20);
 		    	
+		    	String[] searchBy = {inboxCurrentlyOpen, "All"};
+		        comboBoxSearchBy = new JComboBox(searchBy);
+		        comboBoxSearchBy.setBounds(200,10,100,40);
+		    	Icon iconSearch = new ImageIcon("source/image/search.png");
+		    	Image imageSearch = ((ImageIcon) iconSearch).getImage(); // transform it 
+		    	Image newimgSearch = imageSearch.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
+		    	iconSearch = new ImageIcon(newimgSearch);
+		    	txtSearchW = new JTextField("");
+		        txtSearchW.setBounds(300,10,200,40);
+		        buttonSearchW = new JButton(iconSearch);
+		        buttonSearchW.setBounds(500,10,40,40);
+		        buttonSearchW.setFocusable(false);
+		        buttonSearchW.addActionListener(this);
+		        buttonSearchW.setOpaque(false);
+		        buttonSearchW.setContentAreaFilled(false);
+		        buttonSearchW.addActionListener(this);
+		        
 		    	Icon iconMore = new ImageIcon("source/image/iconMore.png");
 		    	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
 		    	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
@@ -1663,7 +1777,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 				int messagecount = 100;
 		        int count = 0;
 		        try {
-					rs = ((java.sql.Statement)stmt).executeQuery("select MessID,UserName,Message,messages.CreateTime from messages left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' ORDER BY messages.CreateTime ASC");
+		        	rs = ((java.sql.Statement)stmt).executeQuery("select messages.MessID, users.UserName, messages.Message,messages.CreateTime from messages join messageaccess on messageaccess.messid = messages.MessID and messageaccess.UserID = (select userid from users where username='"+username+"') left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' ORDER BY messages.CreateTime ASC");
 					while (rs.next()) {
 						messageButtonSend.add(new Message(rs.getString("MessID"),rs.getString("UserName"),rs.getString("Message"),rs.getString("CreateTime")));
 						count++;
@@ -1743,7 +1857,22 @@ public class HomeScreen  extends JFrame implements ActionListener {
 			    labelGroupStatus = new JLabel(status);
 		    	labelGroupStatus.setFont(Main.fontSmallest);
 		    	labelGroupStatus.setBounds(60,35,200,20);
-		    	
+		    	String[] searchBy = {inboxCurrentlyOpen, "All"};
+		        comboBoxSearchBy = new JComboBox(searchBy);
+		        comboBoxSearchBy.setBounds(200,10,100,40);
+		    	Icon iconSearch = new ImageIcon("source/image/search.png");
+		    	Image imageSearch = ((ImageIcon) iconSearch).getImage(); // transform it 
+		    	Image newimgSearch = imageSearch.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
+		    	iconSearch = new ImageIcon(newimgSearch);
+		    	txtSearchW = new JTextField("");
+		        txtSearchW.setBounds(300,10,200,40);
+		        buttonSearchW = new JButton(iconSearch);
+		        buttonSearchW.setBounds(500,10,40,40);
+		        buttonSearchW.setFocusable(false);
+		        buttonSearchW.addActionListener(this);
+		        buttonSearchW.setOpaque(false);
+		        buttonSearchW.setContentAreaFilled(false);
+		        buttonSearchW.addActionListener(this);
 		    	Icon iconMore = new ImageIcon("source/image/iconMore.png");
 		    	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
 		    	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
@@ -1793,7 +1922,16 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        	buttonMessage.setOpaque(false);
 		        	buttonMessage.setContentAreaFilled(false);
 		        	buttonMessage.addActionListener(HomeScreen.this);
-		        	
+		        	JLabel messageId = new JLabel(messageButtonSend.get(i).getMessageID());
+		        	JPopupMenu menu = new JPopupMenu("Menu");
+		        			        	JMenuItem jmi = new JMenuItem("Delete Message");
+		        		                menu.add(jmi);//123
+		        		                buttonMessage.addActionListener( new ActionListener() {
+		        		                    public void actionPerformed(ActionEvent ae) {
+		        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
+		        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),inboxCurrentlyOpen));
+		        		                    }
+		        		                } );
 		        	panelGroupChat.add(buttonMessage);
 		        }
 		        if (messageButtonSend.size() <= 7) {
@@ -1847,7 +1985,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 					int messagecount = 100;
 			        int count = 0;
 			        try {
-						rs = ((java.sql.Statement)stmt).executeQuery("select MessID,UserName,Message,messages.CreateTime from messages left join users on messages.UserID = users.UserID where messages.InboxID = (select InboxID from inbox where InboxName='"+inboxName+"') ORDER BY messages.CreateTime ASC");
+			         	rs = ((java.sql.Statement)stmt).executeQuery("select messages.MessID, users.UserName, messages.Message,messages.CreateTime from messages join messageaccess on messageaccess.messid = messages.MessID and messageaccess.UserID = (select userid from users where username='"+username+"') left join users on messages.UserID = users.UserID where messages.InboxID =(select InboxID from inbox where InboxName='"+inboxName+"') ORDER BY messages.CreateTime ASC");
 						while (rs.next()) {
 							messageButtonSend.add(new Message(rs.getString("MessID"),rs.getString("UserName"),rs.getString("Message"),rs.getString("CreateTime")));
 							count++;
@@ -1917,7 +2055,22 @@ public class HomeScreen  extends JFrame implements ActionListener {
 			    labelGroupStatus = new JLabel("");
 		    	labelGroupStatus.setFont(Main.fontSmallest);
 		    	labelGroupStatus.setBounds(60,35,200,20);
-		    	
+		    	String[] searchBy = {inboxCurrentlyOpen, "All"};
+		        comboBoxSearchBy = new JComboBox(searchBy);
+		        comboBoxSearchBy.setBounds(200,10,100,40);
+		    	Icon iconSearch = new ImageIcon("source/image/search.png");
+		    	Image imageSearch = ((ImageIcon) iconSearch).getImage(); // transform it 
+		    	Image newimgSearch = imageSearch.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
+		    	iconSearch = new ImageIcon(newimgSearch);
+		    	txtSearchW = new JTextField("");
+		        txtSearchW.setBounds(300,10,200,40);
+		        buttonSearchW = new JButton(iconSearch);
+		        buttonSearchW.setBounds(500,10,40,40);
+		        buttonSearchW.setFocusable(false);
+		        buttonSearchW.addActionListener(this);
+		        buttonSearchW.setOpaque(false);
+		        buttonSearchW.setContentAreaFilled(false);
+		        buttonSearchW.addActionListener(this);
 		    	Icon iconMore = new ImageIcon("source/image/iconMore.png");
 		    	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
 		    	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
@@ -1974,7 +2127,16 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        	buttonMessage.setOpaque(false);
 		        	buttonMessage.setContentAreaFilled(false);
 		        	buttonMessage.addActionListener(HomeScreen.this);
-		        	
+		        	JLabel messageId = new JLabel(messageButtonSend.get(i).getMessageID());
+		        	JPopupMenu menu = new JPopupMenu("Menu");
+		        			        	JMenuItem jmi = new JMenuItem("Delete Message");
+		        		                menu.add(jmi);//123
+		        		                buttonMessage.addActionListener( new ActionListener() {
+		        		                    public void actionPerformed(ActionEvent ae) {
+		        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
+		        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),inboxCurrentlyOpen));
+		        		                    }
+		        		                } );
 		        	panelGroupChat.add(buttonMessage);
 		        }
 		        if (messageButtonSend.size() <= 7) {
@@ -2071,7 +2233,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 					rs.next();
 					inboxID = rs.getString("InboxID");
 			        try {
-						rs = ((java.sql.Statement)stmt).executeQuery("select MessID,UserName,Message,messages.CreateTime from messages left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' ORDER BY messages.CreateTime ASC");
+			        	rs = ((java.sql.Statement)stmt).executeQuery("select messages.MessID, users.UserName, messages.Message,messages.CreateTime from messages join messageaccess on messageaccess.messid = messages.MessID and messageaccess.UserID = (select userid from users where username='"+username+"') left join users on messages.UserID = users.UserID where messages.InboxID ='"+inboxID+"' ORDER BY messages.CreateTime ASC");
 						while (rs.next()) {
 							messageNewChatOnline.add(new Message(rs.getString("MessID"),rs.getString("UserName"),rs.getString("Message"),rs.getString("CreateTime")));
 							messagecount++;
@@ -2173,7 +2335,22 @@ public class HomeScreen  extends JFrame implements ActionListener {
 			    labelGroupStatus = new JLabel(status);
 		    	labelGroupStatus.setFont(Main.fontSmallest);
 		    	labelGroupStatus.setBounds(60,35,200,20);
-		    	
+		    	String[] searchBy = {inboxCurrentlyOpen, "All"};
+		        comboBoxSearchBy = new JComboBox(searchBy);
+		        comboBoxSearchBy.setBounds(200,10,100,40);
+		    	Icon iconSearch = new ImageIcon("source/image/search.png");
+		    	Image imageSearch = ((ImageIcon) iconSearch).getImage(); // transform it 
+		    	Image newimgSearch = imageSearch.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
+		    	iconSearch = new ImageIcon(newimgSearch);
+		    	txtSearchW = new JTextField("");
+		        txtSearchW.setBounds(300,10,200,40);
+		        buttonSearchW = new JButton(iconSearch);
+		        buttonSearchW.setBounds(500,10,40,40);
+		        buttonSearchW.setFocusable(false);
+		        buttonSearchW.addActionListener(this);
+		        buttonSearchW.setOpaque(false);
+		        buttonSearchW.setContentAreaFilled(false);
+		        buttonSearchW.addActionListener(this);
 		    	Icon iconMore = new ImageIcon("source/image/iconMore.png");
 		    	Image imageMore = ((ImageIcon) iconMore).getImage(); // transform it 
 		    	Image newimgMore = imageMore.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH);
@@ -2224,7 +2401,16 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		        	buttonMessage.setOpaque(false);
 		        	buttonMessage.setContentAreaFilled(false);
 		        	buttonMessage.addActionListener(this);
-		        	
+		        	JLabel messageId = new JLabel(messageNewChatOnline.get(i).getMessageID());
+		        	JPopupMenu menu = new JPopupMenu("Menu");
+		        			        	JMenuItem jmi = new JMenuItem("Delete Message");
+		        		                menu.add(jmi);//123
+		        		                buttonMessage.addActionListener( new ActionListener() {
+		        		                    public void actionPerformed(ActionEvent ae) {
+		        		                        menu.show(buttonMessage, buttonMessage.getWidth()/2, buttonMessage.getHeight()/2);
+		        		                        jmi.addActionListener(event ->DeleteMessage(event,messageId.getText(),inboxCurrentlyOpen));
+		        		                    }
+		        		                } );
 		        	panelGroupChat.add(buttonMessage);
 		        }
 		        if (messageNewChatOnline.size() <= 7) {

@@ -200,7 +200,7 @@ public class UserListScreen extends JFrame {
 			}
 		});
 		popupMenu.add(updatePassMenuItem);
-		popupMenu.add(deleteMenuItem);
+//		popupMenu.add(deleteMenuItem);
 
 		JMenuItem banMenuItem = new JMenuItem("Ban/Unban");
 		banMenuItem.addActionListener(new ActionListener() {
