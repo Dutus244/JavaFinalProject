@@ -3330,7 +3330,21 @@ public class HomeScreen  extends JFrame implements ActionListener {
 			}
 		}
 		else if (e.getSource() == buttonGroupOption) {
-			
+			System.out.println(inboxCurrentlyOpen + " " + username);
+			//DetailGroupChatScreen.main(username);
+			DetailGroupChatScreen dgcs = new DetailGroupChatScreen(username);
+			dgcs.setVisible(true);
+			dgcs.addWindowListener(new WindowAdapter() {
+	            @Override
+	            public void windowClosing(WindowEvent e){
+	    			ActionEvent ae = null;
+	    			System.out.println(DetailGroupChatScreen.getCurrentGroupName() + " " + username);
+	    			processOpenInbox(ae, DetailGroupChatScreen.getCurrentGroupName());
+	                System.out.println("exiting1...");
+	                super.windowClosing(e);
+	                System.out.println("exiting1.1...");
+	            }
+	        });
 		}
 		else if(e.getSource()==buttonSearchW) {
 			System.out.println("buttonSearchW press");
