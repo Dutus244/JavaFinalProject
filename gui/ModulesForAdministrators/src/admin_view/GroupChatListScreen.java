@@ -17,6 +17,8 @@ import db.Connect_DB;
 
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.sql.SQLException;
@@ -92,7 +94,7 @@ public class GroupChatListScreen extends JFrame {
 		
 		table = new JTable();
 		scrollPane.setViewportView(table);
-		String[] columnNames = { "Nhóm ID", "Tên nhóm", "Ngày lập" };
+		String[] columnNames = { "Group ID", "Group name", "Create date" };
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -197,28 +199,62 @@ public class GroupChatListScreen extends JFrame {
 		
 		table_2.setEnabled(false);
 		
-		JLabel lblNewLabel = new JLabel("Danh sách nhóm");
+		JLabel lblNewLabel = new JLabel("Group chat list");
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 26));
 		lblNewLabel.setBounds(10, 50, 212, 37);
 		contentPane.add(lblNewLabel);
 		
-		JLabel lblDanhSchAdmin = new JLabel("Danh sách admin");
+		JLabel lblDanhSchAdmin = new JLabel("Admin list");
 		lblDanhSchAdmin.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		lblDanhSchAdmin.setBounds(503, 97, 212, 37);
 		contentPane.add(lblDanhSchAdmin);
 		
-		JLabel lblDanhSchMember = new JLabel("Danh sách member");
+		JLabel lblDanhSchMember = new JLabel("Member list");
 		lblDanhSchMember.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		lblDanhSchMember.setBounds(503, 319, 212, 37);
 		contentPane.add(lblDanhSchMember);
 		
 		JComboBox<String> comboBox = new JComboBox<String>();
 		comboBox.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		comboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"Theo tên", "Theo thời gian lập"}));
+		comboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"By name", "By create time"}));
 		comboBox.setBounds(10, 97, 187, 37);
+		comboBox.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					// Cập nhật lại modelTable
+					String criteriaSelect = comboBox.getSelectedItem().toString();
+
+					if (criteriaSelect.equals("By name")) {
+						filter = "InboxName";
+						order = "asc";
+						
+					} else if (criteriaSelect.equals("By create time")) {
+						filter = "CreateTime";
+						order = "asc";
+					}
+					data.clear();
+		        	tableModel.setRowCount(0);
+		        	data_1.clear();
+		        	tableModel_1.setRowCount(0);
+		        	data_2.clear();
+		        	tableModel_2.setRowCount(0);
+		        	System.out.println(filter + " " + order);
+		        	try {
+		    			data = db.getAllGroupChat(filter, order);
+			            for (int i = 0; i < data.size(); i++) {
+			            	tableModel.addRow(data.get(i));
+			            }
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+			}
+		});
 		contentPane.add(comboBox);
 		
-		JButton btnNewButton = new JButton("Làm mới");
+		JButton btnNewButton = new JButton("Refresh");
 		btnNewButton.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		btnNewButton.setBounds(378, 97, 115, 37);
 		btnNewButton.addActionListener(new ActionListener() {
@@ -245,7 +281,7 @@ public class GroupChatListScreen extends JFrame {
 		
 		
 		
-		JButton btnQuayLi = new JButton("Quay lại");
+		JButton btnQuayLi = new JButton("Back");
 		btnQuayLi.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				MenuScreen.main();
