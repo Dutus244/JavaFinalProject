@@ -309,7 +309,7 @@ public class Connect_DB {
 		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
 		while (rs.next()) { 
 			Vector<Object> row = new Vector<Object>();
-			row.add(rs.getDate("LoginTime"));
+			row.add(rs.getDate("LoginTime") + ", " + rs.getTime("LoginTime"));
 			row.add(rs.getString("UserName"));
 			row.add(rs.getString("FullName"));
 			
@@ -327,7 +327,7 @@ public class Connect_DB {
 	
 	public Vector<Vector<Object>> searchUserInLogInList(String criteria, String keyword, String filter, String order) throws SQLException {
 		Statement stmt = conn.createStatement();
-		System.out.println(criteria + " " + keyword);
+		System.out.println(keyword);
 		String sql = "select * from users "
 				+ "join loginhistory on users.UserID = loginhistory.UserID "
 				+ "and " + criteria + " like '%" + keyword + "%' "
@@ -337,7 +337,7 @@ public class Connect_DB {
 		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
 		while (rs.next()) { 
 			Vector<Object> row = new Vector<Object>();
-			row.add(rs.getDate("LoginTime"));
+			row.add(rs.getDate("LoginTime") + ", " + rs.getTime("LoginTime"));
 			row.add(rs.getString("UserName"));
 			row.add(rs.getString("FullName"));
 			
@@ -363,7 +363,10 @@ public class Connect_DB {
 		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
 		while (rs.next()) { 
 			Vector<Object> row = new Vector<Object>();
+			row.add(rs.getString("InboxID"));
 			row.add(rs.getString("InboxName"));
+			row.add(rs.getDate("CreateTime") + ", " + rs.getTime("CreateTime"));
+			
 			
 			data.add(row);
 		}
@@ -376,14 +379,14 @@ public class Connect_DB {
 		}
 		return data;
 	}
-	public Vector<Vector<Object>> getGroupChatAdmin(String id, String filter, String order) throws SQLException {
+	public Vector<Vector<Object>> getGroupChatAdmin(String id) throws SQLException {
 		Statement stmt = conn.createStatement();
 		String sql = "select * from users "
 				+ "join admingroup on users.UserID = admingroup.UserID "
 				+ "join inbox on admingroup.InboxID = inbox.InboxID "
 				+ "and inbox.TypeInbox = 'group' "
 				+ "and inbox.InboxID ='" + id + "' "
-				+ "order by " + filter + " " + order;
+				+ "order by users.userName asc";
 		
 		ResultSet rs = stmt.executeQuery(sql);
 		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
@@ -404,15 +407,15 @@ public class Connect_DB {
 		return data;
 	}	
 	
-	public Vector<Vector<Object>> getGroupChatMember(String id, String filter, String order) throws SQLException {
+	public Vector<Vector<Object>> getGroupChatMember(String id) throws SQLException {
 		Statement stmt = conn.createStatement();
 		String sql = "select * from users "
 				+ "join inboxparticipants on users.UserID = inboxparticipants.UserID "
 				+ "join inbox on inboxparticipants.InboxID = inbox.InboxID "
 				+ "and inbox.TypeInbox = 'group' "
-				+ "and + " + id + " = inbox.InboxID"
-				+ "order by " + filter + " " + order;
-		
+				+ "and inbox.InboxID ='" + id + "' "
+				+ "order by users.userName asc";
+		System.out.println(sql);
 		ResultSet rs = stmt.executeQuery(sql);
 		Vector<Vector<Object>> data = new Vector<Vector<Object>>();
 		while (rs.next()) { 

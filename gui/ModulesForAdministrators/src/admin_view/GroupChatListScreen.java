@@ -41,7 +41,7 @@ public class GroupChatListScreen extends JFrame {
 	String groupid = "";
 	
 	Vector<Vector<Object>> data;
-	String filter = "CreateTime";
+	String filter = "InboxName";
 	String order = "asc";
 	
 	Vector<Vector<Object>> data_1 = new Vector<Vector<Object>>();
@@ -113,31 +113,30 @@ public class GroupChatListScreen extends JFrame {
 	        }
 	        @Override
 	        public void mousePressed(MouseEvent e) {
+	        	int row = table.getSelectedRow();
 	            groupid = (String) table.getValueAt(table.getSelectedRow() , 0);
 	            System.out.println(groupid);
 	            
-	            data_1.clear();
-	        	tableModel_1.setRowCount(0);
-	        	data_2.clear();
-	        	tableModel_2.setRowCount(0);
-	            
-	            //
-	        	
-	        	try {
-					data_1 = db.getGroupChatAdmin(groupid, filter, order);
-		            data_2 = db.getGroupChatMember(groupid, filter, order);
-					
-		            for (int i = 0; i < data_1.size(); i++) {
-		            	tableModel_1.addRow(data_1.get(i));
-		            }
-		            for (int i = 0; i < data_2.size(); i++) {
-		            	tableModel_2.addRow(data_2.get(i));
-		            }
-				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-	            
+	            if(row != -1) {
+	            	data_1.clear();
+		        	tableModel_1.setRowCount(0);
+		        	data_2.clear();
+		        	tableModel_2.setRowCount(0);
+		        	try {
+						data_1 = db.getGroupChatAdmin(groupid);
+			            data_2 = db.getGroupChatMember(groupid);
+						
+			            for (int i = 0; i < data_1.size(); i++) {
+			            	tableModel_1.addRow(data_1.get(i));
+			            }
+			            for (int i = 0; i < data_2.size(); i++) {
+			            	tableModel_2.addRow(data_2.get(i));
+			            }
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+	            }
 	        }
 	        @Override
 	        public void mouseExited(MouseEvent e) {
@@ -149,7 +148,6 @@ public class GroupChatListScreen extends JFrame {
 	        public void mouseClicked(MouseEvent e) {
 	        }
 	    });
-		table.setEnabled(false);
 		
 		//
 		JScrollPane scrollPane_1 = new JScrollPane();

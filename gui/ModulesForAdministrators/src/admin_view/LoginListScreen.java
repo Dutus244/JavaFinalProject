@@ -111,9 +111,7 @@ public class LoginListScreen extends JFrame {
 		        if(e.getStateChange() == ItemEvent.SELECTED) {
 		        	// Cập nhật lại modelTable
 		        	String criteriaSelect = criteriaComboBox.getSelectedItem().toString();
-		        	data.clear();
-		        	tableModel.setRowCount(0);
-		        	
+
 		        	if (criteriaSelect.equals("By Username")) {
 		        		criteria = "UserName";
 		        	} else if (criteriaSelect.equals("By Fullname")) {
@@ -135,18 +133,20 @@ public class LoginListScreen extends JFrame {
 		btnSearch.setBounds(758, 60, 123, 30);
 		btnSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-	        	data.clear();
-	        	tableModel.setRowCount(0);
-	        	keyword = searchTextField.getText();
-	        	
-	        	try {
-					data = db.searchUserInLogInList(criteria, keyword, filter, order);
-		            for (int i = 0; i < data.size(); i++) {
-		            	tableModel.addRow(data.get(i));
-		            }
-				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+				keyword = searchTextField.getText();
+				if(keyword.equals("")==false) {
+					data.clear();
+		        	tableModel.setRowCount(0);
+		        	
+		        	try {
+						data = db.searchUserInLogInList(criteria, keyword, filter, order);
+			            for (int i = 0; i < data.size(); i++) {
+			            	tableModel.addRow(data.get(i));
+			            }
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 			}
 		});
