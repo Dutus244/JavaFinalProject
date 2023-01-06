@@ -22,6 +22,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 
 import javax.swing.*;
 
@@ -165,10 +166,12 @@ public class LoginScreen extends JFrame implements ActionListener {
 					catch(Exception ex) {
 						ex.printStackTrace();
 					}
-					
+					String createTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date());
 					try {
 		                conn.setAutoCommit(false);
 		                String sql = "update activestatus set OnlineStatus = true where UserID = (select UserID from users where UserName = '"+ username + "')";
+		                stmt.executeUpdate(sql);
+		                sql = "insert into loginhistory values((select UserID from users where UserName = '"+ username + "'),'"+createTime+"')";
 		                stmt.executeUpdate(sql);
 		                conn.commit();
 		            }

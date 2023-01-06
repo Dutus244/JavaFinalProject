@@ -3453,7 +3453,8 @@ public class HomeScreen  extends JFrame implements ActionListener {
         
         Icon iconUserMenu = new ImageIcon("source/image/iconUserMenu.png");
         buttonUserMenu = new JButton(iconUserMenu);
-        buttonUserMenu.setBounds(2,162,50,50);
+        //buttonUserMenu.setBounds(2,162,50,50);
+        buttonUserMenu.setBounds(2,108,50,50);
         buttonUserMenu.setFocusable(false);
         buttonUserMenu.addActionListener(this);
         buttonUserMenu.setOpaque(false);
@@ -3461,7 +3462,7 @@ public class HomeScreen  extends JFrame implements ActionListener {
 		
         panelMenu.add(buttonChatMenu);
         panelMenu.add(buttonFriendMenu);
-        panelMenu.add(buttonSettingMenu);
+        //panelMenu.add(buttonSettingMenu);
         panelMenu.add(buttonUserMenu);
         
         panelList = new JPanel();
