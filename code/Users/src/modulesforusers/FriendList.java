@@ -38,7 +38,7 @@ public class FriendList extends JFrame implements ActionListener {
 	JButton buttonUserMenu;
 	JButton btnFriendRequest;
 	JButton btnFriendList;
-	JButton btnGroup;
+	
 	JButton btnUnfriend;
 	JButton btnChat;
 	String username;
@@ -329,12 +329,6 @@ public class FriendList extends JFrame implements ActionListener {
 		btnFriendList.setBounds(0, 257, 327, 75);
 		panelOption.add(btnFriendList);
 		
-		btnGroup = new JButton("Group");
-		btnGroup.setIcon(new ImageIcon("source/image/group.png"));
-		btnGroup.setFont(new Font("Times New Roman", Font.PLAIN, 24));
-		btnGroup.setBounds(0, 362, 327, 75);
-		panelOption.add(btnGroup);
-		btnGroup.addActionListener(this);
 		panelView = new JPanel();
         panelView.setLayout(null);
       
@@ -396,9 +390,7 @@ public class FriendList extends JFrame implements ActionListener {
 		}
 		
 		
-		else if (e.getSource() == btnGroup) {
-            
-		}
+		
 		else if (e.getSource() == btnSearch) {
             try{
             	System.out.println(1);
