@@ -15,6 +15,8 @@ import javax.swing.JButton;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -204,21 +206,30 @@ public class SearchFriendScreen extends JFrame implements ActionListener {
 			e2.printStackTrace();
 		}
 		try {
-			rsd = ((java.sql.Statement)stmt).executeQuery("SELECT UserName FROM users where UserID in (select UserID FROM sendrequestfriendlistfriendlist where AddFriendID in (select UserID from users where UserName =  '"+username+"'))  and username = '"+SendRequestUser+"'");
+			
+			rsd = ((java.sql.Statement)stmt).executeQuery("SELECT UserName FROM users where UserID in (select UserID FROM sendrequestfriendlistfriendlist where AddFriendID in (select UserID from users where UserName =  '"+SendRequestUser+"'))  and username = '"+username+"'");
 		
 			if (rsd.isBeforeFirst() ) {    
-				//if this friend request username before, they become friend, delete request from the other
-				((java.sql.Statement)stmt).executeUpdate("delete from sendrequestfriendlistfriendlist  where AddFriendID in (select UserID from users where UserName =  '"+ username +"') and UserID in  (select UserID from users where UserName =  '"+SendRequestUser+"')");
-				((java.sql.Statement)stmt).executeUpdate("insert into friendlist (UserID,FriendID) values( (select UserID from users where UserName ='"+username+"'), (select UserID from users where UserName ='"+SendRequestUser+"'))");
-				((java.sql.Statement)stmt).executeUpdate("insert into friendlist (UserID,FriendID) values( (select UserID from users where UserName ='"+SendRequestUser+"'), (select UserID from users where UserName ='"+username+"'))");
+				JOptionPane.showMessageDialog(this,"Request has send before", "Attention",JOptionPane.ERROR_MESSAGE);
+                return;
 			}
 			else {
-				((java.sql.Statement)stmt).executeUpdate("insert into sendrequestfriendlistfriendlist values ((select UserID from users where UserName =  '"+username+"'),( select UserID from users where UserName = '"+SendRequestUser+"'))");
-			}
+				rsd = ((java.sql.Statement)stmt).executeQuery("SELECT UserName FROM users where UserID in (select UserID FROM sendrequestfriendlistfriendlist where AddFriendID in (select UserID from users where UserName =  '"+username+"'))  and username = '"+SendRequestUser+"'");
+				
+				if (rsd.isBeforeFirst() ) {    
+					//if this friend request username before, they become friend, delete request from the other
+					((java.sql.Statement)stmt).executeUpdate("delete from sendrequestfriendlistfriendlist  where AddFriendID in (select UserID from users where UserName =  '"+ username +"') and UserID in  (select UserID from users where UserName =  '"+SendRequestUser+"')");
+					((java.sql.Statement)stmt).executeUpdate("insert into friendlist (UserID,FriendID) values( (select UserID from users where UserName ='"+username+"'), (select UserID from users where UserName ='"+SendRequestUser+"'))");
+					((java.sql.Statement)stmt).executeUpdate("insert into friendlist (UserID,FriendID) values( (select UserID from users where UserName ='"+SendRequestUser+"'), (select UserID from users where UserName ='"+username+"'))");
+				}
+				else {
+					((java.sql.Statement)stmt).executeUpdate("insert into sendrequestfriendlistfriendlist values ((select UserID from users where UserName =  '"+username+"'),( select UserID from users where UserName = '"+SendRequestUser+"'))");
+				}			}
 		} catch (SQLException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		
 		
 	}
 	public void initialize(String Username) {
