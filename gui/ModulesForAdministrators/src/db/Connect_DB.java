@@ -286,7 +286,7 @@ public class Connect_DB {
 		while (rs.next()) { 
 			Vector<Object> row = new Vector<Object>();
 			row.add(rs.getDate("LoginTime"));
-			
+			row.add(rs.getTime("LoginTime"));
 			data.add(row);
 		}
 		

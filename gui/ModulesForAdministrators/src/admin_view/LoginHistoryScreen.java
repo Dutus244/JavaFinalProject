@@ -95,7 +95,7 @@ public class LoginHistoryScreen extends JFrame {
 		
 		table.setEnabled(false);
 		
-		JButton btnQuayLi = new JButton("Quay lại");
+		JButton btnQuayLi = new JButton("Back");
 		btnQuayLi.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				UserListScreen.main();
@@ -106,7 +106,7 @@ public class LoginHistoryScreen extends JFrame {
 		btnQuayLi.setBounds(10, 10, 115, 37);
 		contentPane.add(btnQuayLi);
 		
-		btnRefresh = new JButton("Làm mới");
+		btnRefresh = new JButton("Refresh");
 		btnRefresh.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 	        	data.clear();
