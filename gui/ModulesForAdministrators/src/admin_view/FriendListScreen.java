@@ -150,7 +150,7 @@ public class FriendListScreen extends JFrame {
 		searchTextField.setBounds(301, 60, 447, 30);
 		contentPane.add(searchTextField);
 		
-		btnSearch = new JButton("Tìm");
+		btnSearch = new JButton("Search");
 		btnSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 	        	data.clear();
@@ -172,7 +172,7 @@ public class FriendListScreen extends JFrame {
 		btnSearch.setBounds(758, 60, 123, 30);
 		contentPane.add(btnSearch);
 		
-		JButton btnQuayLi = new JButton("Quay lại");
+		JButton btnQuayLi = new JButton("Back");
 		btnQuayLi.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				UserListScreen.main();
