@@ -217,7 +217,7 @@ public class GroupChatListScreen extends JFrame {
 		JComboBox<String> comboBox = new JComboBox<String>();
 		comboBox.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		comboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"By name", "By create time"}));
-		comboBox.setBounds(10, 97, 187, 37);
+		comboBox.setBounds(10, 97, 170, 37);
 		comboBox.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
@@ -227,11 +227,9 @@ public class GroupChatListScreen extends JFrame {
 
 					if (criteriaSelect.equals("By name")) {
 						filter = "InboxName";
-						order = "asc";
 						
 					} else if (criteriaSelect.equals("By create time")) {
 						filter = "CreateTime";
-						order = "asc";
 					}
 					data.clear();
 		        	tableModel.setRowCount(0);
@@ -253,6 +251,44 @@ public class GroupChatListScreen extends JFrame {
 			}
 		});
 		contentPane.add(comboBox);
+		
+		JComboBox<String> comboBox_2 = new JComboBox<String>();
+		comboBox_2.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		comboBox_2.setModel(new DefaultComboBoxModel<String>(new String[] {"Ascending", "Descending"}));
+		comboBox_2.setBounds(195, 97, 170, 37);
+		comboBox_2.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					// Cập nhật lại modelTable
+					String criteriaSelect = comboBox_2.getSelectedItem().toString();
+
+					if (criteriaSelect.equals("Ascending")) {
+						order = "asc";
+						
+					} else if (criteriaSelect.equals("Descending")) {
+						order = "desc";
+					}
+					data.clear();
+		        	tableModel.setRowCount(0);
+		        	data_1.clear();
+		        	tableModel_1.setRowCount(0);
+		        	data_2.clear();
+		        	tableModel_2.setRowCount(0);
+		        	System.out.println(filter + " " + order);
+		        	try {
+		    			data = db.getAllGroupChat(filter, order);
+			            for (int i = 0; i < data.size(); i++) {
+			            	tableModel.addRow(data.get(i));
+			            }
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+			}
+		});
+		contentPane.add(comboBox_2);
 		
 		JButton btnNewButton = new JButton("Refresh");
 		btnNewButton.setFont(new Font("Tahoma", Font.PLAIN, 20));
