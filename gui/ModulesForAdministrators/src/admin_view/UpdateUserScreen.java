@@ -127,7 +127,13 @@ public class UpdateUserScreen extends JFrame {
 			                JOptionPane.INFORMATION_MESSAGE);
 				} catch (SQLException e1) {
 					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					if (e1.getMessage().indexOf("Email") != -1) {
+						JOptionPane.showMessageDialog(frame,
+				                "Email already exists",
+				                "Error",
+				                JOptionPane.ERROR_MESSAGE);
+					}
+//					e1.printStackTrace();
 				}
 			}
 		});
