@@ -290,8 +290,16 @@ public class DetailGroupChatScreen extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				int row = memberTable.getSelectedRow();
 				String user = memberTable.getValueAt(row, 0).toString();
-				
-				if(isadmin == false ) {
+				String targetUserID;
+				Boolean isTargetAdmin = false;
+				try {
+					targetUserID = getUserID(user);
+					isTargetAdmin = isAdmin(groupid, targetUserID);
+				} catch (SQLException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
+				if(isadmin == false || isTargetAdmin == true ) {
 					JOptionPane.showMessageDialog(frame,
 		                "You don't have permission to remove this user",
 		                "Message",
